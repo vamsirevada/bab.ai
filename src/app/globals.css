@@ -1,26 +1,185 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #ffffff;
+  --background: #171717;
+
+  /* Brand Colors */
+  --brand-primary: #3b82f6; /* Blue-500 */
+  --brand-charcoal: #1f2937; /* Gray-800 */
+  --brand-white: #ffffff;
+
+  /* Functional Colors */
+  --functional-success: #10b981; /* Green-500 */
+  --whatsapp-green: #25d366;
+
+  /* Typography */
+  --font-heading: 'Geist Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'Geist Sans', system-ui, -apple-system, sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-charcoal: var(--brand-charcoal);
+  --color-brand-white: var(--brand-white);
+  --color-functional-success: var(--functional-success);
+  --color-whatsapp-green: var(--whatsapp-green);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #0a0a0a;
+    --background: #ededed;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+}
+
+/* Utility Classes */
+.bg-whatsapp-green {
+  background-color: var(--whatsapp-green);
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Slide in animations */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation classes */
+.animate-slide-in-left {
+  animation: slideInLeft 0.8s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.8s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+/* Animation delay classes */
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animation-delay-400 {
+  animation-delay: 400ms;
+}
+
+.animation-delay-600 {
+  animation-delay: 600ms;
+}
+
+.animation-delay-800 {
+  animation-delay: 800ms;
+}
+
+.animation-delay-1000 {
+  animation-delay: 1000ms;
+}
+
+.animation-delay-1200 {
+  animation-delay: 1200ms;
+}
+
+.animation-delay-1400 {
+  animation-delay: 1400ms;
+}
+
+/* 3D Background Animations */
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: perspective(1000px) rotateX(45deg) rotateY(45deg) translateY(0px);
+  }
+  50% {
+    transform: perspective(1000px) rotateX(45deg) rotateY(45deg)
+      translateY(-20px);
+  }
+}
+
+@keyframes float-medium {
+  0%,
+  100% {
+    transform: perspective(800px) rotateX(30deg) rotateY(-30deg) translateY(0px);
+  }
+  50% {
+    transform: perspective(800px) rotateX(30deg) rotateY(-30deg)
+      translateY(-15px);
+  }
+}
+
+@keyframes float-fast {
+  0%,
+  100% {
+    transform: perspective(1200px) rotateX(60deg) rotateY(20deg) translateY(0px);
+  }
+  50% {
+    transform: perspective(1200px) rotateX(60deg) rotateY(20deg)
+      translateY(-10px);
+  }
+}
+
+/* Gradient utilities for 3D effects */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Enhanced backdrop blur for 3D elements */
+.backdrop-blur-3d {
+  backdrop-filter: blur(8px) brightness(1.1);
+  -webkit-backdrop-filter: blur(8px) brightness(1.1);
 }
