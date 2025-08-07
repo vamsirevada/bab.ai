@@ -1,8 +1,13 @@
+'use client'
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 const Header = () => {
+  const pathname = usePathname()
+  const isOrderPage = pathname?.includes('/orders/')
+
   return (
     <header className="relative z-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
@@ -18,19 +23,21 @@ const Header = () => {
               </div>
             </div>
 
-            {/* bab.ai text with verification */}
-            <div className="flex items-center gap-1.5">
-              <p className="text-2xl sm:text-3xl font-bold text-brand-dark font-heading leading-none">
-                bab.ai
-              </p>
-              <Image
-                src="/assets/icons/blue-verified.svg"
-                alt="Verified badge"
-                width={16}
-                height={16}
-                className="flex-shrink-0 mt-0.5" // mt-0.5 helps align with the text
-              />
-            </div>
+            {/* bab.ai text with verification - hidden on order pages */}
+            {!isOrderPage && (
+              <div className="flex items-center gap-1.5">
+                <p className="text-2xl sm:text-3xl font-bold text-brand-dark font-heading leading-none">
+                  bab.ai
+                </p>
+                <Image
+                  src="/assets/icons/blue-verified.svg"
+                  alt="Verified badge"
+                  width={16}
+                  height={16}
+                  className="flex-shrink-0 mt-0.5" // mt-0.5 helps align with the text
+                />
+              </div>
+            )}
           </Link>
         </div>
       </div>

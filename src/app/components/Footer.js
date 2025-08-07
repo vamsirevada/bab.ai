@@ -1,7 +1,12 @@
+'use client'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 const Footer = () => {
-  return (
+  const pathname = usePathname()
+  const isOrderPage = pathname?.includes('/orders/')
+
+  return !isOrderPage ? (
     <footer className="bg-white text-gray-dark relative overflow-hidden border-t border-gray-medium/20">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gray-light/10"></div>
@@ -179,7 +184,7 @@ const Footer = () => {
         </div>
       </div>
     </footer>
-  )
+  ) : null
 }
 
 export default Footer
