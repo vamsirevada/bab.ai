@@ -12,7 +12,7 @@ const Header = () => {
               {/* Main Logo Container */}
               <div className="w-10 h-10 bg-brand-dark rounded-full flex items-center justify-center shadow-lg transition-shadow duration-300 group-hover:shadow-2xl border-2 border-gray-dark">
                 <span className="text-brand-light font-bold text-lg font-heading transition-transform duration-300 group-hover:scale-110">
-                  C
+                  B
                 </span>
               </div>
             </div>
