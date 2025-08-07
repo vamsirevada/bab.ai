@@ -7,7 +7,8 @@ export async function GET() {
   let dbError = null
 
   try {
-    const client = await pool.connect() // Attempt to get a client from the pool
+    const client = await pool.connect()
+    console.log(client)
     await client.query('SELECT 1') // Execute a simple query to verify connection
     client.release() // Release the client back to the pool
     dbStatus = 'connected'
