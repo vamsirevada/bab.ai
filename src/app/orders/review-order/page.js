@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useCallback, memo, useEffect } from 'react'
+import React, { useState, useCallback, memo, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Edit2, Trash2, Plus, Minus } from 'lucide-react'
 
@@ -274,8 +274,8 @@ const ItemCard = memo(({ item, onEdit, onDelete }) => (
 ))
 ItemCard.displayName = 'ItemCard'
 
-// Main Component
-const ReviewOrder = () => {
+// Main Component Content
+const ReviewOrderContent = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isMobile, setIsMobile] = useState(false)
@@ -566,6 +566,25 @@ const ReviewOrder = () => {
         </div>
       </div>
     </div>
+  )
+}
+
+// Loading component
+const ReviewOrderLoading = () => (
+  <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="text-center">
+      <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+      <p className="text-gray-medium">Loading order...</p>
+    </div>
+  </div>
+)
+
+// Main export with Suspense boundary
+const ReviewOrder = () => {
+  return (
+    <Suspense fallback={<ReviewOrderLoading />}>
+      <ReviewOrderContent />
+    </Suspense>
   )
 }
 
