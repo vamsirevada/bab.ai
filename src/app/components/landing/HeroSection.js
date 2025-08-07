@@ -4,15 +4,15 @@ import React from 'react'
 const HeroSection = () => {
   return (
     <div
-      className="mx-auto max-w-7xl pt-4 sm:pt-12 lg:pt-20 pb-24 sm:pb-32 lg:pb-40 px-6 min-h-screen flex flex-col justify-between"
+      className="mx-auto max-w-7xl pt-4 sm:pt-8 lg:pt-16 pb-4 sm:pb-8 lg:pb-12 px-4 sm:px-6 lg:px-8 min-h-[90vh] sm:min-h-screen flex flex-col justify-between"
       data-hero-section
     >
       <div className="flex-1 flex flex-col justify-center">
         {/* Hello I'm Babai - Main Hero Heading - Top of section for better UX */}
-        <div className="w-full flex justify-center mb-6 sm:mb-8 lg:mb-12">
-          <div className="group/badge text-center">
+        <div className="w-full flex justify-center mb-4 sm:mb-6 lg:mb-8">
+          <div className="group/badge text-center px-4">
             <div className="relative">
-              <div className="text-gray-dark font-normal text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight mb-2 transform group-hover/badge:scale-105 transition-all duration-300 font-cursive">
+              <div className="text-gray-dark font-normal text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl leading-tight mb-2 transform group-hover/badge:scale-105 transition-all duration-300 font-cursive">
                 <span className="inline-block transform hover:scale-105 transition-transform duration-300">
                   Hello,
                 </span>{' '}
@@ -26,7 +26,7 @@ const HeroSection = () => {
               </div>
 
               {/* Mobile-optimized subtitle */}
-              <p className="text-gray-medium text-sm sm:text-base md:text-lg font-normal opacity-80 transform group-hover/badge:opacity-100 transition-all duration-300 font-body">
+              <p className="text-gray-medium text-xs sm:text-sm md:text-base lg:text-lg font-normal opacity-80 transform group-hover/badge:opacity-100 transition-all duration-300 font-body">
                 Your AI Construction Assistant
               </p>
             </div>
@@ -34,11 +34,11 @@ const HeroSection = () => {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-12 items-center">
           <LeftSection />
 
-          {/* Center Divider - Hidden on mobile */}
-          <div className="hidden lg:flex col-span-0 justify-center">
+          {/* Center Divider - Hidden on mobile and tablet */}
+          <div className="hidden xl:flex col-span-0 justify-center">
             <div className="w-px h-32 bg-gradient-to-b from-transparent via-gray-300/50 to-transparent"></div>
           </div>
 
@@ -46,15 +46,15 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Bottom spacer to ensure content doesn't touch bottom */}
-      <div className="h-24 sm:h-32 lg:h-40 flex-shrink-0"></div>
+      {/* Bottom spacer to ensure content doesn't touch bottom - Responsive */}
+      <div className="h-8 sm:h-16 lg:h-24 flex-shrink-0"></div>
     </div>
   )
 }
 
-// Left Section Component - Just the video now
+// Left Section Component - Just the video now - Mobile optimized
 const LeftSection = () => (
-  <div className="w-full col-span-12 lg:col-span-5 flex flex-col justify-center items-center animate-slide-in-left py-4 sm:py-6 lg:py-8">
+  <div className="w-full col-span-12 lg:col-span-5 xl:col-span-6 flex flex-col justify-center items-center animate-slide-in-left py-2 sm:py-4 lg:py-6">
     <IntroVideo />
   </div>
 )
@@ -62,7 +62,7 @@ const LeftSection = () => (
 // Right Section Component - Mobile responsive with proper spacing
 const RightSection = () => (
   <div
-    className="w-full col-span-12 lg:col-span-6 flex flex-col justify-center items-center lg:items-start animate-slide-in-right space-y-4 sm:space-y-6 py-4 sm:py-6 lg:py-8 transition-all duration-300"
+    className="w-full col-span-12 lg:col-span-6 xl:col-span-5 flex flex-col justify-center items-center lg:items-start animate-slide-in-right space-y-3 sm:space-y-4 lg:space-y-6 py-2 sm:py-4 lg:py-6 px-4 sm:px-6 lg:px-0 transition-all duration-300"
     id="right-section"
   >
     <MainHeading />
@@ -248,9 +248,9 @@ const GreetingText = () => {
   )
 }
 
-// Main Heading Component - Mobile responsive with no text wrap
+// Main Heading Component - Mobile responsive with proper text wrapping
 const MainHeading = () => (
-  <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-brand-dark mb-1 sm:mb-2 lg:mb-3 leading-tight px-2 sm:px-4 lg:px-0 font-heading text-center lg:text-left animate-fade-in-up animation-delay-200 whitespace-nowrap">
+  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-brand-dark mb-1 sm:mb-2 lg:mb-3 leading-tight px-2 sm:px-4 lg:px-0 font-heading text-center lg:text-left animate-fade-in-up animation-delay-200">
     <span className="text-brand-dark drop-shadow-sm">
       Unlock Credit, Build Smart
     </span>
@@ -259,7 +259,7 @@ const MainHeading = () => (
 
 // Description Component - Mobile responsive
 const Description = () => (
-  <div className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-medium font-normal mb-2 sm:mb-3 lg:mb-6 leading-relaxed px-2 sm:px-4 lg:px-0 font-body text-center lg:text-left italic animate-fade-in-up animation-delay-400">
+  <div className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-medium font-normal mb-2 sm:mb-3 lg:mb-4 leading-relaxed px-2 sm:px-4 lg:px-0 font-body text-center lg:text-left italic animate-fade-in-up animation-delay-400">
     &quot;Your successful projects are your credit score. Your quality work is
     your qualification&quot;
   </div>
@@ -274,15 +274,15 @@ const BenefitsBadges = () => {
   ]
 
   const badgeClasses =
-    'bg-brand-light hover:bg-gray-light text-brand-dark border border-brand-dark px-1.5 sm:px-2 lg:px-3 py-1 sm:py-1.5 shadow-sm hover:shadow-md transition-all duration-300 text-xs font-body rounded-md whitespace-nowrap flex-shrink-0'
+    'bg-brand-light hover:bg-gray-light text-brand-dark border border-brand-dark px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 shadow-sm hover:shadow-md transition-all duration-300 text-xs sm:text-sm font-body rounded-md flex-shrink-0'
 
   return (
     <div className="w-full mb-2 sm:mb-3 lg:mb-5 animate-fade-in-up animation-delay-600">
-      <div className="flex flex-wrap lg:flex-nowrap gap-1 sm:gap-1.5 lg:gap-2 items-center justify-center lg:justify-start px-0 sm:px-2 lg:px-0">
+      <div className="flex flex-wrap gap-2 sm:gap-3 lg:gap-4 items-center justify-center lg:justify-start px-0 sm:px-2 lg:px-0">
         {benefits.map((benefit, index) => (
           <span
             key={index}
-            className={`${badgeClasses} animate-fade-in-up`}
+            className={`${badgeClasses} animate-fade-in-up text-center`}
             style={{ animationDelay: `${800 + index * 200}ms` }}
           >
             {benefit}
@@ -294,7 +294,7 @@ const BenefitsBadges = () => {
 }
 
 const CTASection = () => (
-  <div className="w-full flex flex-col lg:flex-row items-center gap-3 sm:gap-4 lg:gap-6 px-2 sm:px-4 lg:px-0 mb-6 sm:mb-8 lg:mb-10 animate-fade-in-up animation-delay-1200">
+  <div className="w-full flex flex-col sm:flex-row items-center gap-3 sm:gap-4 lg:gap-6 px-2 sm:px-4 lg:px-0 mb-4 sm:mb-6 lg:mb-8 animate-fade-in-up animation-delay-1200">
     <OnlineStatus />
     <WhatsAppButton />
   </div>

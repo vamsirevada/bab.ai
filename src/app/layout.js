@@ -2,6 +2,7 @@ import { Geist, Geist_Mono, Dancing_Script } from 'next/font/google'
 import './globals.css'
 import Header from '@/app/components/Header'
 import Background3D from '@/app/components/Background3D'
+import Footer from '@/app/components/Footer'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -52,6 +53,7 @@ export default function RootLayout({ children }) {
         <Background3D />
         <Header />
         {children}
+        <Footer />
       </body>
     </html>
   )
