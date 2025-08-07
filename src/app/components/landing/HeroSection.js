@@ -3,36 +3,68 @@ import React from 'react'
 
 const HeroSection = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Main Content */}
-      <div className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 xl:gap-20 items-start lg:items-center min-h-[calc(100vh-200px)]">
-          {/* Left Side - Video and Greeting */}
-          <div className="w-full flex justify-center lg:justify-end lg:pr-4">
-            <LeftSection />
-          </div>
+    <div
+      className="mx-auto max-w-7xl pt-4 sm:pt-12 lg:pt-20 pb-24 sm:pb-32 lg:pb-40 px-6 min-h-screen flex flex-col justify-between"
+      data-hero-section
+    >
+      <div className="flex-1 flex flex-col justify-center">
+        {/* Hello I'm Babai - Main Hero Heading - Top of section for better UX */}
+        <div className="w-full flex justify-center mb-6 sm:mb-8 lg:mb-12">
+          <div className="group/badge text-center">
+            <div className="relative">
+              <div className="text-gray-dark font-normal text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight mb-2 transform group-hover/badge:scale-105 transition-all duration-300 font-cursive">
+                <span className="inline-block transform hover:scale-105 transition-transform duration-300">
+                  Hello,
+                </span>{' '}
+                <span className="text-brand-primary font-medium relative inline-block">
+                  <span className="relative z-10 transform hover:scale-105 transition-transform duration-300">
+                    I&apos;m Babai
+                  </span>
+                  {/* Subtle underline */}
+                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-primary/50 group-hover/badge:w-full transition-all duration-500 rounded-full"></div>
+                </span>
+              </div>
 
-          {/* Right Side - Main Content */}
-          <div className="w-full flex justify-center lg:justify-start lg:pl-4 lg:-mt-8">
-            <RightSection />
+              {/* Mobile-optimized subtitle */}
+              <p className="text-gray-medium text-sm sm:text-base md:text-lg font-normal opacity-80 transform group-hover/badge:opacity-100 transition-all duration-300 font-body">
+                Your AI Construction Assistant
+              </p>
+            </div>
           </div>
         </div>
+
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-16 items-center">
+          <LeftSection />
+
+          {/* Center Divider - Hidden on mobile */}
+          <div className="hidden lg:flex col-span-0 justify-center">
+            <div className="w-px h-32 bg-gradient-to-b from-transparent via-gray-300/50 to-transparent"></div>
+          </div>
+
+          <RightSection />
+        </div>
       </div>
+
+      {/* Bottom spacer to ensure content doesn't touch bottom */}
+      <div className="h-24 sm:h-32 lg:h-40 flex-shrink-0"></div>
     </div>
   )
 }
 
-// Left Section Component - Mobile responsive with adjusted max-width
+// Left Section Component - Just the video now
 const LeftSection = () => (
-  <div className="w-full max-w-md lg:max-w-lg flex flex-col items-center lg:items-start order-1 lg:order-1 animate-slide-in-left">
+  <div className="w-full col-span-12 lg:col-span-5 flex flex-col justify-center items-center animate-slide-in-left py-4 sm:py-6 lg:py-8">
     <IntroVideo />
-    <GreetingText />
   </div>
 )
 
-// Right Section Component - Mobile responsive with adjusted max-width
+// Right Section Component - Mobile responsive with proper spacing
 const RightSection = () => (
-  <div className="w-full max-w-md lg:max-w-lg flex flex-col items-center lg:items-start order-2 lg:order-2 animate-slide-in-right">
+  <div
+    className="w-full col-span-12 lg:col-span-6 flex flex-col justify-center items-center lg:items-start animate-slide-in-right space-y-4 sm:space-y-6 py-4 sm:py-6 lg:py-8 transition-all duration-300"
+    id="right-section"
+  >
     <MainHeading />
     <Description />
     <BenefitsBadges />
@@ -40,23 +72,132 @@ const RightSection = () => (
   </div>
 )
 
-// Intro Video Component - Mobile responsive
+// Intro Video Component - Enhanced 3D perspective effect
 const IntroVideo = () => (
-  <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg animate-fade-in-up animation-delay-300">
-    <div className="relative rounded-xl sm:rounded-2xl overflow-hidden shadow-md sm:shadow-lg bg-gray-50 p-1 sm:p-2">
-      <video
-        poster="/intro-poster.png"
-        style={{ objectFit: 'cover' }}
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="w-full h-auto rounded-lg sm:rounded-xl max-h-48 sm:max-h-64 md:max-h-80 lg:max-h-96"
+  <div
+    className="w-full animate-fade-in-up animation-delay-300"
+    style={{ perspective: '1500px', perspectiveOrigin: 'center center' }}
+  >
+    <div
+      className="relative overflow-hidden shadow-2xl bg-gradient-to-br from-gray-light via-brand-light to-gray-light transform transition-all duration-700 hover:scale-110 group cursor-pointer"
+      style={{
+        borderRadius: '28px',
+        transform: 'rotateX(12deg) rotateY(-8deg) rotateZ(2deg)',
+        transformStyle: 'preserve-3d',
+        boxShadow:
+          '0 30px 60px -15px rgba(0, 0, 0, 0.35), 0 10px 25px -5px rgba(59, 130, 246, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15)',
+        background:
+          'linear-gradient(135deg, #3b82f6 0%, #1f2937 50%, #3b82f6 100%)',
+        padding: '12px',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform =
+          'rotateX(15deg) rotateY(-12deg) rotateZ(3deg) scale(1.05)'
+        // Move right section significantly when video is hovered
+        const rightSection = document.getElementById('right-section')
+        if (rightSection) {
+          rightSection.style.transform = 'translateX(24px)'
+          rightSection.style.transition = 'transform 0.3s ease-out'
+        }
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform =
+          'rotateX(12deg) rotateY(-8deg) rotateZ(2deg) scale(1)'
+        // Reset right section position
+        const rightSection = document.getElementById('right-section')
+        if (rightSection) {
+          rightSection.style.transform = 'translateX(0px)'
+          rightSection.style.transition = 'transform 0.3s ease-out'
+        }
+      }}
+    >
+      {/* Enhanced glass morphism inner container */}
+      <div
+        className="relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-500"
+        style={{
+          borderRadius: '20px',
+          backdropFilter: 'blur(15px)',
+          background: 'rgba(255, 255, 255, 0.15)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          boxShadow:
+            'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.1)',
+        }}
       >
-        <source src="/intro.webm" type="video/webm" />
-        <source src="/intro.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+        <video
+          poster="/assets/posters/intro-poster.png"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-auto object-cover aspect-video transform transition-transform duration-500 group-hover:scale-[1.01]"
+          style={{
+            aspectRatio: '16/9',
+            borderRadius: '16px',
+            filter: 'contrast(1.1) saturate(1.2)',
+          }}
+        >
+          <source src="/assets/videos/intro.webm" type="video/webm" />
+          <source src="/assets/videos/intro.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        {/* Enhanced 3D highlight overlay with animation */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-60 group-hover:opacity-80 transition-opacity duration-500"
+          style={{
+            background:
+              'linear-gradient(125deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 30%, transparent 50%, rgba(255,255,255,0.1) 70%, rgba(255,255,255,0.2) 100%)',
+            borderRadius: '16px',
+            animation: 'shimmer 3s ease-in-out infinite alternate',
+          }}
+        />
+
+        {/* Reflective edge highlights */}
+        <div
+          className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white to-transparent opacity-50"
+          style={{ borderRadius: '16px 16px 0 0' }}
+        />
+        <div
+          className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-primary/30 to-transparent opacity-30"
+          style={{ borderRadius: '0 0 16px 16px' }}
+        />
+      </div>
+
+      {/* Multiple depth shadows for enhanced 3D effect */}
+      <div
+        className="absolute inset-0 -z-10"
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(59, 130, 246, 0.4) 0%, rgba(31, 41, 55, 0.4) 50%, rgba(59, 130, 246, 0.4) 100%)',
+          borderRadius: '28px',
+          transform: 'translateZ(-30px) translateX(15px) translateY(15px)',
+          filter: 'blur(25px)',
+        }}
+      />
+
+      {/* Secondary shadow for more depth */}
+      <div
+        className="absolute inset-0 -z-20"
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(31, 41, 55, 0.2) 100%)',
+          borderRadius: '28px',
+          transform: 'translateZ(-50px) translateX(25px) translateY(25px)',
+          filter: 'blur(40px)',
+        }}
+      />
+
+      {/* Ambient glow effect */}
+      <div
+        className="absolute inset-0 -z-30 group-hover:opacity-60 opacity-40 transition-opacity duration-700"
+        style={{
+          background:
+            'radial-gradient(ellipse at center, rgba(59, 130, 246, 0.3) 0%, rgba(31, 41, 55, 0.2) 40%, transparent 70%)',
+          borderRadius: '50%',
+          transform: 'translateZ(-70px) scale(1.5)',
+          filter: 'blur(60px)',
+        }}
+      />
     </div>
   </div>
 )
@@ -76,8 +217,8 @@ const GreetingText = () => {
   }
 
   return (
-    <div className="w-full flex justify-center lg:justify-start mt-3 sm:mt-4 animate-fade-in-up animation-delay-600">
-      <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 leading-tight font-heading text-center lg:text-left">
+    <div className="w-full flex justify-center mt-3 sm:mt-4 animate-fade-in-up animation-delay-600">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 leading-tight font-heading text-center">
         <span
           className="text-brand-charcoal/70 inline-block"
           style={{
@@ -109,8 +250,8 @@ const GreetingText = () => {
 
 // Main Heading Component - Mobile responsive with no text wrap
 const MainHeading = () => (
-  <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-brand-charcoal mb-2 sm:mb-3 leading-tight px-2 sm:px-4 lg:px-0 font-heading text-center lg:text-left animate-fade-in-up animation-delay-200 whitespace-nowrap">
-    <span className="text-brand-charcoal drop-shadow-sm">
+  <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-brand-dark mb-1 sm:mb-2 lg:mb-3 leading-tight px-2 sm:px-4 lg:px-0 font-heading text-center lg:text-left animate-fade-in-up animation-delay-200 whitespace-nowrap">
+    <span className="text-brand-dark drop-shadow-sm">
       Unlock Credit, Build Smart
     </span>
   </h2>
@@ -118,13 +259,12 @@ const MainHeading = () => (
 
 // Description Component - Mobile responsive
 const Description = () => (
-  <div className="text-sm sm:text-base md:text-lg lg:text-xl text-brand-charcoal/70 font-normal mb-3 sm:mb-4 lg:mb-6 leading-relaxed px-2 sm:px-4 lg:px-0 font-body text-center lg:text-left italic animate-fade-in-up animation-delay-400">
+  <div className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-medium font-normal mb-2 sm:mb-3 lg:mb-6 leading-relaxed px-2 sm:px-4 lg:px-0 font-body text-center lg:text-left italic animate-fade-in-up animation-delay-400">
     &quot;Your successful projects are your credit score. Your quality work is
     your qualification&quot;
   </div>
 )
 
-// Benefits Badges Component - Mobile responsive with reduced margin
 // Benefits Badges Component - Mobile responsive with reduced margin
 const BenefitsBadges = () => {
   const benefits = [
@@ -134,10 +274,10 @@ const BenefitsBadges = () => {
   ]
 
   const badgeClasses =
-    'bg-white hover:bg-gray-50 text-black border border-black px-1.5 sm:px-2 lg:px-3 py-1 sm:py-1.5 shadow-sm hover:shadow-md transition-all duration-300 text-xs font-body rounded-md whitespace-nowrap flex-shrink-0'
+    'bg-brand-light hover:bg-gray-light text-brand-dark border border-brand-dark px-1.5 sm:px-2 lg:px-3 py-1 sm:py-1.5 shadow-sm hover:shadow-md transition-all duration-300 text-xs font-body rounded-md whitespace-nowrap flex-shrink-0'
 
   return (
-    <div className="w-full mb-3 sm:mb-4 lg:mb-5 animate-fade-in-up animation-delay-600">
+    <div className="w-full mb-2 sm:mb-3 lg:mb-5 animate-fade-in-up animation-delay-600">
       <div className="flex flex-wrap lg:flex-nowrap gap-1 sm:gap-1.5 lg:gap-2 items-center justify-center lg:justify-start px-0 sm:px-2 lg:px-0">
         {benefits.map((benefit, index) => (
           <span
@@ -154,7 +294,7 @@ const BenefitsBadges = () => {
 }
 
 const CTASection = () => (
-  <div className="w-full flex flex-col lg:flex-row items-center gap-3 sm:gap-4 lg:gap-6 px-2 sm:px-4 lg:px-0 animate-fade-in-up animation-delay-1200">
+  <div className="w-full flex flex-col lg:flex-row items-center gap-3 sm:gap-4 lg:gap-6 px-2 sm:px-4 lg:px-0 mb-6 sm:mb-8 lg:mb-10 animate-fade-in-up animation-delay-1200">
     <OnlineStatus />
     <WhatsAppButton />
   </div>
@@ -164,10 +304,10 @@ const CTASection = () => (
 const OnlineStatus = () => (
   <div className="flex items-center gap-2 flex-shrink-0">
     <div className="relative">
-      <div className="w-2 h-2 bg-functional-success rounded-full animate-pulse" />
-      <div className="absolute inset-0 w-2 h-2 bg-green-400 rounded-full animate-ping opacity-75" />
+      <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
+      <div className="absolute inset-0 w-2 h-2 bg-success rounded-full animate-ping opacity-75" />
     </div>
-    <p className="text-brand-charcoal/80 text-sm sm:text-base lg:text-lg font-medium font-body">
+    <p className="text-gray-medium text-sm sm:text-base lg:text-lg font-medium font-body">
       All in one chat
     </p>
   </div>
@@ -190,7 +330,7 @@ const WhatsAppButton = () => {
       href="https://wa.me/message/KZJ2G5V4R743F1"
       target="_blank"
       rel="noopener noreferrer"
-      className="bg-gradient-to-r from-functional-success to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 flex items-center gap-2 sm:gap-3 border border-green-400/30 text-sm sm:text-base flex-shrink-0"
+      className="bg-gradient-to-r from-success to-whatsapp hover:from-whatsapp hover:to-success text-brand-light font-semibold py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 flex items-center gap-2 sm:gap-3 border border-success/30 text-sm sm:text-base flex-shrink-0"
     >
       <WhatsAppIcon />
       Try on WhatsApp

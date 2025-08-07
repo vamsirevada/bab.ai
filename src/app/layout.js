@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Dancing_Script } from 'next/font/google'
 import './globals.css'
 import Header from '@/app/components/Header'
 import Background3D from '@/app/components/Background3D'
@@ -11,6 +11,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+})
+
+const dancingScript = Dancing_Script({
+  variable: '--font-dancing-script',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
 })
 
 export const metadata = {
@@ -41,7 +47,7 @@ export default function RootLayout({ children }) {
         <link rel="shortcut icon" href="/favicon.ico?v=1" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
+        className={`${geistSans.variable} ${geistMono.variable} ${dancingScript.variable} antialiased relative`}
       >
         <Background3D />
         <Header />
