@@ -1,8 +1,10 @@
+'use client'
+
 import { ArrowLeft } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 
 const PrivacyPolicy = () => {
-  const navigate = useNavigate()
+  const router = useRouter()
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -10,7 +12,7 @@ const PrivacyPolicy = () => {
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => router.back()}
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors duration-200 mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
