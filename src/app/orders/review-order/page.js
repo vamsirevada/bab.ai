@@ -1,7 +1,50 @@
 'use client'
 import React, { useState, useCallback, memo, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Edit2, Trash2, Plus, Minus } from 'lucide-react'
+import { Edit2, Trash2, Plus, Minus, X } from 'lucide-react'
+
+// CSS Animations for Modal
+const modalStyles = `
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9) translateY(-20px) rotateX(10deg);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0) rotateX(0deg);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-modalSlideIn {
+    animation: modalSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+`
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style')
+  styleElement.textContent = modalStyles
+  if (!document.head.querySelector('style[data-modal-styles]')) {
+    styleElement.setAttribute('data-modal-styles', 'true')
+    document.head.appendChild(styleElement)
+  }
+}
 
 // WhatsApp Icon Component
 const WhatsAppIcon = ({ className = 'w-4 h-4' }) => (
@@ -211,60 +254,170 @@ const TableRow = memo(({ row, onCellEdit, onDeleteRow }) => {
 })
 TableRow.displayName = 'TableRow'
 
-// Item Card Component for Mobile
+// Item Card Component for Mobile - Compact Design
 const ItemCard = memo(({ item, onEdit, onDelete }) => (
-  <Card className="p-4 hover:shadow-md transition-all duration-200">
-    <div className="flex justify-between items-start mb-3">
-      <div className="flex-1">
-        <h3 className="font-medium text-gray-dark font-heading">
-          {item.material_name || (
-            <span className="text-gray-medium italic">Unnamed item</span>
+  <Card className="p-3 hover:shadow-md transition-all duration-200 border-l-4 border-l-gray-dark">
+    <div className="flex items-center justify-between">
+      {/* Left Content - Material Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="font-medium text-gray-dark font-heading text-sm truncate">
+            {item.material_name || (
+              <span className="text-gray-medium italic">Unnamed item</span>
+            )}
+          </h3>
+          {item.sub_type && (
+            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-body">
+              {item.sub_type}
+            </span>
           )}
-        </h3>
-        {item.sub_type && (
-          <p className="text-sm text-gray-medium mt-1 font-body">
-            {item.sub_type}
-          </p>
-        )}
+        </div>
+
+        {/* Compact Info Row */}
+        <div className="flex items-center gap-4 text-xs text-gray-medium font-body">
+          <div className="flex items-center gap-1">
+            <span className="font-medium">Size:</span>
+            <span className="text-gray-dark">
+              {item.dimensions || 'Not set'}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="font-medium">Qty:</span>
+            <span className="text-gray-dark font-semibold">
+              {item.quantity || 1}
+            </span>
+          </div>
+        </div>
       </div>
-      <div className="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
+
+      {/* Right Actions - Compact Buttons */}
+      <div className="flex gap-1 ml-2">
+        <button
           onClick={() => onEdit(item)}
-          className="h-8 w-8 p-0"
+          className="w-7 h-7 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-dark rounded-md flex items-center justify-center transition-all duration-200"
         >
-          <Edit2 className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
+          <Edit2 className="h-3.5 w-3.5" />
+        </button>
+        <button
           onClick={() => onDelete(item.id)}
-          className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+          className="w-7 h-7 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 rounded-md flex items-center justify-center transition-all duration-200"
         >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
-    <div className="flex justify-between text-sm">
-      <div>
-        <span className="text-gray-medium font-body">Size/Unit:</span>
-        <p className="font-medium mt-1 text-gray-dark font-body">
-          {item.dimensions || (
-            <span className="text-gray-medium italic">Not specified</span>
-          )}
-        </p>
-      </div>
-      <div className="text-right">
-        <span className="text-gray-medium font-body">Quantity:</span>
-        <p className="font-medium mt-1 text-gray-dark font-body">
-          {item.quantity || 1}
-        </p>
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
       </div>
     </div>
   </Card>
 ))
 ItemCard.displayName = 'ItemCard'
+
+// Edit Item Form Component
+const EditItemForm = memo(({ item, onSave, onCancel }) => {
+  const [formData, setFormData] = useState({
+    material_name: item.material_name || '',
+    sub_type: item.sub_type || '',
+    dimensions: item.dimensions || '',
+    quantity: item.quantity || 1,
+  })
+
+  const handleInputChange = useCallback((field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: field === 'quantity' ? Math.max(1, parseInt(value) || 1) : value,
+    }))
+  }, [])
+
+  const handleSubmit = useCallback(
+    (e) => {
+      e.preventDefault()
+      if (!formData.material_name.trim()) {
+        alert('Material name is required')
+        return
+      }
+      onSave({
+        ...item,
+        ...formData,
+      })
+    },
+    [formData, item, onSave]
+  )
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div>
+        <label className="block text-sm font-medium text-gray-dark mb-1.5 font-body">
+          Material Name *
+        </label>
+        <input
+          type="text"
+          value={formData.material_name}
+          onChange={(e) => handleInputChange('material_name', e.target.value)}
+          className="w-full px-3 py-2.5 bg-white/80 backdrop-blur-sm border border-gray-medium/40 rounded-lg focus:ring-1 focus:ring-gray-dark/20 focus:border-gray-dark transition-all duration-200 font-body placeholder-gray-medium/70 shadow-sm text-sm"
+          placeholder="Enter material name"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-dark mb-1.5 font-body">
+          Sub Type
+        </label>
+        <input
+          type="text"
+          value={formData.sub_type}
+          onChange={(e) => handleInputChange('sub_type', e.target.value)}
+          className="w-full px-3 py-2.5 bg-white/80 backdrop-blur-sm border border-gray-medium/40 rounded-lg focus:ring-1 focus:ring-gray-dark/20 focus:border-gray-dark transition-all duration-200 font-body placeholder-gray-medium/70 shadow-sm text-sm"
+          placeholder="Enter sub type"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-dark mb-1.5 font-body">
+          Dimensions
+        </label>
+        <input
+          type="text"
+          value={formData.dimensions}
+          onChange={(e) => handleInputChange('dimensions', e.target.value)}
+          className="w-full px-3 py-2.5 bg-white/80 backdrop-blur-sm border border-gray-medium/40 rounded-lg focus:ring-1 focus:ring-gray-dark/20 focus:border-gray-dark transition-all duration-200 font-body placeholder-gray-medium/70 shadow-sm text-sm"
+          placeholder="Enter dimensions"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-dark mb-1.5 font-body">
+          Quantity *
+        </label>
+        <input
+          type="number"
+          min="1"
+          value={formData.quantity}
+          onChange={(e) => handleInputChange('quantity', e.target.value)}
+          className="w-full px-3 py-2.5 bg-white/80 backdrop-blur-sm border border-gray-medium/40 rounded-lg focus:ring-1 focus:ring-gray-dark/20 focus:border-gray-dark transition-all duration-200 font-body placeholder-gray-medium/70 shadow-sm text-sm"
+          placeholder="Enter quantity"
+          required
+        />
+      </div>
+
+      <div className="flex gap-3 pt-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          className="flex-1 h-10 rounded-lg bg-white/80 backdrop-blur-sm border-gray-medium/40 hover:bg-white/90 text-sm"
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          className="flex-1 h-10 rounded-lg bg-gray-dark hover:bg-gray-800 shadow-lg text-sm"
+        >
+          Save
+        </Button>
+      </div>
+    </form>
+  )
+})
+EditItemForm.displayName = 'EditItemForm'
 
 // Main Component Content
 const ReviewOrderContent = () => {
@@ -364,6 +517,22 @@ const ReviewOrderContent = () => {
       unit_price: 0,
     }
     setOrderData((currentData) => [...currentData, newRow])
+  }, [])
+
+  // Edit functionality for mobile
+  const handleEditItem = useCallback((item) => {
+    setEditingItem(item)
+    setEditModalOpen(true)
+  }, [])
+
+  const handleSaveEdit = useCallback((updatedItem) => {
+    setOrderData((currentData) =>
+      currentData.map((item) =>
+        item.id === updatedItem.id ? updatedItem : item
+      )
+    )
+    setEditModalOpen(false)
+    setEditingItem(null)
   }, [])
 
   const handleSubmit = useCallback(async () => {
@@ -515,7 +684,7 @@ const ReviewOrderContent = () => {
 
           {/* Mobile Cards */}
           {isMobile && (
-            <div className="space-y-4">
+            <div className="space-y-2">
               {orderData.length === 0 ? (
                 <div className="text-center py-8 text-gray-medium">
                   <p className="font-body">No items added yet.</p>
@@ -528,7 +697,7 @@ const ReviewOrderContent = () => {
                   <ItemCard
                     key={item.id}
                     item={item}
-                    onEdit={() => {}}
+                    onEdit={handleEditItem}
                     onDelete={handleDeleteRow}
                   />
                 ))
@@ -536,6 +705,43 @@ const ReviewOrderContent = () => {
             </div>
           )}
         </Card>
+
+        {/* Edit Modal for Mobile */}
+        {editModalOpen && editingItem && (
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-3 z-50 animate-fadeIn">
+            <div className="bg-white/95 backdrop-blur-md rounded-xl w-full max-w-sm shadow-2xl border border-white/20 transform animate-modalSlideIn relative">
+              {/* Enhanced Close Button */}
+              <div className="absolute top-3 right-3 z-20">
+                <button
+                  onClick={() => {
+                    setEditModalOpen(false)
+                    setEditingItem(null)
+                  }}
+                  className="w-8 h-8 bg-gray-dark hover:bg-gray-800 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="p-4 pt-6">
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-gray-dark font-heading">
+                    Edit Item
+                  </h3>
+                </div>
+
+                <EditItemForm
+                  item={editingItem}
+                  onSave={handleSaveEdit}
+                  onCancel={() => {
+                    setEditModalOpen(false)
+                    setEditingItem(null)
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 sticky bottom-0 bg-white py-4 -mx-4 px-4 border-t border-gray-medium/20 sm:border-t-0 sm:bg-transparent sm:relative sm:py-0 sm:mx-0">
