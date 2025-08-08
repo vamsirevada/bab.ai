@@ -75,14 +75,29 @@ const SelectVendorsContent = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [customerInfo, setCustomerInfo] = useState({})
 
-  // Get parameters from URL
+  // Get parameters from URL and localStorage
   useEffect(() => {
     const uuid = searchParams.get('uuid') || ''
-    const name = searchParams.get('name') || 'Construction Team'
-    const phone = searchParams.get('phone') || '+91 98765 43210'
-    const site = searchParams.get('site') || 'Construction Project'
 
-    setCustomerInfo({ uuid, name, phone, site })
+    // Get customer data from localStorage
+    let customerData = {}
+    try {
+      const storedData = localStorage.getItem('customerInfo')
+      if (storedData) {
+        customerData = JSON.parse(storedData)
+      }
+    } catch (error) {
+      console.error('Error parsing customer data from localStorage:', error)
+    }
+
+    // Set customer info with fallbacks
+    setCustomerInfo({
+      uuid,
+      name: customerData.name || 'Construction Team',
+      phone: customerData.phone || '+91 98765 43210',
+      site: customerData.site || 'Construction Project',
+      address: customerData.address || 'Project Site Address',
+    })
   }, [searchParams])
 
   // Mock vendor data
@@ -92,35 +107,40 @@ const SelectVendorsContent = () => {
         id: 1,
         name: 'BuildPro Materials',
         rating: 4.8,
-        location: 'Mumbai',
+        type: 'Distributor',
+        specialties: ['Steel Rods', 'Cement', 'Bricks'],
         verified: true,
       },
       {
         id: 2,
         name: 'ConstructCorp',
         rating: 4.6,
-        location: 'Delhi',
+        type: 'Authorized Vendor',
+        specialties: ['TMT Bars', 'Ready Mix', 'Tiles'],
         verified: true,
       },
       {
         id: 3,
         name: 'Steel & Stone Co.',
         rating: 4.7,
-        location: 'Bangalore',
+        type: 'Retailer',
+        specialties: ['MS Angles', 'Granite', 'Hardware'],
         verified: true,
       },
       {
         id: 4,
         name: 'Metro Building Supply',
         rating: 4.5,
-        location: 'Chennai',
+        type: 'Authorized',
+        specialties: ['Plywood', 'Paint', 'Electrical'],
         verified: true,
       },
       {
         id: 5,
         name: 'Prime Construction Materials',
         rating: 4.9,
-        location: 'Pune',
+        type: 'Distributor',
+        specialties: ['Concrete', 'Pipes', 'Fittings'],
         verified: true,
       },
     ]
@@ -138,6 +158,16 @@ const SelectVendorsContent = () => {
     })
   }
 
+  const handleSelectAll = () => {
+    if (selectedVendors.length === vendors.length) {
+      // If all are selected, deselect all
+      setSelectedVendors([])
+    } else {
+      // Select all vendors
+      setSelectedVendors([...vendors])
+    }
+  }
+
   const handleSubmit = async () => {
     if (selectedVendors.length === 0) {
       alert('Please select at least one vendor')
@@ -146,13 +176,12 @@ const SelectVendorsContent = () => {
 
     setIsSubmitting(true)
     try {
-      // Navigate to quote confirmation with selected vendors and customer info
-      const queryParams = new URLSearchParams({
-        vendors: encodeURIComponent(JSON.stringify(selectedVendors)),
-        customer: encodeURIComponent(JSON.stringify(customerInfo)),
-      })
+      // Store selected vendors and customer info in localStorage
+      localStorage.setItem('selectedVendors', JSON.stringify(selectedVendors))
+      localStorage.setItem('customerInfo', JSON.stringify(customerInfo))
 
-      router.push(`/orders/quote-confirmation?${queryParams.toString()}`)
+      // Navigate to quote confirmation with only essential data
+      router.push('/orders/quote-requested')
     } catch (error) {
       console.error('Submission failed:', error)
       alert('Submission failed. Please try again.')
@@ -162,7 +191,7 @@ const SelectVendorsContent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen relative">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Vendor Selection Summary */}
         <Card className="p-6 mb-6">
@@ -225,9 +254,10 @@ const SelectVendorsContent = () => {
                   <Check className="w-6 h-6 text-white" />
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-semibold text-gray-dark font-heading flex items-center gap-2 justify-end">
-                    <Check className="w-4 h-4" />
-                    {selectedVendors.length} Selected
+                  <div className="text-lg font-semibold text-gray-dark font-heading flex items-center gap-2">
+                    {selectedVendors.length}{' '}
+                    {selectedVendors.length === 1 ? 'vendor' : 'vendors'}{' '}
+                    selected
                   </div>
                   <div className="text-sm text-gray-medium font-body">
                     Estimated time: 2-4 hours
@@ -240,9 +270,40 @@ const SelectVendorsContent = () => {
 
         {/* Vendors List */}
         <Card className="p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-dark mb-6 font-heading">
-            Available Vendors
-          </h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <h2 className="text-lg font-semibold text-gray-dark font-heading">
+              Available Vendors
+            </h2>
+            <Button
+              variant="outline"
+              onClick={handleSelectAll}
+              className="sm:w-auto w-full"
+            >
+              {selectedVendors.length === vendors.length ? (
+                <>
+                  <Check className="w-4 h-4 mr-2" />
+                  Deselect All
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  Select All ({vendors.length})
+                </>
+              )}
+            </Button>
+          </div>
 
           <div className="space-y-4">
             {vendors.map((vendor) => {
@@ -284,20 +345,46 @@ const SelectVendorsContent = () => {
                         )}
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-dark font-heading">
-                          {vendor.name}
-                        </h3>
-                        <p className="text-sm text-gray-medium font-body">
-                          {vendor.location}
-                        </p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-medium text-gray-dark font-heading truncate">
+                            {vendor.name}
+                          </h3>
+                          <Badge className="bg-blue-50 text-blue-700 border-blue-200 shrink-0">
+                            {vendor.type}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-1 flex-wrap mb-1">
+                          {vendor.specialties.map((specialty, index) => (
+                            <span
+                              key={index}
+                              className="text-xs text-gray-medium font-body flex items-center"
+                            >
+                              {specialty}
+                              {index < vendor.specialties.length - 1 && (
+                                <span className="mx-1.5">•</span>
+                              )}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-1 md:hidden">
+                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                          <span className="text-sm font-medium text-gray-dark font-body">
+                            {vendor.rating}
+                          </span>
+                          <span className="text-xs text-gray-medium font-body ml-1">
+                            ({Math.floor(Math.random() * 200) + 50} reviews)
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      {vendor.verified && <Badge>Verified</Badge>}
+                    <div className="hidden md:flex items-center gap-3">
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-yellow-500 fill-current" />
                         <span className="text-sm font-medium text-gray-dark font-body">
                           {vendor.rating}
+                        </span>
+                        <span className="text-xs text-gray-medium font-body ml-1">
+                          ({Math.floor(Math.random() * 200) + 50} reviews)
                         </span>
                       </div>
                     </div>

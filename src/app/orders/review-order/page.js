@@ -65,14 +65,6 @@ const Card = ({ children, className = '' }) => (
   </div>
 )
 
-const Badge = ({ children, className = '' }) => (
-  <span
-    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-light/30 text-gray-dark border border-gray-medium/20 ${className}`}
-  >
-    {children}
-  </span>
-)
-
 // Editable Cell Component
 const EditableCell = memo(({ value, onSave }) => {
   const [isEditing, setIsEditing] = useState(false)
@@ -137,7 +129,7 @@ const CustomerInfo = memo(({ customerInfo }) => (
         {customerInfo.name}
       </div>
       <div className="text-xs text-gray-medium font-body">
-        Order Review • {customerInfo.phone}
+        {customerInfo.phone}
       </div>
     </div>
   </div>
@@ -387,12 +379,18 @@ const ReviewOrderContent = () => {
 
     setIsSubmitting(true)
     try {
-      // Navigate to vendor selection
-      const queryParams = new URLSearchParams({
-        uuid: uuid || '',
+      // Store customer data in localStorage
+      const customerData = {
         name: customerInfo.name,
         phone: customerInfo.phone,
         site: customerInfo.site,
+        address: customerInfo.address,
+      }
+      localStorage.setItem('customerInfo', JSON.stringify(customerData))
+
+      // Navigate to vendor selection with only UUID
+      const queryParams = new URLSearchParams({
+        uuid: uuid || '',
       })
 
       router.push(`/orders/select-vendors?${queryParams.toString()}`)
@@ -417,7 +415,7 @@ const ReviewOrderContent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen relative">
       {/* Main Content */}
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-6">
         {/* Order Summary */}
@@ -458,7 +456,7 @@ const ReviewOrderContent = () => {
                     {customerInfo.name}
                   </h3>
                   <p className="text-sm text-gray-medium font-body">
-                    Order Review • {customerInfo.phone}
+                    {customerInfo.phone}
                   </p>
                 </div>
               </div>
@@ -547,6 +545,7 @@ const ReviewOrderContent = () => {
             onClick={() => window.history.back()}
             disabled={isSubmitting}
           >
+            <WhatsAppIcon className="w-4 h-4 mr-2" />
             Back to WhatsApp
           </Button>
           <Button
@@ -571,7 +570,7 @@ const ReviewOrderContent = () => {
 
 // Loading component
 const ReviewOrderLoading = () => (
-  <div className="min-h-screen bg-white flex items-center justify-center">
+  <div className="min-h-screen relative flex items-center justify-center">
     <div className="text-center">
       <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
       <p className="text-gray-medium">Loading order...</p>
