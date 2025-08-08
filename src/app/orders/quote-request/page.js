@@ -55,7 +55,7 @@ const Card = ({ children, className = '' }) => {
 }
 
 // Main component wrapped in Suspense
-const QuoteRequestedContent = () => {
+const QuoteRequestContent = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -351,7 +351,7 @@ const QuoteRequestedContent = () => {
 }
 
 // Loading component
-const QuoteRequestedLoading = () => (
+const QuoteRequestLoading = () => (
   <div className="min-h-screen bg-white flex items-center justify-center">
     <div className="text-center">
       <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
@@ -361,12 +361,12 @@ const QuoteRequestedLoading = () => (
 )
 
 // Main export with Suspense boundary
-const QuoteRequested = () => {
+const QuoteRequest = () => {
   return (
-    <Suspense fallback={<QuoteRequestedLoading />}>
-      <QuoteRequestedContent />
+    <Suspense fallback={<QuoteRequestLoading />}>
+      <QuoteRequestContent />
     </Suspense>
   )
 }
 
-export default QuoteRequested
+export default QuoteRequest

@@ -181,7 +181,7 @@ const SelectVendorsContent = () => {
       localStorage.setItem('customerInfo', JSON.stringify(customerInfo))
 
       // Navigate to quote confirmation with only essential data
-      router.push('/orders/quote-requested')
+      router.push('/orders/quote-request')
     } catch (error) {
       console.error('Submission failed:', error)
       alert('Submission failed. Please try again.')
