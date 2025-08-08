@@ -5,53 +5,79 @@ export async function GET() {
   let dbError = null
   let connectionAttempt = null
 
-  // Check if all required environment variables are present
-  const envCheck = {
-    DB_HOST: !!process.env.DB_HOST,
-    DB_USER: !!process.env.DB_USER,
-    DB_PASSWORD: !!process.env.DB_PASSWORD,
-    DB_NAME: !!process.env.DB_NAME,
-    DB_PORT: !!process.env.DB_PORT,
+  // Show all environment variable values (redact sensitive data)
+  const envDebug = {
+    NODE_ENV: process.env.NODE_ENV,
+    DB_URL: process.env.DB_URL
+      ? `postgresql://**:***@${process.env.DB_URL.split('@')[1]}`
+      : 'MISSING',
+    DB_HOST: process.env.DB_HOST || 'MISSING',
+    DB_USER: process.env.DB_USER || 'MISSING',
+    DB_NAME: process.env.DB_NAME || 'MISSING',
+    DB_PORT: process.env.DB_PORT || 'MISSING',
+    DB_PASSWORD: process.env.DB_PASSWORD ? 'SET' : 'MISSING',
+    // Show all environment keys for debugging
+    ALL_ENV_KEYS: Object.keys(process.env).filter(
+      (key) => key.startsWith('DB_') || key === 'DB_URL'
+    ),
   }
 
-  const missingEnvVars = Object.entries(envCheck)
-    .filter(([key, value]) => !value)
-    .map(([key]) => key)
+  console.log('Environment Debug:', envDebug)
 
-  if (missingEnvVars.length > 0) {
-    dbError = `Missing environment variables: ${missingEnvVars.join(', ')}`
+  // Check if we have any database configuration
+  const hasConfig =
+    process.env.DB_URL ||
+    (process.env.DB_HOST &&
+      process.env.DB_USER &&
+      process.env.DB_PASSWORD &&
+      process.env.DB_NAME)
+
+  if (!hasConfig) {
+    dbError = 'No database configuration found in environment variables'
   } else {
     try {
-      // Dynamic import to avoid build issues
       const { Pool } = await import('pg')
 
-      const config = {
-        user: process.env.DB_USER,
-        host: process.env.DB_HOST,
-        database: process.env.DB_NAME,
-        password: process.env.DB_PASSWORD,
-        port: parseInt(process.env.DB_PORT) || 5432,
-        ssl: {
-          rejectUnauthorized: false,
-        },
-        connectionTimeoutMillis: 5000, // 5 seconds timeout
+      let config
+
+      if (process.env.DB_URL) {
+        config = {
+          connectionString: process.env.DB_URL,
+          ssl: { rejectUnauthorized: false },
+          connectionTimeoutMillis: 5000,
+        }
+        connectionAttempt = {
+          type: 'DB_URL',
+          url: process.env.DB_URL.replace(/:[^:]*@/, ':***@'),
+        }
+      } else {
+        config = {
+          user: process.env.DB_USER,
+          host: process.env.DB_HOST,
+          database: process.env.DB_NAME,
+          password: process.env.DB_PASSWORD,
+          port: parseInt(process.env.DB_PORT) || 5432,
+          ssl: { rejectUnauthorized: false },
+          connectionTimeoutMillis: 5000,
+        }
+        connectionAttempt = {
+          type: 'individual_vars',
+          host: config.host,
+          port: config.port,
+          database: config.database,
+          user: config.user,
+        }
       }
 
-      connectionAttempt = {
-        host: config.host,
-        port: config.port,
-        database: config.database,
-        user: config.user,
-      }
-
-      console.log('Attempting database connection to:', connectionAttempt)
+      console.log('Attempting database connection:', connectionAttempt)
 
       const pool = new Pool(config)
       const client = await pool.connect()
 
-      // Test query
-      const result = await client.query('SELECT NOW() as current_time')
-      console.log('Database query result:', result.rows[0])
+      const result = await client.query(
+        'SELECT NOW() as current_time, version() as pg_version'
+      )
+      console.log('Database connection successful:', result.rows[0])
 
       client.release()
       await pool.end()
@@ -59,16 +85,11 @@ export async function GET() {
       dbStatus = 'connected'
     } catch (error) {
       console.error('Database connection error:', error)
-      dbError = error.message
-
-      // More specific error information
-      if (error.code) {
-        dbError += ` (Code: ${error.code})`
-      }
+      dbError = `${error.message} (Code: ${error.code || 'N/A'})`
     }
   }
 
-  const responseData = {
+  return NextResponse.json({
     status: 'ok',
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
@@ -76,11 +97,7 @@ export async function GET() {
       status: dbStatus,
       error: dbError,
       connectionAttempt,
-      envCheck,
+      envDebug,
     },
-  }
-
-  return NextResponse.json(responseData, {
-    status: dbStatus === 'connected' ? 200 : 500,
   })
 }
