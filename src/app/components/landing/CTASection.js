@@ -23,7 +23,7 @@ const CTASection = ({ onGetStarted }) => {
   }, [])
 
   return (
-    <div ref={sectionRef} className="py-12 sm:py-16 lg:py-20 xl:py-24 bg-white">
+    <div ref={sectionRef} className="py-8 sm:py-10 lg:py-12 bg-white">
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className={`bg-gray-light/30 text-gray-dark relative overflow-hidden shadow-sm rounded-2xl transition-all duration-700 border border-gray-medium/10 ${
@@ -33,7 +33,7 @@ const CTASection = ({ onGetStarted }) => {
           {/* Background decoration */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-gray-medium/5 rounded-full -translate-y-32 translate-x-32"></div>
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-gray-medium/5 rounded-full translate-y-24 -translate-x-24"></div>
-          <div className="relative z-10 px-6 sm:px-8 lg:px-12 py-12 sm:py-16 lg:py-20">
+          <div className="relative z-10 px-6 sm:px-8 lg:px-10 py-8 sm:py-10 lg:py-12">
             {/* Badge */}
             <div
               className={`text-center mb-8 transition-all duration-500 delay-200 ${

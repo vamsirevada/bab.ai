@@ -4,12 +4,12 @@ import React from 'react'
 const HeroSection = () => {
   return (
     <div
-      className="mx-auto max-w-7xl pt-4 sm:pt-8 lg:pt-16 pb-4 sm:pb-8 lg:pb-12 px-4 sm:px-6 lg:px-8 min-h-[90vh] sm:min-h-screen flex flex-col justify-between"
+      className="mx-auto max-w-7xl pt-2 sm:pt-4 lg:pt-8 pb-2 sm:pb-4 lg:pb-6 px-4 sm:px-6 lg:px-8 min-h-[85vh] sm:min-h-[90vh] flex flex-col justify-between"
       data-hero-section
     >
       <div className="flex-1 flex flex-col justify-center">
         {/* Hello I'm Babai - Main Hero Heading - Top of section for better UX */}
-        <div className="w-full flex justify-center mb-4 sm:mb-6 lg:mb-8">
+        <div className="w-full flex justify-center mb-3 sm:mb-4 lg:mb-6">
           <div className="group/badge text-center px-4">
             <div className="relative">
               <div className="text-gray-dark font-normal text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl leading-tight mb-2 transform group-hover/badge:scale-105 transition-all duration-300 font-cursive">
@@ -34,7 +34,7 @@ const HeroSection = () => {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 lg:gap-8 items-center">
           <LeftSection />
 
           {/* Center Divider - Hidden on mobile and tablet */}
@@ -47,7 +47,7 @@ const HeroSection = () => {
       </div>
 
       {/* Bottom spacer to ensure content doesn't touch bottom - Responsive */}
-      <div className="h-8 sm:h-16 lg:h-24 flex-shrink-0"></div>
+      <div className="h-4 sm:h-8 lg:h-12 flex-shrink-0"></div>
     </div>
   )
 }

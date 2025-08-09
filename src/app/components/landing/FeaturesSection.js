@@ -69,11 +69,11 @@ const FeaturesSection = () => {
   ]
 
   return (
-    <div ref={sectionRef} className="bg-white py-8 sm:py-12 lg:py-16 xl:py-20">
+    <div ref={sectionRef} className="bg-white py-6 sm:py-8 lg:py-10">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div
-          className={`text-center mb-12 sm:mb-16 lg:mb-20 transition-all duration-700 ${
+          className={`text-center mb-8 sm:mb-10 lg:mb-12 transition-all duration-700 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >

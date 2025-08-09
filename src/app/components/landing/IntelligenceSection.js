@@ -63,12 +63,12 @@ const TypingAnimation = () => {
 const IntelligenceSection = () => {
   return (
     <div
-      className="w-full py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white"
+      className="w-full py-8 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8 bg-white"
       data-next-section
     >
       <div className="container mx-auto max-w-7xl">
         {/* Header Section */}
-        <div className="text-center mb-12 sm:mb-16 lg:mb-20">
+        <div className="text-center mb-8 sm:mb-10 lg:mb-12">
           <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-dark mb-4 sm:mb-6 font-heading flex items-center justify-center gap-2 sm:gap-3 flex-wrap leading-tight">
             <span>No</span>
             <TypingAnimation />

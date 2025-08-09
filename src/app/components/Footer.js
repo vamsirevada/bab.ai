@@ -13,9 +13,9 @@ const Footer = () => {
       <div className="absolute top-0 left-0 w-64 h-64 bg-gray-medium/5 rounded-full -translate-y-32 -translate-x-32"></div>
       <div className="absolute bottom-0 right-0 w-48 h-48 bg-gray-medium/5 rounded-full translate-y-24 translate-x-24"></div>
 
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 relative z-10">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 relative z-10">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 mb-8 sm:mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
           {/* Left Side - Company Info & Social Media */}
           <div className="space-y-4 sm:space-y-6">
             <div>
