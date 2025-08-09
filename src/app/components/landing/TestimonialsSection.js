@@ -105,28 +105,25 @@ const TestimonialsSection = () => {
   }, [])
 
   return (
-    <div
-      ref={sectionRef}
-      className="bg-gray-light py-12 sm:py-16 lg:py-20 xl:py-24"
-    >
+    <div ref={sectionRef} className="bg-gray-light py-8 sm:py-10 lg:py-12">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div
-          className={`text-center mb-12 sm:mb-16 lg:mb-20 transition-all duration-700 ${
+          className={`text-center mb-8 sm:mb-10 transition-all duration-700 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-dark mb-6 font-heading leading-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-dark mb-4 font-heading leading-tight">
             Trusted by Construction
             <span className="text-brand-primary"> Leaders</span>
           </h2>
-          <p className="text-lg sm:text-xl lg:text-2xl text-gray-medium mb-12 font-body leading-relaxed max-w-4xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-medium mb-8 font-body leading-relaxed max-w-3xl mx-auto">
             Join the growing community transforming construction through
             WhatsApp AI
           </p>
 
           {/* Traction Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <div
               className={`text-center group transition-all duration-500 delay-100 ${
                 isVisible
@@ -134,10 +131,10 @@ const TestimonialsSection = () => {
                   : 'opacity-0 translate-y-8'
               }`}
             >
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-dark mb-3 group-hover:scale-110 transition-transform duration-300 font-heading">
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-dark mb-2 group-hover:scale-110 transition-transform duration-300 font-heading">
                 <AnimatedCounter end={25} suffix="+" duration={2000} />
               </div>
-              <div className="text-base sm:text-lg text-gray-medium font-body">
+              <div className="text-sm sm:text-base text-gray-medium font-body">
                 Pilot Projects
               </div>
             </div>
@@ -148,10 +145,10 @@ const TestimonialsSection = () => {
                   : 'opacity-0 translate-y-8'
               }`}
             >
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-dark mb-3 group-hover:scale-110 transition-transform duration-300 font-heading">
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-dark mb-2 group-hover:scale-110 transition-transform duration-300 font-heading">
                 <AnimatedCounter end={200} suffix="+" duration={2500} />
               </div>
-              <div className="text-base sm:text-lg text-gray-medium font-body">
+              <div className="text-sm sm:text-base text-gray-medium font-body">
                 Daily Vendor Quotes
               </div>
             </div>
@@ -162,7 +159,7 @@ const TestimonialsSection = () => {
                   : 'opacity-0 translate-y-8'
               }`}
             >
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-dark mb-3 group-hover:scale-110 transition-transform duration-300 font-heading">
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-dark mb-2 group-hover:scale-110 transition-transform duration-300 font-heading">
                 <AnimatedCounter
                   end={2.5}
                   prefix="₹"
@@ -170,7 +167,7 @@ const TestimonialsSection = () => {
                   duration={3000}
                 />
               </div>
-              <div className="text-base sm:text-lg text-gray-medium font-body">
+              <div className="text-sm sm:text-base text-gray-medium font-body">
                 Procurement via WhatsApp
               </div>
             </div>
@@ -181,10 +178,10 @@ const TestimonialsSection = () => {
                   : 'opacity-0 translate-y-8'
               }`}
             >
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-dark mb-3 group-hover:scale-110 transition-transform duration-300 font-heading">
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-dark mb-2 group-hover:scale-110 transition-transform duration-300 font-heading">
                 <AnimatedCounter end={4.8} suffix="/5" duration={2200} />
               </div>
-              <div className="text-base sm:text-lg text-gray-medium font-body">
+              <div className="text-sm sm:text-base text-gray-medium font-body">
                 User Satisfaction
               </div>
             </div>
@@ -192,118 +189,124 @@ const TestimonialsSection = () => {
         </div>
 
         {/* Testimonials */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mt-8 sm:mt-10">
           <div
-            className={`bg-white rounded-2xl p-8 sm:p-10 shadow-sm hover:shadow-lg transition-all duration-500 border border-gray-medium/20 group delay-500 ${
+            className={`bg-white rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-lg transition-all duration-500 border border-gray-medium/20 group delay-500 ${
               isVisible
                 ? 'opacity-100 translate-y-0'
                 : 'opacity-0 translate-y-8'
             }`}
           >
-            <div className="flex items-center mb-8">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-gray-dark font-bold text-xl shadow-sm group-hover:scale-110 transition-transform duration-300 font-heading border border-gray-medium/20">
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-dark font-bold text-lg shadow-sm group-hover:scale-110 transition-transform duration-300 font-heading border border-gray-medium/20">
                 R
               </div>
-              <div className="ml-6">
-                <div className="font-bold text-gray-dark text-xl font-body">
-                  Rajesh Kumar
+              <div className="ml-4 flex-1">
+                <div className="flex items-center justify-between">
+                  <div className="font-bold text-gray-dark text-lg font-body">
+                    Rajesh Kumar
+                  </div>
+                  <div className="flex text-gray-dark text-sm">
+                    {'★'.repeat(5)}
+                  </div>
                 </div>
-                <div className="text-base text-gray-medium font-body">
+                <div className="text-sm text-gray-medium font-body">
                   Site Engineer, Metro Projects
                 </div>
               </div>
             </div>
             <div className="relative">
-              <div className="absolute -top-2 -left-2 text-gray-dark/20 text-4xl font-serif">
+              <div className="absolute -top-1 -left-1 text-gray-dark/20 text-3xl font-serif">
                 &quot;
               </div>
-              <p className="text-gray-medium italic leading-relaxed pl-8 text-lg font-body">
+              <p className="text-gray-medium italic leading-relaxed pl-6 text-base font-body">
                 Bab.ai has revolutionized how we handle daily reports and
                 material requests. Everything happens on WhatsApp now -
                 it&apos;s so much faster than emails and calls.
               </p>
-              <div className="absolute -bottom-2 -right-2 text-gray-dark/20 text-4xl font-serif rotate-180">
+              <div className="absolute -bottom-1 -right-1 text-gray-dark/20 text-3xl font-serif rotate-180">
                 &quot;
               </div>
-            </div>
-            <div className="flex text-gray-dark mt-8 text-xl">
-              {'★'.repeat(5)}
             </div>
           </div>
 
           <div
-            className={`bg-white rounded-2xl p-8 sm:p-10 shadow-sm hover:shadow-lg transition-all duration-500 border border-gray-medium/20 group delay-600 ${
+            className={`bg-white rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-lg transition-all duration-500 border border-gray-medium/20 group delay-600 ${
               isVisible
                 ? 'opacity-100 translate-y-0'
                 : 'opacity-0 translate-y-8'
             }`}
           >
-            <div className="flex items-center mb-8">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-gray-dark font-bold text-xl shadow-sm group-hover:scale-110 transition-transform duration-300 font-heading border border-gray-medium/20">
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-dark font-bold text-lg shadow-sm group-hover:scale-110 transition-transform duration-300 font-heading border border-gray-medium/20">
                 P
               </div>
-              <div className="ml-6">
-                <div className="font-bold text-gray-dark text-xl font-body">
-                  Priya Sharma
+              <div className="ml-4 flex-1">
+                <div className="flex items-center justify-between">
+                  <div className="font-bold text-gray-dark text-lg font-body">
+                    Priya Sharma
+                  </div>
+                  <div className="flex text-gray-dark text-sm">
+                    {'★'.repeat(5)}
+                  </div>
                 </div>
-                <div className="text-base text-gray-medium font-body">
+                <div className="text-sm text-gray-medium font-body">
                   Project Director, Residential
                 </div>
               </div>
             </div>
             <div className="relative">
-              <div className="absolute -top-2 -left-2 text-gray-dark/20 text-4xl font-serif">
+              <div className="absolute -top-1 -left-1 text-gray-dark/20 text-3xl font-serif">
                 &quot;
               </div>
-              <p className="text-gray-medium italic leading-relaxed pl-8 text-lg font-body">
+              <p className="text-gray-medium italic leading-relaxed pl-6 text-base font-body">
                 The vendor coordination feature is amazing. We get quotes
                 instantly and can compare prices right on WhatsApp. Our
                 procurement efficiency has doubled.
               </p>
-              <div className="absolute -bottom-2 -right-2 text-gray-dark/20 text-4xl font-serif rotate-180">
+              <div className="absolute -bottom-1 -right-1 text-gray-dark/20 text-3xl font-serif rotate-180">
                 &quot;
               </div>
-            </div>
-            <div className="flex text-gray-dark mt-8 text-xl">
-              {'★'.repeat(5)}
             </div>
           </div>
 
           <div
-            className={`bg-white rounded-2xl p-8 sm:p-10 shadow-sm hover:shadow-lg transition-all duration-500 border border-gray-medium/20 group delay-700 ${
+            className={`bg-white rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-lg transition-all duration-500 border border-gray-medium/20 group delay-700 ${
               isVisible
                 ? 'opacity-100 translate-y-0'
                 : 'opacity-0 translate-y-8'
             }`}
           >
-            <div className="flex items-center mb-8">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-gray-dark font-bold text-xl shadow-sm group-hover:scale-110 transition-transform duration-300 font-heading border border-gray-medium/20">
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-dark font-bold text-lg shadow-sm group-hover:scale-110 transition-transform duration-300 font-heading border border-gray-medium/20">
                 A
               </div>
-              <div className="ml-6">
-                <div className="font-bold text-gray-dark text-xl font-body">
-                  Amit Patel
+              <div className="ml-4 flex-1">
+                <div className="flex items-center justify-between">
+                  <div className="font-bold text-gray-dark text-lg font-body">
+                    Amit Patel
+                  </div>
+                  <div className="flex text-gray-dark text-sm">
+                    {'★'.repeat(5)}
+                  </div>
                 </div>
-                <div className="text-base text-gray-medium font-body">
+                <div className="text-sm text-gray-medium font-body">
                   Builder, Commercial Projects
                 </div>
               </div>
             </div>
             <div className="relative">
-              <div className="absolute -top-2 -left-2 text-gray-dark/20 text-4xl font-serif">
+              <div className="absolute -top-1 -left-1 text-gray-dark/20 text-3xl font-serif">
                 &quot;
               </div>
-              <p className="text-gray-medium italic leading-relaxed pl-8 text-lg font-body">
+              <p className="text-gray-medium italic leading-relaxed pl-6 text-base font-body">
                 Managing 5 sites simultaneously was chaos before Bab.ai. Now I
                 get real-time updates and can make decisions instantly through
                 the dashboard.
               </p>
-              <div className="absolute -bottom-2 -right-2 text-gray-dark/20 text-4xl font-serif rotate-180">
+              <div className="absolute -bottom-1 -right-1 text-gray-dark/20 text-3xl font-serif rotate-180">
                 &quot;
               </div>
-            </div>
-            <div className="flex text-gray-dark mt-8 text-xl">
-              {'★'.repeat(5)}
             </div>
           </div>
         </div>

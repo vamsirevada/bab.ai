@@ -330,11 +330,11 @@ Thank you for using bab.ai! We'll keep you updated on your order status.`
               <div className="flex items-center justify-center w-12 h-12 bg-green-600 rounded-full">
                 <CreditCard className="w-6 h-6 text-white" />
               </div>
-              <div className="text-right">
+              <div className="text-left">
                 <div className="text-lg font-semibold text-gray-dark font-heading">
                   ₹{orderDetails.total?.toLocaleString()}
                 </div>
-                <p className="text-xs text-gray-medium font-body flex items-center gap-1 justify-end">
+                <p className="text-xs text-gray-medium font-body flex items-center gap-1">
                   <Truck className="w-3 h-3" />
                   Total Amount
                 </p>

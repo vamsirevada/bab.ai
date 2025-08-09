@@ -53,10 +53,11 @@ const Button = ({
 }
 
 // Card Component
-const Card = ({ children, className = '' }) => {
+const Card = ({ children, className = '', onClick }) => {
   return (
     <div
       className={`bg-white rounded-xl border border-gray-medium/20 shadow-sm ${className}`}
+      onClick={onClick}
     >
       {children}
     </div>
@@ -85,109 +86,168 @@ const Badge = ({ children, variant = 'default', className = '' }) => {
 // Quote Card Component
 const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
   const isSelected = selectedQuote?.vendorId === quote.vendorId
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  const handleCardClick = (e) => {
+    setIsExpanded(!isExpanded)
+  }
 
   return (
     <Card
-      className={`p-4 transition-all duration-200 ${
-        isSelected ? 'ring-2 ring-green-500 bg-green-50/50' : 'hover:shadow-md'
-      }`}
+      className={`p-3 transition-all duration-200 hover:shadow-md cursor-pointer ${
+        isSelected ? 'ring-2 ring-green-500 bg-green-50/50' : ''
+      } ${isExpanded ? 'shadow-lg' : ''}`}
+      onClick={handleCardClick}
     >
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <h3 className="font-semibold text-gray-dark font-heading">
-              {quote.vendorName}
-            </h3>
-            <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-4 h-4 ${
-                    i < quote.rating
-                      ? 'text-yellow-400 fill-current'
-                      : 'text-gray-200'
-                  }`}
-                />
-              ))}
+      {/* Minimal Header - Only Name and Total */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-gray-dark font-heading text-sm truncate">
+            {quote.vendorName}
+          </h3>
+          {/* Show expand indicator for collapsed state */}
+          {!isExpanded && (
+            <div className="text-xs text-gray-500 mt-1 font-medium">
+              Click card to view details ▼
             </div>
-            <Badge
-              variant={quote.status === 'received' ? 'success' : 'pending'}
-            >
-              {quote.status}
-            </Badge>
-          </div>
-          <p className="text-sm text-gray-medium font-body mb-2">
-            {quote.location} • {quote.deliveryTime}
-          </p>
-          <p className="text-sm text-gray-medium font-body">
-            {quote.specialization}
-          </p>
+          )}
         </div>
-        <div className="text-right">
-          <div className="text-xl font-bold text-gray-dark font-heading">
-            ₹{quote.totalAmount.toLocaleString()}
+        <div className="text-left flex-shrink-0 ml-2">
+          <div className="text-lg font-bold text-gray-dark font-heading">
+            {quote.status === 'pending'
+              ? '₹0'
+              : `₹${quote.totalAmount.toLocaleString()}`}
           </div>
-          <p className="text-xs text-gray-medium font-body">Total Amount</p>
+          <p className="text-xs text-gray-medium font-body">
+            {quote.status === 'pending' ? 'Pending' : 'Total'}
+          </p>
         </div>
       </div>
 
-      {quote.status === 'received' && (
-        <>
-          {/* Quote Items */}
-          <div className="mb-4">
-            <h4 className="text-sm font-medium text-gray-dark font-body mb-2">
-              Quote Breakdown
-            </h4>
-            <div className="space-y-2">
-              {quote.items.map((item, index) => (
-                <div key={index} className="flex justify-between text-sm">
-                  <span className="text-gray-medium font-body">
-                    {item.name} x {item.quantity}
+      {/* Expanded Content - All Details */}
+      {isExpanded && (
+        <div className="animate-in slide-in-from-top-2 duration-200">
+          {/* Vendor Details */}
+          <div className="mb-3 border-t border-gray-100 pt-3">
+            <div className="flex items-center gap-2 flex-wrap mb-2">
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-3 h-3 ${
+                      i < quote.rating
+                        ? 'text-yellow-400 fill-current'
+                        : 'text-gray-200'
+                    }`}
+                  />
+                ))}
+              </div>
+              <Badge
+                variant={quote.status === 'received' ? 'success' : 'pending'}
+                className="text-xs"
+              >
+                {quote.status}
+              </Badge>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mb-3">
+              <div>
+                <span className="font-medium text-gray-dark">Location:</span>
+                <span className="text-gray-medium ml-1">{quote.location}</span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-dark">Delivery:</span>
+                <span className="text-gray-medium ml-1">
+                  {quote.deliveryTime}
+                </span>
+              </div>
+              {quote.specialization && (
+                <div className="col-span-full">
+                  <span className="font-medium text-gray-dark">
+                    Specialization:
                   </span>
-                  <span className="font-medium text-gray-dark font-body">
-                    ₹{item.total.toLocaleString()}
+                  <span className="text-gray-medium ml-1">
+                    {quote.specialization}
                   </span>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-2">
-            <Button
-              variant="success"
-              size="sm"
-              onClick={() => onAccept(quote)}
-              disabled={!!selectedQuote && !isSelected}
-              className="flex-1 h-9"
-            >
-              {isSelected ? (
-                <>
-                  <CheckCircle className="w-4 h-4 mr-1" />
-                  Selected
-                </>
-              ) : (
-                'Accept Quote'
-              )}
-            </Button>
-            {!selectedQuote && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onReject(quote)}
-                className="px-3 h-9"
-              >
-                <XCircle className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
-        </>
-      )}
+          {quote.status === 'received' && (
+            <>
+              {/* Quote Items */}
+              <div className="mb-3">
+                <h4 className="text-xs font-semibold text-gray-dark mb-2">
+                  Quote Breakdown
+                </h4>
+                <div className="max-h-32 overflow-y-auto space-y-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  {quote.items.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between text-xs py-0.5 bg-gray-50 px-2 rounded"
+                    >
+                      <span className="text-gray-medium font-body truncate max-w-48">
+                        {item.name} x {item.quantity}
+                      </span>
+                      <span className="font-medium text-gray-dark font-body whitespace-nowrap ml-2">
+                        ₹{item.total.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-      {quote.status === 'pending' && (
-        <div className="flex items-center justify-center py-4 text-gray-medium">
-          <Clock className="w-4 h-4 mr-2" />
-          <span className="text-sm font-body">Waiting for quote...</span>
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <Button
+                  variant="success"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onAccept(quote)
+                  }}
+                  disabled={!!selectedQuote && !isSelected}
+                  className="flex-1 h-8 text-xs"
+                >
+                  {isSelected ? (
+                    <>
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Selected
+                    </>
+                  ) : (
+                    'Accept Quote'
+                  )}
+                </Button>
+                {!selectedQuote && (
+                  <Button
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onReject(quote)
+                    }}
+                    className="px-2 h-8"
+                  >
+                    <XCircle className="w-3 h-3" />
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
+
+          {quote.status === 'pending' && (
+            <div className="flex items-center justify-center py-2 text-gray-medium bg-orange-50 rounded">
+              <Clock className="w-3 h-3 mr-1" />
+              <span className="text-xs font-body">
+                Waiting for vendor response...
+              </span>
+            </div>
+          )}
+
+          {/* Collapse Indicator */}
+          <div className="text-center mt-3 pt-2 border-t border-gray-100">
+            <div className="text-xs text-gray-500 font-medium">
+              ▲ Click card to collapse
+            </div>
+          </div>
         </div>
       )}
     </Card>
@@ -317,11 +377,11 @@ const ReceiveQuoteContent = () => {
               <div className="flex items-center justify-center w-12 h-12 bg-blue-600 rounded-full">
                 <CheckCircle className="w-6 h-6 text-white" />
               </div>
-              <div className="text-right">
+              <div className="text-left">
                 <div className="text-lg font-semibold text-gray-dark font-heading">
                   {receivedQuotes.length} of {quotes.length}
                 </div>
-                <p className="text-xs text-gray-medium font-body flex items-center gap-1 justify-end">
+                <p className="text-xs text-gray-medium font-body flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   Quotes Received
                 </p>
@@ -332,11 +392,17 @@ const ReceiveQuoteContent = () => {
 
         {/* Received Quotes */}
         {receivedQuotes.length > 0 && (
-          <Card className="p-6 mb-6">
-            <h3 className="text-lg font-semibold text-gray-dark font-heading mb-4">
-              Available Quotes ({receivedQuotes.length})
-            </h3>
-            <div className="space-y-4">
+          <Card className="p-4 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-dark font-heading">
+                Available Quotes ({receivedQuotes.length})
+              </h3>
+              <Badge variant="info" className="text-xs">
+                {receivedQuotes.length} received
+              </Badge>
+            </div>
+            {/* Scrollable container for multiple quotes */}
+            <div className="max-h-96 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               {receivedQuotes.map((quote) => (
                 <QuoteCard
                   key={quote.vendorId}
@@ -352,11 +418,17 @@ const ReceiveQuoteContent = () => {
 
         {/* Pending Quotes */}
         {pendingQuotes.length > 0 && (
-          <Card className="p-6 mb-6">
-            <h3 className="text-lg font-semibold text-gray-dark font-heading mb-4">
-              Pending Quotes ({pendingQuotes.length})
-            </h3>
-            <div className="space-y-4">
+          <Card className="p-4 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-dark font-heading">
+                Pending Quotes ({pendingQuotes.length})
+              </h3>
+              <Badge variant="warning" className="text-xs">
+                {pendingQuotes.length} pending
+              </Badge>
+            </div>
+            {/* Scrollable container for pending quotes - same as available quotes */}
+            <div className="max-h-96 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               {pendingQuotes.map((quote) => (
                 <QuoteCard
                   key={quote.vendorId}
@@ -370,66 +442,77 @@ const ReceiveQuoteContent = () => {
           </Card>
         )}
 
-        {/* Selected Quote Summary */}
+        {/* Selected Quote Summary - Compact and Sticky */}
         {selectedQuote && (
-          <Card className="p-6 mb-6 bg-green-50 border-green-200">
-            <h3 className="text-lg font-semibold text-gray-dark font-heading mb-4">
-              Selected Quote Summary
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <p className="text-sm font-medium text-gray-dark font-body">
+          <Card className="p-4 mb-6 bg-green-50 border-green-200 sticky top-4 z-20 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold text-gray-dark font-heading">
+                Selected Quote
+              </h3>
+              <Badge variant="success" className="text-xs">
+                Confirmed
+              </Badge>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+              <div className="flex justify-between sm:flex-col">
+                <span className="font-medium text-gray-dark font-body">
                   Vendor
-                </p>
-                <p className="text-sm text-gray-medium font-body">
+                </span>
+                <span className="text-gray-medium font-body truncate">
                   {selectedQuote.vendorName}
-                </p>
+                </span>
               </div>
-              <div>
-                <p className="text-sm font-medium text-gray-dark font-body">
+              <div className="flex justify-between sm:flex-col">
+                <span className="font-medium text-gray-dark font-body">
                   Delivery
-                </p>
-                <p className="text-sm text-gray-medium font-body">
+                </span>
+                <span className="text-gray-medium font-body">
                   {selectedQuote.deliveryTime}
-                </p>
+                </span>
               </div>
-              <div>
-                <p className="text-sm font-medium text-gray-dark font-body">
-                  Total Amount
-                </p>
-                <p className="text-lg font-semibold text-gray-dark font-body">
+              <div className="flex justify-between sm:flex-col sm:border-l sm:border-green-300 sm:pl-3">
+                <span className="font-medium text-gray-dark font-body">
+                  Total
+                </span>
+                <span className="font-semibold text-gray-dark font-body">
                   ₹{selectedQuote.totalAmount.toLocaleString()}
-                </p>
+                </span>
               </div>
             </div>
           </Card>
         )}
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 sticky bottom-0 bg-white py-4 -mx-4 px-4 border-t border-gray-medium/20 sm:border-t-0 sm:bg-transparent sm:relative sm:py-0 sm:mx-0">
-          <Button
-            variant="outline"
-            className="flex-1 h-12"
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          <Button
-            onClick={handleProceedToOrder}
-            disabled={!selectedQuote}
-            className="flex-1 h-12 font-medium"
-          >
-            {selectedQuote ? (
-              <>
-                Proceed to Order
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </>
-            ) : (
-              'Select a Quote First'
-            )}
-          </Button>
+        {/* Action Buttons - Fixed at bottom for easy access */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-medium/20 p-4 z-30 sm:relative sm:bg-transparent sm:border-t-0 sm:p-0">
+          <div className="max-w-screen-xl mx-auto flex flex-col sm:flex-row gap-3">
+            <Button
+              variant="outline"
+              className="flex-1 h-12 sm:max-w-32"
+              onClick={() => router.back()}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <Button
+              onClick={handleProceedToOrder}
+              disabled={!selectedQuote}
+              className="flex-1 h-12 font-medium bg-green-600 hover:bg-green-700 focus:ring-green-600"
+            >
+              {selectedQuote ? (
+                <>
+                  Proceed to Order (₹
+                  {selectedQuote.totalAmount.toLocaleString()})
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </>
+              ) : (
+                'Select a Quote First'
+              )}
+            </Button>
+          </div>
         </div>
+
+        {/* Bottom padding for fixed button on mobile */}
+        <div className="h-20 sm:hidden" />
       </div>
     </div>
   )

@@ -158,21 +158,24 @@ const ProblemSection = () => {
         >
           <div className="bg-white border border-gray-medium/20 rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-500 group">
             <div className="text-center">
-              <div className="w-16 h-16 bg-gray-light rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-sm">
-                <svg
-                  className="w-8 h-8 text-gray-dark"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.484 3.488"
-                    fill="currentColor"
-                  />
-                </svg>
-              </div>
-              <div className="text-4xl sm:text-5xl font-bold text-gray-dark mb-4 group-hover:scale-105 transition-transform duration-300">
-                <AnimatedCounter end={90} suffix="%" duration={2000} />
+              {/* Icon and Counter side-by-side */}
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="w-16 h-16 bg-gray-light rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm flex-shrink-0">
+                  <svg
+                    className="w-8 h-8 text-gray-dark"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.484 3.488"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </div>
+                <div className="text-4xl sm:text-5xl font-bold text-gray-dark group-hover:scale-105 transition-transform duration-300">
+                  <AnimatedCounter end={90} suffix="%" duration={2000} />
+                </div>
               </div>
               <div className="text-gray-dark font-semibold text-xl mb-3 font-body">
                 Use WhatsApp for Projects
@@ -185,24 +188,27 @@ const ProblemSection = () => {
 
           <div className="bg-white border border-gray-medium/20 rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-500 group">
             <div className="text-center">
-              <div className="w-16 h-16 bg-gray-light rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-sm">
-                <svg
-                  className="w-8 h-8 text-gray-dark"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M8 9H16M8 13H14M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <div className="text-4xl sm:text-5xl font-bold text-gray-dark mb-4 group-hover:scale-105 transition-transform duration-300">
-                <AnimatedCounter end={500} suffix="+" duration={2300} />
+              {/* Icon and Counter side-by-side */}
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="w-16 h-16 bg-gray-light rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm flex-shrink-0">
+                  <svg
+                    className="w-8 h-8 text-gray-dark"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M8 9H16M8 13H14M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <div className="text-4xl sm:text-5xl font-bold text-gray-dark group-hover:scale-105 transition-transform duration-300">
+                  <AnimatedCounter end={500} suffix="+" duration={2300} />
+                </div>
               </div>
               <div className="text-gray-dark font-semibold text-xl mb-3 font-body">
                 Messages Per Project
@@ -215,24 +221,27 @@ const ProblemSection = () => {
 
           <div className="bg-white border border-gray-medium/20 rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-500 group">
             <div className="text-center">
-              <div className="w-16 h-16 bg-gray-light rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-sm">
-                <svg
-                  className="w-8 h-8 text-gray-dark"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M4 16L8.586 11.414C9.367 10.633 10.633 10.633 11.414 11.414L16 16M14 14L15.586 12.414C16.367 11.633 17.633 11.633 18.414 12.414L20 14M14 8H14.01M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <div className="text-4xl sm:text-5xl font-bold text-gray-dark mb-4 group-hover:scale-105 transition-transform duration-300">
-                <AnimatedCounter end={70} suffix="%" duration={2600} />
+              {/* Icon and Counter side-by-side */}
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="w-16 h-16 bg-gray-light rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm flex-shrink-0">
+                  <svg
+                    className="w-8 h-8 text-gray-dark"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M4 16L8.586 11.414C9.367 10.633 10.633 10.633 11.414 11.414L16 16M14 14L15.586 12.414C16.367 11.633 17.633 11.633 18.414 12.414L20 14M14 8H14.01M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <div className="text-4xl sm:text-5xl font-bold text-gray-dark group-hover:scale-105 transition-transform duration-300">
+                  <AnimatedCounter end={70} suffix="%" duration={2600} />
+                </div>
               </div>
               <div className="text-gray-dark font-semibold text-xl mb-3 font-body">
                 Critical Info in Photos
@@ -253,11 +262,11 @@ const ProblemSection = () => {
           <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-dark mb-8 sm:mb-12 text-center font-heading">
             The Daily Struggle
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
-            <div className="text-center group">
-              <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-300 border border-gray-medium/20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+            <div className="flex items-start gap-4 group">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-300 border border-gray-medium/20 flex-shrink-0">
                 <svg
-                  className="w-7 h-7 text-gray-dark"
+                  className="w-6 h-6 text-gray-dark"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -271,17 +280,19 @@ const ProblemSection = () => {
                   />
                 </svg>
               </div>
-              <h4 className="font-semibold text-gray-dark mb-3 text-lg font-body">
-                Lost Photos
-              </h4>
-              <p className="text-gray-medium font-body leading-relaxed">
-                Site progress photos scattered across conversations
-              </p>
+              <div className="flex-1">
+                <h4 className="font-semibold text-gray-dark mb-2 text-lg font-body">
+                  Lost Photos
+                </h4>
+                <p className="text-gray-medium font-body leading-relaxed">
+                  Site progress photos scattered across conversations
+                </p>
+              </div>
             </div>
-            <div className="text-center group">
-              <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-300 border border-gray-medium/20">
+            <div className="flex items-start gap-4 group">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-300 border border-gray-medium/20 flex-shrink-0">
                 <svg
-                  className="w-7 h-7 text-gray-dark"
+                  className="w-6 h-6 text-gray-dark"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -295,17 +306,19 @@ const ProblemSection = () => {
                   />
                 </svg>
               </div>
-              <h4 className="font-semibold text-gray-dark mb-3 text-lg font-body">
-                Time Wasted
-              </h4>
-              <p className="text-gray-medium font-body leading-relaxed">
-                Hours spent scrolling to find important information
-              </p>
+              <div className="flex-1">
+                <h4 className="font-semibold text-gray-dark mb-2 text-lg font-body">
+                  Time Wasted
+                </h4>
+                <p className="text-gray-medium font-body leading-relaxed">
+                  Hours spent scrolling to find important information
+                </p>
+              </div>
             </div>
-            <div className="text-center group">
-              <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-300 border border-gray-medium/20">
+            <div className="flex items-start gap-4 group">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-300 border border-gray-medium/20 flex-shrink-0">
                 <svg
-                  className="w-7 h-7 text-gray-dark"
+                  className="w-6 h-6 text-gray-dark"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -319,17 +332,19 @@ const ProblemSection = () => {
                   />
                 </svg>
               </div>
-              <h4 className="font-semibold text-gray-dark mb-3 text-lg font-body">
-                Missed Bills
-              </h4>
-              <p className="text-gray-medium font-body leading-relaxed">
-                Vendor invoices buried in endless message threads
-              </p>
+              <div className="flex-1">
+                <h4 className="font-semibold text-gray-dark mb-2 text-lg font-body">
+                  Missed Bills
+                </h4>
+                <p className="text-gray-medium font-body leading-relaxed">
+                  Vendor invoices buried in endless message threads
+                </p>
+              </div>
             </div>
-            <div className="text-center group">
-              <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-300 border border-gray-medium/20">
+            <div className="flex items-start gap-4 group">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-300 border border-gray-medium/20 flex-shrink-0">
                 <svg
-                  className="w-7 h-7 text-gray-dark"
+                  className="w-6 h-6 text-gray-dark"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -343,12 +358,14 @@ const ProblemSection = () => {
                   />
                 </svg>
               </div>
-              <h4 className="font-semibold text-gray-dark mb-3 text-lg font-body">
-                No Insights
-              </h4>
-              <p className="text-gray-medium font-body leading-relaxed">
-                Raw data without actionable intelligence
-              </p>
+              <div className="flex-1">
+                <h4 className="font-semibold text-gray-dark mb-2 text-lg font-body">
+                  No Insights
+                </h4>
+                <p className="text-gray-medium font-body leading-relaxed">
+                  Raw data without actionable intelligence
+                </p>
+              </div>
             </div>
           </div>
         </div>

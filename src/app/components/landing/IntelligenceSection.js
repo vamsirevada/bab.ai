@@ -98,11 +98,11 @@ const IntelligenceSection = () => {
                 Your browser does not support the video tag.
               </video>
 
-              {/* Overlay on Hover */}
-              <div className="absolute inset-0 bg-gray-dark/90 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center p-6 backdrop-blur-sm">
-                <div className="text-center transform translate-y-6 group-hover:translate-y-0 transition-transform duration-500 delay-100">
-                  <div className="bg-white/95 backdrop-blur-md rounded-xl p-6 shadow-xl border border-gray-medium/20">
-                    <p className="text-gray-dark text-center leading-relaxed text-sm sm:text-base font-medium font-body">
+              {/* Overlay on Hover/Touch */}
+              <div className="absolute inset-0 bg-gray-dark/90 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all duration-500 flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm">
+                <div className="text-center transform translate-y-6 group-hover:translate-y-0 group-active:translate-y-0 transition-transform duration-500 delay-100">
+                  <div className="bg-white/95 backdrop-blur-md rounded-xl p-4 sm:p-6 shadow-xl border border-gray-medium/20">
+                    <p className="text-gray-dark text-center leading-relaxed text-xs sm:text-sm md:text-base font-medium font-body">
                       &quot;Gets instant quotes from vendors, compares prices,
                       generates purchase orders, and tracks deliveries&quot;
                     </p>
@@ -116,9 +116,9 @@ const IntelligenceSection = () => {
             </div>
 
             {/* Bottom Badge */}
-            <div className="absolute bottom-4 left-4 right-4 text-center transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
-              <div className="bg-white/95 backdrop-blur-md rounded-xl py-3 px-4 shadow-lg border border-gray-medium/20 group-hover:shadow-xl group-hover:scale-[1.02] transition-all duration-300">
-                <div className="text-base font-bold text-gray-dark font-body">
+            <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 text-center transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
+              <div className="bg-white/95 backdrop-blur-md rounded-xl py-2 sm:py-3 px-3 sm:px-4 shadow-lg border border-gray-medium/20 group-hover:shadow-xl group-hover:scale-[1.02] transition-all duration-300">
+                <div className="text-sm sm:text-base font-bold text-gray-dark font-body">
                   Your Purchase Manager
                 </div>
                 <div className="text-xs text-gray-medium font-medium mt-1 uppercase tracking-wider">
@@ -146,11 +146,11 @@ const IntelligenceSection = () => {
                 Your browser does not support the video tag.
               </video>
 
-              {/* Overlay on Hover */}
-              <div className="absolute inset-0 bg-gray-dark/90 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center p-6 backdrop-blur-sm">
-                <div className="text-center transform translate-y-6 group-hover:translate-y-0 transition-transform duration-500 delay-100">
-                  <div className="bg-white/95 backdrop-blur-md rounded-xl p-6 shadow-xl border border-gray-medium/20">
-                    <p className="text-gray-dark text-center leading-relaxed text-sm sm:text-base font-medium font-body">
+              {/* Overlay on Hover/Touch */}
+              <div className="absolute inset-0 bg-gray-dark/90 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all duration-500 flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm">
+                <div className="text-center transform translate-y-6 group-hover:translate-y-0 group-active:translate-y-0 transition-transform duration-500 delay-100">
+                  <div className="bg-white/95 backdrop-blur-md rounded-xl p-4 sm:p-6 shadow-xl border border-gray-medium/20">
+                    <p className="text-gray-dark text-center leading-relaxed text-xs sm:text-sm md:text-base font-medium font-body">
                       &quot;No Guesswork. Smart limits. Simple terms. Releases
                       credit straight to vendors.&quot;
                     </p>
@@ -164,9 +164,9 @@ const IntelligenceSection = () => {
             </div>
 
             {/* Bottom Badge */}
-            <div className="absolute bottom-4 left-4 right-4 text-center transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
-              <div className="bg-white/95 backdrop-blur-md rounded-xl py-3 px-4 shadow-lg border border-gray-medium/20 group-hover:shadow-xl group-hover:scale-[1.02] transition-all duration-300">
-                <div className="text-base font-bold text-gray-dark font-body">
+            <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 text-center transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
+              <div className="bg-white/95 backdrop-blur-md rounded-xl py-2 sm:py-3 px-3 sm:px-4 shadow-lg border border-gray-medium/20 group-hover:shadow-xl group-hover:scale-[1.02] transition-all duration-300">
+                <div className="text-sm sm:text-base font-bold text-gray-dark font-body">
                   Your Personal Banker
                 </div>
                 <div className="text-xs text-gray-medium font-medium mt-1 uppercase tracking-wider">
@@ -194,17 +194,17 @@ const IntelligenceSection = () => {
               </video>
 
               {/* Coming Soon Badge */}
-              <div className="absolute top-4 right-4 z-20">
-                <div className="bg-gray-dark text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm font-body">
+              <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-20">
+                <div className="bg-gray-dark text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm font-body">
                   Coming Soon
                 </div>
               </div>
 
-              {/* Overlay on Hover */}
-              <div className="absolute inset-0 bg-gray-dark/90 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center p-6 backdrop-blur-sm">
-                <div className="text-center transform translate-y-6 group-hover:translate-y-0 transition-transform duration-500 delay-100">
-                  <div className="bg-white/95 backdrop-blur-md rounded-xl p-6 shadow-xl border border-gray-medium/20">
-                    <p className="text-gray-dark text-center leading-relaxed text-sm sm:text-base font-medium font-body">
+              {/* Overlay on Hover/Touch */}
+              <div className="absolute inset-0 bg-gray-dark/90 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all duration-500 flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm">
+                <div className="text-center transform translate-y-6 group-hover:translate-y-0 group-active:translate-y-0 transition-transform duration-500 delay-100">
+                  <div className="bg-white/95 backdrop-blur-md rounded-xl p-4 sm:p-6 shadow-xl border border-gray-medium/20">
+                    <p className="text-gray-dark text-center leading-relaxed text-xs sm:text-sm md:text-base font-medium font-body">
                       &quot;Tracks work, people, and progress smartly. Provides
                       in detail analysis and suggestions.&quot;
                     </p>
@@ -218,9 +218,9 @@ const IntelligenceSection = () => {
             </div>
 
             {/* Bottom Badge */}
-            <div className="absolute bottom-4 left-4 right-4 text-center transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
-              <div className="bg-white/95 backdrop-blur-md rounded-xl py-3 px-4 shadow-lg border border-gray-medium/20 group-hover:shadow-xl group-hover:scale-[1.02] transition-all duration-300">
-                <div className="text-base font-bold text-gray-dark font-body">
+            <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 text-center transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
+              <div className="bg-white/95 backdrop-blur-md rounded-xl py-2 sm:py-3 px-3 sm:px-4 shadow-lg border border-gray-medium/20 group-hover:shadow-xl group-hover:scale-[1.02] transition-all duration-300">
+                <div className="text-sm sm:text-base font-bold text-gray-dark font-body">
                   Your Site Supervisor
                 </div>
                 <div className="text-xs text-gray-medium font-medium mt-1 uppercase tracking-wider">

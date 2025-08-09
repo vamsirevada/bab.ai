@@ -313,7 +313,7 @@ const DemoSection = () => {
                     <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-light/50 transition-colors duration-300">
                       <div className="w-12 h-12 bg-white border border-gray-dark/20 rounded-full flex items-center justify-center group-hover:scale-110 group-hover:shadow-md transition-all duration-300 shadow-sm">
                         <svg
-                          className="w-6 h-6 text-gray-dark"
+                          className="w-4 h-4 text-gray-dark"
                           viewBox="0 0 24 24"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
@@ -327,7 +327,7 @@ const DemoSection = () => {
                       <div>
                         <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-dark group-hover:scale-105 transition-transform duration-300">
                           <AnimatedCounter
-                            end={100}
+                            end={99}
                             suffix="K+"
                             duration={2000}
                           />
@@ -343,7 +343,7 @@ const DemoSection = () => {
                     <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-light/50 transition-colors duration-300">
                       <div className="w-12 h-12 bg-white border border-gray-dark/20 rounded-full flex items-center justify-center group-hover:scale-110 group-hover:shadow-md transition-all duration-300 shadow-sm">
                         <svg
-                          className="w-6 h-6 text-gray-dark"
+                          className="w-4 h-4 text-gray-dark"
                           viewBox="0 0 24 24"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
@@ -351,7 +351,7 @@ const DemoSection = () => {
                           <path
                             d="M4 16L8.586 11.414C9.367 10.633 10.633 10.633 11.414 11.414L16 16M14 14L15.586 12.414C16.367 11.633 17.633 11.633 18.414 12.414L20 14M14 8H14.01M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z"
                             stroke="currentColor"
-                            strokeWidth="2"
+                            strokeWidth="1.5"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           />
@@ -360,7 +360,7 @@ const DemoSection = () => {
                       <div>
                         <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-dark group-hover:scale-105 transition-transform duration-300">
                           <AnimatedCounter
-                            end={50}
+                            end={9}
                             suffix="K+"
                             duration={2300}
                           />
@@ -376,7 +376,7 @@ const DemoSection = () => {
                     <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-light/50 transition-colors duration-300">
                       <div className="w-12 h-12 bg-white border border-gray-dark/20 rounded-full flex items-center justify-center group-hover:scale-110 group-hover:shadow-md transition-all duration-300 shadow-sm">
                         <svg
-                          className="w-6 h-6 text-gray-dark"
+                          className="w-4 h-4 text-gray-dark"
                           viewBox="0 0 24 24"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
@@ -384,7 +384,7 @@ const DemoSection = () => {
                           <path
                             d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
                             stroke="currentColor"
-                            strokeWidth="2"
+                            strokeWidth="1.5"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           />
@@ -409,7 +409,7 @@ const DemoSection = () => {
                     <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-light/50 transition-colors duration-300">
                       <div className="w-12 h-12 bg-white border border-gray-dark/20 rounded-full flex items-center justify-center group-hover:scale-110 group-hover:shadow-md transition-all duration-300 shadow-sm">
                         <svg
-                          className="w-6 h-6 text-gray-dark"
+                          className="w-4 h-4 text-gray-dark"
                           viewBox="0 0 24 24"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
@@ -417,7 +417,7 @@ const DemoSection = () => {
                           <path
                             d="M13 2L3 14H12L11 22L21 10H12L13 2Z"
                             stroke="currentColor"
-                            strokeWidth="2"
+                            strokeWidth="1.5"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           />
@@ -425,11 +425,7 @@ const DemoSection = () => {
                       </div>
                       <div>
                         <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-dark group-hover:scale-105 transition-transform duration-300">
-                          <AnimatedCounter
-                            end={2.5}
-                            suffix="M"
-                            duration={2900}
-                          />
+                          <AnimatedCounter end={2} suffix="M" duration={2900} />
                         </div>
                         <div className="text-sm text-gray-medium font-medium">
                           Insights Generated

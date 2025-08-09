@@ -173,12 +173,6 @@ const Footer = () => {
               >
                 Cookie Policy
               </Link>
-              <a
-                href="#"
-                className="text-gray-medium hover:text-brand-primary transition-colors duration-200 font-body"
-              >
-                Security
-              </a>
             </div>
           </div>
         </div>

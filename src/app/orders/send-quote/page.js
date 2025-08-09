@@ -89,40 +89,40 @@ const QuoteItem = ({ item, onPriceChange }) => {
   }
 
   return (
-    <Card className="p-4 border-l-4 border-l-gray-dark">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex-1">
-          <h3 className="font-medium text-gray-dark font-heading text-sm">
-            {item.material_name}
-          </h3>
-          {item.sub_type && (
-            <Badge variant="default" className="mt-1">
-              {item.sub_type}
-            </Badge>
-          )}
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-gray-medium font-body">
-            Qty:{' '}
-            <span className="font-semibold text-gray-dark">
-              {item.quantity}
+    <Card className="p-3 border-l-4 border-l-gray-dark hover:shadow-md transition-all duration-200">
+      {/* Compact Header - All info in one line */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-medium text-gray-dark font-heading text-sm truncate max-w-xs">
+              {item.material_name}
+            </h3>
+            {item.sub_type && (
+              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-body whitespace-nowrap">
+                {item.sub_type}
+              </span>
+            )}
+            {/* Qty and Size badges next to name and sub_type */}
+            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-body whitespace-nowrap">
+              Qty: {item.quantity}
             </span>
-          </p>
-          {item.dimensions && (
-            <p className="text-xs text-gray-medium font-body">
-              Size: {item.dimensions}
-            </p>
-          )}
+            {item.dimensions && (
+              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-body whitespace-nowrap">
+                {item.dimensions}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="flex-1">
+      {/* Price Input Row - More compact */}
+      <div className="flex items-end gap-3">
+        <div className="flex-1 max-w-40">
           <label className="block text-xs font-medium text-gray-dark mb-1 font-body">
-            Unit Price (₹) *
+            Unit Price (₹)
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-medium">
+            <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-medium text-xs">
               ₹
             </span>
             <input
@@ -131,17 +131,18 @@ const QuoteItem = ({ item, onPriceChange }) => {
               step="0.01"
               value={price}
               onChange={(e) => handlePriceChange(e.target.value)}
-              className="w-full pl-8 pr-3 py-2 bg-white/80 backdrop-blur-sm border border-gray-medium/40 rounded-lg focus:ring-1 focus:ring-gray-dark/20 focus:border-gray-dark transition-all duration-200 font-body placeholder-gray-medium/70 shadow-sm text-sm"
+              className="w-full pl-6 pr-2 py-1.5 bg-white/80 backdrop-blur-sm border border-gray-medium/40 rounded-md focus:ring-1 focus:ring-gray-dark/20 focus:border-gray-dark transition-all duration-200 font-body placeholder-gray-medium/70 shadow-sm text-sm"
               placeholder="0.00"
               required
             />
           </div>
         </div>
-        <div className="text-right">
+
+        <div className="flex-shrink-0">
           <p className="text-xs font-medium text-gray-dark mb-1 font-body">
             Total
           </p>
-          <p className="text-sm font-semibold text-gray-dark font-body">
+          <p className="text-sm font-semibold text-gray-dark font-body bg-gray-50 px-2 py-1.5 rounded-md min-w-20 text-center">
             ₹{price ? (parseFloat(price) * item.quantity).toFixed(2) : '0.00'}
           </p>
         </div>
@@ -163,32 +164,80 @@ const SendQuoteContent = () => {
   })
   const [quotePrices, setQuotePrices] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Load order data from localStorage
+  const uuid = searchParams.get('uuid')
+
+  // Load order data from API
   useEffect(() => {
-    try {
-      const storedCustomerInfo = localStorage.getItem('customerInfo')
-      const storedOrderData = localStorage.getItem('orderData')
-
-      if (storedCustomerInfo) {
-        setCustomerInfo(JSON.parse(storedCustomerInfo))
+    const loadData = async () => {
+      if (!uuid) {
+        setIsLoading(false)
+        return
       }
 
-      if (storedOrderData) {
-        const parsedOrderData = JSON.parse(storedOrderData)
-        setOrderData(parsedOrderData)
+      setIsLoading(true)
+      try {
+        const response = await fetch(`/api/orders/review-order/${uuid}`)
 
-        // Initialize quote prices
-        const initialPrices = {}
-        parsedOrderData.forEach((item) => {
-          initialPrices[item.id] = item.quoted_price || ''
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const reviewOrderData = await response.json()
+
+        if (reviewOrderData && Array.isArray(reviewOrderData)) {
+          const orderItems = reviewOrderData.map((item, index) => ({
+            id: item.id || Date.now() + index,
+            material_name: item.material_name || '',
+            sub_type: item.sub_type || '',
+            dimensions: item.dimensions || '',
+            quantity: item.quantity || 1,
+            unit_price: item.unit_price || 0,
+            ...item,
+          }))
+          setOrderData(orderItems)
+
+          // Initialize quote prices
+          const initialPrices = {}
+          orderItems.forEach((item) => {
+            initialPrices[item.id] = item.quoted_price || ''
+          })
+          setQuotePrices(initialPrices)
+        }
+      } catch (error) {
+        console.error('Error loading order data:', error)
+      } finally {
+        setIsLoading(false)
+      }
+
+      // Try to load customer info from localStorage as fallback
+      try {
+        const storedCustomerInfo = localStorage.getItem('customerInfo')
+        if (storedCustomerInfo) {
+          setCustomerInfo(JSON.parse(storedCustomerInfo))
+        } else {
+          // Fallback customer info
+          setCustomerInfo({
+            name: 'Construction Team',
+            phone: '+91 98765 43210',
+            site: 'Construction Project',
+            address: 'Project Site Address',
+          })
+        }
+      } catch (error) {
+        console.error('Error loading customer info:', error)
+        setCustomerInfo({
+          name: 'Construction Team',
+          phone: '+91 98765 43210',
+          site: 'Construction Project',
+          address: 'Project Site Address',
         })
-        setQuotePrices(initialPrices)
       }
-    } catch (error) {
-      console.error('Error loading data:', error)
     }
-  }, [])
+
+    loadData()
+  }, [uuid])
 
   const handlePriceChange = (itemId, price) => {
     setQuotePrices((prev) => ({
@@ -248,6 +297,18 @@ const SendQuoteContent = () => {
 
   const totalAmount = calculateTotal()
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen relative flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-gray-medium border-t-gray-dark rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-medium font-body">Loading order data...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen relative">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 relative z-10">
@@ -271,11 +332,11 @@ const SendQuoteContent = () => {
               <div className="flex items-center justify-center w-12 h-12 bg-green-600 rounded-full">
                 <Calculator className="w-6 h-6 text-white" />
               </div>
-              <div className="text-right">
+              <div className="text-left">
                 <div className="text-lg font-semibold text-gray-dark font-heading">
                   ₹{totalAmount.toFixed(2)}
                 </div>
-                <p className="text-xs text-gray-medium font-body flex items-center gap-1 justify-end">
+                <p className="text-xs text-gray-medium font-body flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   Quote Total
                 </p>
@@ -327,52 +388,62 @@ const SendQuoteContent = () => {
 
         {/* Quote Items */}
         <Card className="p-6 mb-6">
-          <h3 className="text-lg font-semibold text-gray-dark font-heading mb-4">
-            Quote Items
-          </h3>
-          <div className="space-y-3">
-            {orderData.length === 0 ? (
-              <div className="text-center py-8 text-gray-medium">
-                <p className="font-body">No order items found.</p>
-              </div>
-            ) : (
-              orderData.map((item) => (
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-dark font-heading">
+              Quote Items ({orderData.length})
+            </h3>
+            <div className="text-sm text-gray-medium font-body">
+              Total: ₹{totalAmount.toFixed(2)}
+            </div>
+          </div>
+
+          {orderData.length === 0 ? (
+            <div className="text-center py-8 text-gray-medium">
+              <p className="font-body">No order items found.</p>
+            </div>
+          ) : (
+            <div className="max-h-96 overflow-y-auto space-y-2 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              {orderData.map((item) => (
                 <QuoteItem
                   key={item.id}
                   item={item}
                   onPriceChange={handlePriceChange}
                 />
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </Card>
 
-        {/* Quote Summary */}
-        <Card className="p-6 mb-6">
-          <h3 className="text-lg font-semibold text-gray-dark font-heading mb-4">
-            Quote Summary
-          </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-dark font-body">
-                Items ({orderData.length})
+        {/* Quote Summary - Sticky on mobile for easy access */}
+        <Card className="p-4 mb-6 sticky top-4 z-20 bg-white/95 backdrop-blur-sm border-2 border-gray-dark/10">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold text-gray-dark font-heading">
+              Quote Summary
+            </h3>
+            <Badge variant="info" className="text-xs">
+              {orderData.length} items
+            </Badge>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+            <div className="flex justify-between sm:flex-col">
+              <span className="font-medium text-gray-dark font-body">
+                Subtotal
               </span>
-              <span className="text-sm text-gray-medium font-body">
+              <span className="text-gray-medium font-body">
                 ₹{totalAmount.toFixed(2)}
               </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-dark font-body">
+            <div className="flex justify-between sm:flex-col">
+              <span className="font-medium text-gray-dark font-body">
                 GST (18%)
               </span>
-              <span className="text-sm text-gray-medium font-body">
+              <span className="text-gray-medium font-body">
                 ₹{(totalAmount * 0.18).toFixed(2)}
               </span>
             </div>
-            <hr className="border-gray-medium/20" />
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between sm:flex-col sm:border-l sm:border-gray-200 sm:pl-3">
               <span className="text-lg font-semibold text-gray-dark font-heading">
-                Total Amount
+                Total
               </span>
               <span className="text-lg font-semibold text-gray-dark font-heading">
                 ₹{(totalAmount * 1.18).toFixed(2)}
@@ -381,37 +452,42 @@ const SendQuoteContent = () => {
           </div>
         </Card>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 sticky bottom-0 bg-white py-4 -mx-4 px-4 border-t border-gray-medium/20 sm:border-t-0 sm:bg-transparent sm:relative sm:py-0 sm:mx-0">
-          <Button
-            variant="outline"
-            className="flex-1 h-12"
-            onClick={() => router.back()}
-            disabled={isSubmitting}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          <Button
-            onClick={handleSubmitQuote}
-            disabled={
-              isSubmitting || orderData.length === 0 || totalAmount === 0
-            }
-            className="flex-1 h-12 font-medium"
-          >
-            {isSubmitting ? (
-              <>
-                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                Submitting Quote...
-              </>
-            ) : (
-              <>
-                <Send className="w-4 h-4 mr-2" />
-                Submit Quote
-              </>
-            )}
-          </Button>
+        {/* Action Buttons - Fixed at bottom for easy access */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-medium/20 p-4 z-30 sm:relative sm:bg-transparent sm:border-t-0 sm:p-0">
+          <div className="max-w-screen-xl mx-auto flex flex-col sm:flex-row gap-3">
+            <Button
+              variant="outline"
+              className="flex-1 h-12 sm:max-w-32"
+              onClick={() => router.back()}
+              disabled={isSubmitting}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <Button
+              onClick={handleSubmitQuote}
+              disabled={
+                isSubmitting || orderData.length === 0 || totalAmount === 0
+              }
+              className="flex-1 h-12 font-medium bg-green-600 hover:bg-green-700 focus:ring-green-600"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4 mr-2" />
+                  Submit Quote (₹{(totalAmount * 1.18).toFixed(2)})
+                </>
+              )}
+            </Button>
+          </div>
         </div>
+
+        {/* Bottom padding for fixed button on mobile */}
+        <div className="h-20 sm:hidden" />
       </div>
     </div>
   )

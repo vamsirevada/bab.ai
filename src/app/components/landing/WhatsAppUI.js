@@ -76,7 +76,7 @@ const ContactHeader = () => (
     </svg>
 
     {/* Profile picture */}
-    <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 mr-3 sm:mr-4 flex items-center justify-center text-white text-xs sm:text-sm font-semibold">
+    <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full bg-brand-dark mr-3 sm:mr-4 flex items-center justify-center text-brand-light text-xs sm:text-sm font-bold border-2 border-gray-dark shadow-lg">
       B
     </div>
 
