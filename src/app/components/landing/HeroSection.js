@@ -4,7 +4,7 @@ import React from 'react'
 const HeroSection = () => {
   return (
     <div
-      className="mx-auto max-w-7xl pt-2 sm:pt-4 lg:pt-8 pb-2 sm:pb-4 lg:pb-6 px-4 sm:px-6 lg:px-8 min-h-[85vh] sm:min-h-[90vh] flex flex-col justify-between"
+      className="mx-auto max-w-7xl pt-14 sm:pt-12 md:pt-10 lg:pt-8 pb-4 sm:pb-6 lg:pb-6 px-4 sm:px-6 lg:px-8 min-h-[85vh] sm:min-h-[90vh] flex flex-col justify-between transition-padding duration-300"
       data-hero-section
     >
       <div className="flex-1 flex flex-col justify-center">
