@@ -105,7 +105,7 @@ const TestimonialsSection = () => {
   }, [])
 
   return (
-    <div ref={sectionRef} className="bg-gray-light py-8 sm:py-10 lg:py-12">
+    <div ref={sectionRef} className="py-8 sm:py-10 lg:py-12">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div

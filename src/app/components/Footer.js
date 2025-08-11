@@ -7,7 +7,7 @@ const Footer = () => {
   const isOrderPage = pathname?.includes('/orders/')
 
   return !isOrderPage ? (
-    <footer className="bg-white text-gray-dark relative overflow-hidden border-t border-gray-medium/20">
+    <footer className="text-gray-dark relative overflow-hidden border-t border-gray-medium/20">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gray-light/10"></div>
       <div className="absolute top-0 left-0 w-64 h-64 bg-gray-medium/5 rounded-full -translate-y-32 -translate-x-32"></div>

@@ -63,7 +63,7 @@ const TypingAnimation = () => {
 const IntelligenceSection = () => {
   return (
     <div
-      className="w-full py-8 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8 bg-white"
+      className="w-full py-8 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8"
       data-next-section
     >
       <div className="container mx-auto max-w-7xl">

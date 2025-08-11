@@ -108,7 +108,7 @@ const ProblemSection = () => {
   }, [isVisible])
 
   return (
-    <div ref={sectionRef} className="bg-white py-12 sm:py-16 lg:py-20 xl:py-24">
+    <div ref={sectionRef} className="py-12 sm:py-16 lg:py-20 xl:py-24">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div

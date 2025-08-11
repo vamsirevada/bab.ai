@@ -134,7 +134,7 @@ const DemoSection = () => {
   }, [isPhoneVisible, isContentVisible])
 
   return (
-    <div className="bg-gray-light py-8 sm:py-10 lg:py-12">
+    <div className="py-8 sm:py-10 lg:py-12">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">

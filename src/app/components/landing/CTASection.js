@@ -23,7 +23,7 @@ const CTASection = ({ onGetStarted }) => {
   }, [])
 
   return (
-    <div ref={sectionRef} className="py-8 sm:py-10 lg:py-12 bg-white">
+    <div ref={sectionRef} className="py-8 sm:py-10 lg:py-12">
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className={`bg-gray-light/30 text-gray-dark relative overflow-hidden shadow-sm rounded-2xl transition-all duration-700 border border-gray-medium/10 ${
