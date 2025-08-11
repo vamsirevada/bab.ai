@@ -402,7 +402,7 @@ const SendQuoteContent = () => {
               <p className="font-body">No order items found.</p>
             </div>
           ) : (
-            <div className="max-h-96 overflow-y-auto space-y-2 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <div className="space-y-2">
               {orderData.map((item) => (
                 <QuoteItem
                   key={item.id}

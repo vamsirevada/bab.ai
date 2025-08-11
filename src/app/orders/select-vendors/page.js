@@ -2,7 +2,14 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Star, ArrowLeft, Check } from 'lucide-react'
+import {
+  Star,
+  ArrowLeft,
+  Check,
+  Phone,
+  MapPin,
+  ChevronDown,
+} from 'lucide-react'
 
 // WhatsApp Icon Component
 const WhatsAppIcon = ({ className = 'w-4 h-4' }) => (
@@ -74,6 +81,7 @@ const SelectVendorsContent = () => {
   const [selectedVendors, setSelectedVendors] = useState([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [customerInfo, setCustomerInfo] = useState({})
+  const [expanded, setExpanded] = useState(new Set())
 
   // Get parameters from URL and localStorage
   useEffect(() => {
@@ -109,6 +117,13 @@ const SelectVendorsContent = () => {
         rating: 4.8,
         type: 'Distributor',
         specialties: ['Steel Rods', 'Cement', 'Bricks'],
+        phone: '+919876543210',
+        mapQuery: 'BuildPro Materials Mumbai',
+        years: 12,
+        responseTime: '2h',
+        minOrder: '₹15k',
+        gstin: '27ABCDE1234F1Z5',
+        areas: ['Mumbai', 'Navi Mumbai', 'Thane'],
         verified: true,
       },
       {
@@ -117,6 +132,13 @@ const SelectVendorsContent = () => {
         rating: 4.6,
         type: 'Authorized Vendor',
         specialties: ['TMT Bars', 'Ready Mix', 'Tiles'],
+        phone: '+919812345678',
+        mapQuery: 'ConstructCorp Delhi',
+        years: 9,
+        responseTime: '3h',
+        minOrder: '₹10k',
+        gstin: '07PQRSX6789L1Z2',
+        areas: ['Delhi', 'Gurgaon', 'Noida'],
         verified: true,
       },
       {
@@ -125,6 +147,13 @@ const SelectVendorsContent = () => {
         rating: 4.7,
         type: 'Retailer',
         specialties: ['MS Angles', 'Granite', 'Hardware'],
+        phone: '+919811112222',
+        mapQuery: 'Steel and Stone Co Bangalore',
+        years: 15,
+        responseTime: '1.5h',
+        minOrder: '₹8k',
+        gstin: '29LMNOP4321Q1Z7',
+        areas: ['Bangalore', 'Hosakote'],
         verified: true,
       },
       {
@@ -133,6 +162,13 @@ const SelectVendorsContent = () => {
         rating: 4.5,
         type: 'Authorized',
         specialties: ['Plywood', 'Paint', 'Electrical'],
+        phone: '+919800112233',
+        mapQuery: 'Metro Building Supply Chennai',
+        years: 7,
+        responseTime: '4h',
+        minOrder: '₹12k',
+        gstin: '33QRSTU2468Z1Z9',
+        areas: ['Chennai', 'Chengalpattu'],
         verified: true,
       },
       {
@@ -141,6 +177,13 @@ const SelectVendorsContent = () => {
         rating: 4.9,
         type: 'Distributor',
         specialties: ['Concrete', 'Pipes', 'Fittings'],
+        phone: '+919833344455',
+        mapQuery: 'Prime Construction Materials Pune',
+        years: 11,
+        responseTime: '2.5h',
+        minOrder: '₹18k',
+        gstin: '27UVWXY9753N1Z4',
+        areas: ['Pune', 'PCMC'],
         verified: true,
       },
     ]
@@ -166,6 +209,14 @@ const SelectVendorsContent = () => {
       // Select all vendors
       setSelectedVendors([...vendors])
     }
+  }
+
+  const toggleExpand = (id) => {
+    // Single-open accordion: toggle off if same, otherwise open only this id
+    setExpanded((prev) => {
+      if (prev.has(id)) return new Set()
+      return new Set([id])
+    })
   }
 
   const handleSubmit = async () => {
@@ -309,86 +360,131 @@ const SelectVendorsContent = () => {
             {vendors.map((vendor) => {
               const isSelected = selectedVendors.find((v) => v.id === vendor.id)
 
+              const isExpanded = expanded.has(vendor.id)
               return (
                 <div
                   key={vendor.id}
-                  onClick={() => handleVendorSelect(vendor)}
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                  className={`relative rounded-lg border-2 transition-all duration-200 ${
                     isSelected
                       ? 'border-gray-dark bg-gray-light/10'
                       : 'border-gray-medium/20 hover:border-gray-medium/40 hover:bg-gray-light/5'
-                  }`}
+                  } ${isExpanded ? 'shadow-sm' : ''}`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          isSelected ? 'bg-gray-dark' : 'bg-gray-light'
-                        }`}
-                      >
-                        {isSelected ? (
-                          <Check className="w-5 h-5 text-white" />
-                        ) : (
-                          <svg
-                            className="w-5 h-5 text-gray-medium"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                            />
-                          </svg>
-                        )}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-medium text-gray-dark font-heading truncate">
-                            {vendor.name}
-                          </h3>
-                          <Badge className="bg-blue-50 text-blue-700 border-blue-200 shrink-0">
-                            {vendor.type}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-1 flex-wrap mb-1">
-                          {vendor.specialties.map((specialty, index) => (
-                            <span
-                              key={index}
-                              className="text-xs text-gray-medium font-body flex items-center"
-                            >
-                              {specialty}
-                              {index < vendor.specialties.length - 1 && (
-                                <span className="mx-1.5">•</span>
-                              )}
+                  {isSelected && (
+                    <span className="absolute inset-y-0 left-0 w-1 rounded-l-lg bg-gray-dark" />
+                  )}
+                  {/* Header Row (click to expand) */}
+                  <div
+                    className="p-2.5 sm:p-3 grid grid-cols-[1fr,auto] items-center gap-3 md:gap-4 select-none cursor-pointer"
+                    onClick={() => handleVendorSelect(vendor)}
+                  >
+                    {/* Content */}
+                    <div className="min-w-0 flex flex-col gap-[2px]">
+                      <div className="flex items-start gap-2 min-w-0">
+                        <h3 className="flex-1 font-medium text-gray-dark font-heading text-[13px] sm:text-sm leading-tight break-words whitespace-normal line-clamp-2 flex items-center gap-1">
+                          {isSelected && (
+                            <span className="inline-flex items-center justify-center w-3 h-3 rounded-full bg-gray-dark text-white text-[9px]">
+                              ✓
                             </span>
-                          ))}
-                        </div>
-                        <div className="flex items-center gap-1 md:hidden">
-                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                          <span className="text-sm font-medium text-gray-dark font-body">
-                            {vendor.rating}
+                          )}
+                          <span className="flex-1 break-words">
+                            {vendor.name}
                           </span>
-                          <span className="text-xs text-gray-medium font-body ml-1">
-                            ({Math.floor(Math.random() * 200) + 50} reviews)
-                          </span>
-                        </div>
+                        </h3>
+                        <span className="shrink-0 text-[10px] sm:text-[11px] uppercase tracking-wide text-gray-medium font-medium bg-gray-light/50 rounded px-1.5 py-0.5 border border-gray-medium/20">
+                          {vendor.type}
+                        </span>
+                      </div>
+                      <div className="text-[10px] sm:text-[11px] text-gray-medium truncate font-body">
+                        {vendor.specialties.slice(0, 3).join(' • ')}
                       </div>
                     </div>
-                    <div className="hidden md:flex items-center gap-3">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                        <span className="text-sm font-medium text-gray-dark font-body">
+
+                    {/* Right column rating + chevron */}
+                    <div className="flex items-center gap-2 pl-1 justify-self-end">
+                      <div className="flex items-center gap-1 text-gray-dark">
+                        <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-500 fill-current" />
+                        <span className="font-medium text-[11px] sm:text-sm">
                           {vendor.rating}
                         </span>
-                        <span className="text-xs text-gray-medium font-body ml-1">
-                          ({Math.floor(Math.random() * 200) + 50} reviews)
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleExpand(vendor.id)
+                        }}
+                        aria-label={
+                          isExpanded ? 'Collapse details' : 'Expand details'
+                        }
+                        className="p-1 rounded-md hover:bg-gray-light/50 transition"
+                      >
+                        <ChevronDown
+                          className={`w-4 h-4 text-gray-medium transition-transform duration-200 ${
+                            isExpanded ? 'rotate-180' : ''
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                  {/* Expanded Content */}
+                  {isExpanded && (
+                    <div className="px-3 sm:px-4 pb-3 sm:pb-3 -mt-1 pt-0">
+                      <div className="border-t border-gray-medium/20 pt-2 flex flex-wrap gap-1.5 text-[10px] sm:text-[11px] text-gray-dark">
+                        <span className="px-2 py-1 rounded-md bg-gray-light/40 border border-gray-medium/20 font-medium">
+                          {vendor.years}+ yrs
+                        </span>
+                        <span className="px-2 py-1 rounded-md bg-gray-light/40 border border-gray-medium/20 font-medium">
+                          Response {vendor.responseTime}
+                        </span>
+                        <span className="px-2 py-1 rounded-md bg-gray-light/40 border border-gray-medium/20 font-medium">
+                          Min {vendor.minOrder}
+                        </span>
+                        <span
+                          className="px-2 py-1 rounded-md bg-gray-light/40 border border-gray-medium/20 font-medium max-w-[45%] truncate"
+                          title={vendor.areas.join(', ')}
+                        >
+                          Areas {vendor.areas.length}
+                        </span>
+                        <span
+                          className="px-2 py-1 rounded-md bg-gray-light/40 border border-gray-medium/20 font-mono tracking-tight"
+                          title={vendor.gstin}
+                        >
+                          GST {vendor.gstin.slice(-6)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (vendor.phone)
+                              window.location.href = `tel:${vendor.phone}`
+                          }}
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-dark text-white hover:bg-gray-medium transition border border-gray-dark/10"
+                        >
+                          <Phone className="w-3.5 h-3.5" /> Call
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (vendor.mapQuery)
+                              window.open(
+                                `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                  vendor.mapQuery
+                                )}`,
+                                '_blank'
+                              )
+                          }}
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-dark text-white hover:bg-gray-medium transition border border-gray-dark/10"
+                        >
+                          <MapPin className="w-3.5 h-3.5" /> Map
+                        </button>
+                        <span className="hidden sm:inline px-2 py-1 rounded-md text-gray-medium border border-transparent">
+                          Reviews {Math.floor(Math.random() * 200) + 50}
                         </span>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )
             })}
