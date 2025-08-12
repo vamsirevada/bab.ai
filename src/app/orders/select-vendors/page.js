@@ -375,7 +375,7 @@ const SelectVendorsContent = () => {
                   )}
                   {/* Header Row (click to expand) */}
                   <div
-                    className="p-2.5 sm:p-3 grid grid-cols-[1fr,auto] items-center gap-3 md:gap-4 select-none cursor-pointer"
+                    className="p-2 sm:p-2.5 grid grid-cols-[1fr,auto] items-start gap-2 md:gap-3 select-none cursor-pointer"
                     onClick={() => handleVendorSelect(vendor)}
                   >
                     {/* Content */}
@@ -401,7 +401,7 @@ const SelectVendorsContent = () => {
                     </div>
 
                     {/* Right column rating + chevron */}
-                    <div className="flex items-center gap-2 pl-1 justify-self-end">
+                    <div className="flex items-center gap-1.5 pl-1 justify-self-end self-start mt-0.5">
                       <div className="flex items-center gap-1 text-gray-dark">
                         <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-500 fill-current" />
                         <span className="font-medium text-[11px] sm:text-sm">
