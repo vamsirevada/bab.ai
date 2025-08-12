@@ -1,22 +1,27 @@
 "use client"
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
-  LayoutDashboard,
   Info,
   ShieldCheck,
   CheckCircle2,
   ChevronRight,
-  Star,
   Phone,
   MessageCircle,
+  Truck,
 } from 'lucide-react'
 
 export default function OnboardingPage() {
   // Tabs (mobile)
   const [activeTab, setActiveTab] = useState('credit') // 'credit' | 'vendors'
+  const [prevTab, setPrevTab] = useState('credit')
+
+  const handleTabChange = (tab) => {
+    setPrevTab(activeTab)
+    setActiveTab(tab)
+  }
 
   // Credit mock
   const credit = useMemo(
@@ -120,7 +125,7 @@ export default function OnboardingPage() {
                   ? 'bg-gray-dark text-white'
                   : 'text-gray-dark hover:bg-gray-light/30'
               }`}
-              onClick={() => setActiveTab('credit')}
+              onClick={() => handleTabChange('credit')}
             >
               Credit Information
             </button>
@@ -130,19 +135,26 @@ export default function OnboardingPage() {
                   ? 'bg-gray-dark text-white'
                   : 'text-gray-dark hover:bg-gray-light/30'
               }`}
-              onClick={() => setActiveTab('vendors')}
+              onClick={() => handleTabChange('vendors')}
             >
               Vendor Selection
             </button>
           </div>
 
-          <div className="mt-4">
-            {activeTab === 'credit' ? (
-              <CreditCard credit={credit} usedPct={usedPct} onIncrease={handleIncreaseLimit} rechecking={rechecking} />
-            ) : (
-              <VendorsCard vendors={vendors} onOpen={(v) => setDrawerVendor(v)} />
-            )}
-          </div>
+          {/* Animated Panels */}
+          <AnimatedPanels
+            activeTab={activeTab}
+            prevTab={prevTab}
+            creditContent={
+              <CreditCard
+                credit={credit}
+                usedPct={usedPct}
+                onIncrease={handleIncreaseLimit}
+                rechecking={rechecking}
+              />
+            }
+            vendorsContent={<VendorsCard vendors={vendors} onOpen={(v) => setDrawerVendor(v)} />}
+          />
         </div>
 
         {/* Desktop Cards */}
@@ -351,7 +363,7 @@ function VendorsCard({ vendors, onOpen }) {
             className="w-full text-left rounded-xl border border-gray-medium/20 hover:border-gray-medium/40 hover:bg-gray-light/30 transition p-3 sm:p-4"
           >
             <div className="flex items-start justify-between gap-2.5 sm:gap-3">
-              <div className="min-w-0">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <h3 className="font-medium text-gray-dark truncate flex-1 min-w-0">{v.name}</h3>
                   {v.verified && (
@@ -360,29 +372,101 @@ function VendorsCard({ vendors, onOpen }) {
                     </span>
                   )}
                 </div>
-                <div className="mt-1 flex flex-wrap items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-gray-medium">
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20">
-                    <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-500 fill-current" /> On-time {v.onTime}%
+                <div className="mt-1 grid items-center gap-1 sm:gap-2 text-[11px] sm:text-xs text-gray-medium grid-cols-[auto_auto_1fr_auto] md:grid-cols-[auto_auto_auto_1fr_auto]">
+                  <span className="inline-flex items-center gap-1 px-1 sm:px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20 max-w-full">
+                    On-time {v.onTime}%
                   </span>
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20">
-                    Past transactions {v.pastTxns}
+                  <span className="inline-flex items-center gap-1 px-1 sm:px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20 max-w-full">
+                    Past txns {v.pastTxns}
                   </span>
+                  {/* Mobile spacer to push delivery to the right */}
+                  <span className="block md:hidden" />
+                  {/* Delivery chip (mobile) right-aligned */}
+                  <span className="md:hidden inline-flex items-center gap-1 px-1 sm:px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20 justify-self-end">
+                    <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {v.delivery}
+                  </span>
+                  {/* Desktop price estimate */}
                   <span className="hidden md:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20">
                     Price est. {v.priceEstimate}
                   </span>
+                  {/* Desktop spacer to push delivery right */}
+                  <span className="hidden md:block" />
+                  {/* Delivery chip aligned to the right on desktop */}
+                  <span className="hidden md:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20 whitespace-nowrap justify-self-end">
+                    <Truck className="w-3.5 h-3.5" /> {v.delivery}
+                  </span>
                 </div>
-                {/* Delivery on a new line for mobile to keep title row clean */}
-                <div className="mt-1 text-xs text-gray-medium md:hidden">Delivery {v.delivery}</div>
               </div>
-              <div className="hidden md:flex shrink-0 text-xs text-gray-medium flex-col items-end">
-                <span className="font-medium text-gray-dark">{v.delivery}</span>
-                <span className="flex items-center gap-1 mt-1" aria-hidden>
-                  <ChevronRight className="w-4 h-4" />
-                </span>
+              <div className="hidden md:flex shrink-0 text-xs text-gray-medium items-center self-center" aria-hidden>
+                <ChevronRight className="w-4 h-4" />
               </div>
             </div>
           </button>
         ))}
+      </div>
+    </div>
+  )
+}
+
+// Animated mobile panels: smoothly slide/fade between tabs and animate container height
+function AnimatedPanels({ activeTab, prevTab, creditContent, vendorsContent }) {
+  const containerRef = useRef(null)
+  const creditRef = useRef(null)
+  const vendorsRef = useRef(null)
+
+  // Animate height to fit active panel
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    const panel = activeTab === 'credit' ? creditRef.current : vendorsRef.current
+    if (!panel) return
+    const nextHeight = panel.offsetHeight
+    container.style.height = container.offsetHeight ? `${container.offsetHeight}px` : 'auto'
+    // Force reflow
+    void container.offsetHeight
+    container.style.transition = 'height 250ms ease'
+    container.style.height = `${nextHeight}px`
+    const cleanup = () => {
+      container.style.height = 'auto'
+      container.style.transition = ''
+    }
+    const t = setTimeout(cleanup, 300)
+    return () => clearTimeout(t)
+  }, [activeTab])
+
+  const leftActive = activeTab === 'credit'
+  const leftWasActive = prevTab === 'credit'
+
+  return (
+    <div className="mt-4 relative" ref={containerRef}>
+      <div className="relative">
+        {/* Credit panel */}
+        <div
+          ref={creditRef}
+          className={`absolute inset-0 will-change-transform transition-[transform,opacity] duration-300 ease-out ${
+            leftActive
+              ? 'translate-x-0 opacity-100 relative'
+              : leftWasActive
+              ? '-translate-x-6 opacity-0 pointer-events-none'
+              : '-translate-x-6 opacity-0 pointer-events-none'
+          }`}
+        >
+          {creditContent}
+        </div>
+
+        {/* Vendors panel */}
+        <div
+          ref={vendorsRef}
+          className={`absolute inset-0 will-change-transform transition-[transform,opacity] duration-300 ease-out ${
+            activeTab === 'vendors'
+              ? 'translate-x-0 opacity-100 relative'
+              : prevTab === 'vendors'
+              ? 'translate-x-6 opacity-0 pointer-events-none'
+              : 'translate-x-6 opacity-0 pointer-events-none'
+          }`}
+        >
+          {vendorsContent}
+        </div>
       </div>
     </div>
   )
