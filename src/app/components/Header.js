@@ -13,7 +13,7 @@ const Header = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <div className="flex items-center justify-start">
           {/* Logo and Brand Name linking to homepage */}
-          <Link href="/" className="flex items-center space-x-4 group">
+          <Link href="/dashboard" className="flex items-center space-x-4 group">
             <div className="relative transition-transform duration-300 group-hover:scale-110">
               {/* Main Logo Container */}
               <div className="w-10 h-10 bg-brand-dark rounded-full flex items-center justify-center shadow-lg transition-shadow duration-300 group-hover:shadow-2xl border-2 border-gray-dark">
