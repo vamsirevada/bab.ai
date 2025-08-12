@@ -101,18 +101,6 @@ export default function OnboardingPage() {
   return (
     <main className="relative z-10">
       <section className="container relative mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Floating Dashboard button */}
-        <div className="absolute right-4 sm:right-6 top-4 sm:top-6 z-10">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-full border border-gray-medium/20 bg-white/80 backdrop-blur px-4 py-2 text-sm font-medium text-gray-dark shadow-sm hover:bg-white hover:shadow transition"
-            aria-label="Go to Dashboard"
-          >
-            <LayoutDashboard size={18} />
-            <span className="hidden sm:inline">Dashboard</span>
-          </Link>
-        </div>
-
         {/* Title */}
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-dark mb-2">
