@@ -1,17 +1,10 @@
 "use client"
 
 import { useMemo, useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import Image from 'next/image'
-import {
-  Info,
-  ShieldCheck,
-  CheckCircle2,
-  ChevronRight,
-  Phone,
-  MessageCircle,
-  Truck,
-} from 'lucide-react'
+import { Info, ShieldCheck, CheckCircle2, ChevronRight, Phone, Truck } from 'lucide-react'
 
 export default function OnboardingPage() {
   // Tabs (mobile)
@@ -165,15 +158,17 @@ export default function OnboardingPage() {
 
         {/* Slide-Over Drawer (Animated) */}
         {drawerVendor && (
-          <SlideOver
-            vendor={drawerVendor}
-            onDismiss={() => setDrawerVendor(null)}
-            onSelectVendor={(v) => {
-              setSelectedVendor(v)
-              setDrawerVendor(null)
-            }}
-            openWhatsApp={openWhatsApp}
-          />
+          <Portal>
+            <SlideOver
+              vendor={drawerVendor}
+              onDismiss={() => setDrawerVendor(null)}
+              onSelectVendor={(v) => {
+                setSelectedVendor(v)
+                setDrawerVendor(null)
+              }}
+              openWhatsApp={openWhatsApp}
+            />
+          </Portal>
         )}
 
         {/* WhatsApp confirmation bar */}
@@ -192,7 +187,7 @@ export default function OnboardingPage() {
                 onClick={() => openWhatsApp(selectedVendor)}
                 className="inline-flex items-center gap-2 rounded-lg bg-[#25D366] text-white px-3 py-2 text-sm hover:opacity-90"
               >
-                <MessageCircle className="w-4 h-4" /> Send
+                <WhatsAppIcon className="w-4 h-4" /> Send
               </button>
             </div>
           </div>
@@ -418,10 +413,33 @@ function AnimatedPanels({ activeTab, prevTab, creditContent, vendorsContent }) {
   )
 }
 
+function Portal({ children }) {
+  const [mounted, setMounted] = useState(false)
+  const elRef = useRef(null)
+  if (!elRef.current) {
+    elRef.current = typeof document !== 'undefined' ? document.createElement('div') : null
+  }
+  useEffect(() => {
+    if (!elRef.current || typeof document === 'undefined') return
+    document.body.appendChild(elRef.current)
+    setMounted(true)
+    return () => {
+      if (elRef.current?.parentNode) elRef.current.parentNode.removeChild(elRef.current)
+    }
+  }, [])
+  if (!mounted || !elRef.current) return null
+  return createPortal(children, elRef.current)
+}
+
 // Right slide-over with overlay fade and smooth entrance/exit
 function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
-  const [show, setShow] = useState(true)
+  const [show, setShow] = useState(false)
   const panelRef = useRef(null)
+  const touchStartX = useRef(0)
+  const touchDeltaX = useRef(0)
+  const dragging = useRef(false)
+  const [noMotion, setNoMotion] = useState(false)
+  const animMs = noMotion ? 0 : 300
 
   // Close on ESC
   useEffect(() => {
@@ -435,27 +453,81 @@ function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [onDismiss])
 
+  // Mount animation and focus
+  useEffect(() => {
+    // detect prefers-reduced-motion
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const applyPref = () => setNoMotion(!!mq.matches)
+    applyPref()
+    if (mq.addEventListener) mq.addEventListener('change', applyPref)
+    else if (mq.addListener) mq.addListener(applyPref)
+
+    const t = setTimeout(() => setShow(true), noMotion ? 0 : 20)
+    // focus first focusable element
+    const focusable = panelRef.current?.querySelector(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    focusable?.focus?.()
+    return () => {
+      clearTimeout(t)
+      if (mq.removeEventListener) mq.removeEventListener('change', applyPref)
+      else if (mq.removeListener) mq.removeListener(applyPref)
+    }
+  }, [noMotion])
+
   const handleClose = () => {
     setShow(false)
     setTimeout(() => onDismiss?.(), 250)
   }
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-[9999]">
       {/* Overlay */}
       <div
-        className={`absolute inset-0 bg-black/30 transition-opacity duration-200 ${show ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 bg-black/40 backdrop-blur-[2px] ${noMotion ? 'transition-none' : 'transition-opacity duration-300'} ${show ? 'opacity-100' : 'opacity-0'} z-[9999]`}
         onClick={handleClose}
       />
 
       {/* Panel */}
       <aside
         ref={panelRef}
-        className={`absolute right-0 top-0 h-full w-full sm:max-w-md bg-white border-l border-gray-medium/20 shadow-xl will-change-transform transition-transform duration-250 ease-out ${
-          show ? 'translate-x-0' : 'translate-x-full'
-        }`}
+  className={`absolute right-0 top-0 h-full w-full sm:max-w-md bg-white border-l border-gray-medium/20 shadow-2xl ring-1 ring-gray-900/5 rounded-l-2xl will-change-transform transform-gpu ${noMotion ? 'transition-none' : 'transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]'} ${
+          show ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-100'
+  } z-[10000] isolate`}
         role="dialog"
         aria-modal="true"
+        onTouchStart={(e) => {
+          if (noMotion) return
+          dragging.current = true
+          touchStartX.current = e.touches[0].clientX
+          touchDeltaX.current = 0
+          if (panelRef.current) panelRef.current.style.transition = 'none'
+        }}
+        onTouchMove={(e) => {
+          if (!dragging.current || noMotion) return
+          touchDeltaX.current = Math.max(0, e.touches[0].clientX - touchStartX.current)
+          const dx = touchDeltaX.current
+          if (panelRef.current) {
+            panelRef.current.style.transform = `translateX(${dx}px)`
+          }
+        }}
+        onTouchEnd={() => {
+          if (!dragging.current || noMotion) return
+          dragging.current = false
+          const shouldClose = touchDeltaX.current > 80
+          if (shouldClose) {
+            // animate out
+            if (panelRef.current && !noMotion) panelRef.current.style.transition = `transform ${animMs}ms cubic-bezier(0.16,1,0.3,1)`
+            setShow(false)
+            setTimeout(() => onDismiss?.(), animMs)
+          } else {
+            // spring back
+            if (panelRef.current) {
+              panelRef.current.style.transition = `transform ${animMs}ms cubic-bezier(0.16,1,0.3,1)`
+              panelRef.current.style.transform = 'translateX(0px)'
+            }
+          }
+        }}
       >
         <div className="p-4 sm:p-6 h-full flex flex-col gap-4">
           {/* Header */}
@@ -506,7 +578,7 @@ function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
                 onClick={() => openWhatsApp(vendor)}
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] text-white px-3 py-2 text-sm hover:opacity-90"
               >
-                <MessageCircle className="w-4 h-4" /> WhatsApp
+                <WhatsAppIcon className="w-4 h-4" /> WhatsApp
               </button>
             </div>
           </div>
@@ -523,5 +595,27 @@ function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
         </div>
       </aside>
     </div>
+  )
+}
+
+// Authentic WhatsApp logo SVG
+function WhatsAppIcon({ className }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 32 32"
+      className={className}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        fill="#25D366"
+        d="M16 3C9.373 3 4 8.373 4 15c0 2.113.55 4.095 1.51 5.82L4 29l8.36-1.477C13.99 28.487 14.98 29 16 29c6.627 0 12-5.373 12-12S22.627 3 16 3z"
+      />
+      <path
+        fill="#FFF"
+        d="M12.806 10.563c-.287-.638-.589-.65-.862-.662-.223-.01-.48-.01-.737-.01-.258 0-.676.096-1.03.48-.354.383-1.353 1.32-1.353 3.218 0 1.897 1.385 3.73 1.578 3.987.192.255 2.672 4.282 6.6 5.833 3.265 1.286 3.931 1.032 4.642.967.71-.064 2.29-.936 2.613-1.84.324-.904.324-1.68.227-1.84-.096-.16-.354-.255-.737-.447-.383-.192-2.264-1.115-2.615-1.24-.35-.127-.607-.192-.864.192-.255.383-.99 1.24-1.215 1.494-.224.256-.447.288-.83.096-.383-.192-1.618-.596-3.084-1.898-1.14-1.017-1.907-2.272-2.132-2.655-.224-.383-.023-.59.17-.782.174-.173.383-.447.575-.672.19-.224.255-.383.382-.638.128-.255.064-.479-.032-.671-.096-.192-.846-2.088-1.185-2.849z"
+      />
+    </svg>
   )
 }
