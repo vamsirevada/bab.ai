@@ -163,78 +163,17 @@ export default function OnboardingPage() {
           <VendorsCard vendors={vendors} onOpen={(v) => setDrawerVendor(v)} />
         </div>
 
-        {/* Slide-Over Drawer */}
+        {/* Slide-Over Drawer (Animated) */}
         {drawerVendor && (
-          <div className="fixed inset-0 z-50">
-            <div
-              className="absolute inset-0 bg-black/30"
-              onClick={() => setDrawerVendor(null)}
-            />
-            <div className="absolute right-0 top-0 h-full w-full sm:max-w-md bg-white shadow-xl border-l border-gray-medium/20">
-              <div className="p-4 sm:p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-dark">{drawerVendor.name}</h3>
-                    <div className="mt-1 flex items-center gap-2 text-sm text-gray-medium">
-                      {drawerVendor.verified && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-xs">
-                          <ShieldCheck className="w-3.5 h-3.5" /> Bab.ai Verified
-                        </span>
-                      )}
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-xs">
-                        On-time {drawerVendor.onTime}%
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-xs">
-                        Past Txns {drawerVendor.pastTxns}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    className="p-2 rounded-md hover:bg-gray-light/50 text-gray-medium"
-                    onClick={() => setDrawerVendor(null)}
-                    aria-label="Close"
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                <div className="mt-4 space-y-3 text-sm">
-                  <div className="flex items-center justify-between rounded-lg border border-gray-medium/20 p-3">
-                    <span className="text-gray-medium">Price estimate for your PO</span>
-                    <span className="font-medium text-gray-dark">{drawerVendor.priceEstimate}</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-lg border border-gray-medium/20 p-3">
-                    <span className="text-gray-medium">Delivery timeline</span>
-                    <span className="font-medium text-gray-dark">{drawerVendor.delivery}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <a
-                      href={`tel:${drawerVendor.phone}`}
-                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-medium/20 bg-white px-3 py-2 text-sm text-gray-dark hover:bg-gray-light/40"
-                    >
-                      <Phone className="w-4 h-4" /> Call
-                    </a>
-                    <button
-                      onClick={() => openWhatsApp(drawerVendor)}
-                      className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] text-white px-3 py-2 text-sm hover:opacity-90"
-                    >
-                      <MessageCircle className="w-4 h-4" /> WhatsApp
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setSelectedVendor(drawerVendor)
-                      setDrawerVendor(null)
-                    }}
-                    className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-gray-dark text-white px-4 py-2.5 text-sm font-medium hover:bg-gray-medium"
-                  >
-                    <CheckCircle2 className="w-5 h-5" /> Select Vendor
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <SlideOver
+            vendor={drawerVendor}
+            onDismiss={() => setDrawerVendor(null)}
+            onSelectVendor={(v) => {
+              setSelectedVendor(v)
+              setDrawerVendor(null)
+            }}
+            openWhatsApp={openWhatsApp}
+          />
         )}
 
         {/* WhatsApp confirmation bar */}
@@ -271,21 +210,21 @@ function CreditCard({ credit, usedPct, onIncrease, rechecking }) {
           <h2 className="text-lg font-semibold text-gray-dark">Credit Information</h2>
           <p className="text-sm text-gray-medium">Available limit and usage</p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-gray-medium">
-          <div className="h-6 w-12 rounded-md bg-white border border-gray-medium/30 overflow-hidden flex items-center justify-center">
-            <Image
-              src="/assets/icons/NBFC_logo.jpg"
-              alt={`${credit.partner.name} logo`}
-              width={48}
-              height={24}
-              className="h-5 w-14 object-contain"
-              priority
-            />
+        <div className="text-xs text-gray-medium flex flex-col items-end">
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-12 rounded-md bg-white border border-gray-medium/30 overflow-hidden flex items-center justify-center">
+              <Image
+                src="/assets/icons/NBFC_logo.jpg"
+                alt={`${credit.partner.name} logo`}
+                width={48}
+                height={24}
+                className="h-5 w-14 object-contain"
+                priority
+              />
+            </div>
+            <p className="font-medium text-gray-dark leading-tight whitespace-nowrap">{credit.partner.name}</p>
           </div>
-          <div>
-            <p className="font-medium text-gray-dark leading-tight">{credit.partner.name}</p>
-            <p className="leading-tight">{credit.partner.regulated ? 'Regulated by RBI' : ''}</p>
-          </div>
+          <p className="leading-tight mt-0.5">{credit.partner.regulated ? 'Regulated by RBI' : ''}</p>
         </div>
       </div>
 
@@ -468,6 +407,114 @@ function AnimatedPanels({ activeTab, prevTab, creditContent, vendorsContent }) {
           {vendorsContent}
         </div>
       </div>
+    </div>
+  )
+}
+
+// Right slide-over with overlay fade and smooth entrance/exit
+function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
+  const [show, setShow] = useState(true)
+  const panelRef = useRef(null)
+
+  // Close on ESC
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setShow(false)
+        setTimeout(() => onDismiss?.(), 250)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onDismiss])
+
+  const handleClose = () => {
+    setShow(false)
+    setTimeout(() => onDismiss?.(), 250)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50">
+      {/* Overlay */}
+      <div
+        className={`absolute inset-0 bg-black/30 transition-opacity duration-200 ${show ? 'opacity-100' : 'opacity-0'}`}
+        onClick={handleClose}
+      />
+
+      {/* Panel */}
+      <aside
+        ref={panelRef}
+        className={`absolute right-0 top-0 h-full w-full sm:max-w-md bg-white border-l border-gray-medium/20 shadow-xl will-change-transform transition-transform duration-250 ease-out ${
+          show ? 'translate-x-0' : 'translate-x-full'
+        }`}
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="p-4 sm:p-6 h-full flex flex-col gap-4">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-dark">{vendor.name}</h3>
+              <div className="mt-1 flex items-center gap-2 text-sm text-gray-medium">
+                {vendor.verified && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-xs">
+                    <ShieldCheck className="w-3.5 h-3.5" /> Bab.ai Verified
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-xs">
+                  On-time {vendor.onTime}%
+                </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-xs">
+                  Past Txns {vendor.pastTxns}
+                </span>
+              </div>
+            </div>
+            <button
+              className="p-2 rounded-md hover:bg-gray-light/50 text-gray-medium"
+              onClick={handleClose}
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center justify-between rounded-lg border border-gray-medium/20 p-3">
+              <span className="text-gray-medium">Price estimate for your PO</span>
+              <span className="font-medium text-gray-dark">{vendor.priceEstimate}</span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-gray-medium/20 p-3">
+              <span className="text-gray-medium">Delivery timeline</span>
+              <span className="font-medium text-gray-dark">{vendor.delivery}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <a
+                href={`tel:${vendor.phone}`}
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-medium/20 bg-white px-3 py-2 text-sm text-gray-dark hover:bg-gray-light/40"
+              >
+                <Phone className="w-4 h-4" /> Call
+              </a>
+              <button
+                onClick={() => openWhatsApp(vendor)}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] text-white px-3 py-2 text-sm hover:opacity-90"
+              >
+                <MessageCircle className="w-4 h-4" /> WhatsApp
+              </button>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="mt-auto pt-2">
+            <button
+              onClick={() => onSelectVendor?.(vendor)}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-gray-dark text-white px-4 py-2.5 text-sm font-medium hover:bg-gray-medium"
+            >
+              <CheckCircle2 className="w-5 h-5" /> Select Vendor
+            </button>
+          </div>
+        </div>
+      </aside>
     </div>
   )
 }
