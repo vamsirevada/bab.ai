@@ -466,7 +466,7 @@ const ReviewOrderContent = () => {
 
       setIsLoading(true)
       try {
-        const response = await fetch(`/api/orders/review-order/${uuid}`)
+        const response = await fetch(`/api/orders/${uuid}`)
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
@@ -590,7 +590,7 @@ const ReviewOrderContent = () => {
           const updateResults = await Promise.all(
             changed.map(async (item) => {
               try {
-                const res = await fetch(`/api/orders/update-order/${item.id}`,
+                const res = await fetch(`/api/orders/${item.id}`,
                   {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },

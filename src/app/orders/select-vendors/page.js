@@ -228,26 +228,32 @@ const SelectVendorsContent = () => {
         request_id: requestId,
         status: 'requested',
         delivery_location: customerInfo.address || null,
-        notes: `Vendors selected: ${selectedVendors.map((v) => v.name).join(', ')}${customerInfo.site ? ` | Site: ${customerInfo.site}` : ''}`,
+        notes: `Vendors selected: ${selectedVendors
+          .map((v) => v.name)
+          .join(', ')}${
+          customerInfo.site ? ` | Site: ${customerInfo.site}` : ''
+        }`,
         expected_delivery_date: null,
         items: orderItems,
       }
 
       console.log('Submitting order with payload:', payload)
 
-    const res = await fetch('/api/orders/submit', {
+      const res = await fetch('/api/orders/submit-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
-      'ngrok-skip-browser-warning': 'true'
+          'ngrok-skip-browser-warning': 'true',
         },
         body: JSON.stringify(payload),
       })
 
       if (!res.ok) {
         const text = await res.text().catch(() => '')
-        throw new Error(`Submit failed (${res.status}): ${text || res.statusText}`)
+        throw new Error(
+          `Submit failed (${res.status}): ${text || res.statusText}`
+        )
       }
 
       // Optionally read response
@@ -256,7 +262,10 @@ const SelectVendorsContent = () => {
         responseData = await res.json()
       } catch {}
       if (responseData) {
-        localStorage.setItem('submitOrderResponse', JSON.stringify(responseData))
+        localStorage.setItem(
+          'submitOrderResponse',
+          JSON.stringify(responseData)
+        )
       }
 
       // Navigate to next step
@@ -264,7 +273,10 @@ const SelectVendorsContent = () => {
     } catch (error) {
       console.error('Submission failed:', error)
       // CORS or network errors: suggest proxy if needed
-      alert('Submission failed. If this persists, we can proxy the request via our API.\n' + (error?.message || ''))
+      alert(
+        'Submission failed. If this persists, we can proxy the request via our API.\n' +
+          (error?.message || '')
+      )
     } finally {
       setIsSubmitting(false)
     }
