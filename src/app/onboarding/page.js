@@ -116,8 +116,8 @@ export default function OnboardingPage() {
           </p>
         </div>
 
-        {/* Mobile Tabs */}
-        <div className="md:hidden mt-6">
+  {/* Tabs for mobile and tablet */}
+  <div className="lg:hidden mt-6">
           <div className="flex border border-gray-medium/20 rounded-lg p-1 bg-white shadow-sm">
             <button
               className={`flex-1 py-2.5 text-sm rounded-md transition ${
@@ -157,8 +157,8 @@ export default function OnboardingPage() {
           />
         </div>
 
-        {/* Desktop Cards */}
-        <div className="hidden md:grid grid-cols-2 gap-6 mt-8">
+  {/* Desktop Cards (lg and above) */}
+  <div className="hidden lg:grid grid-cols-2 gap-6 mt-8">
           <CreditCard credit={credit} usedPct={usedPct} onIncrease={handleIncreaseLimit} rechecking={rechecking} />
           <VendorsCard vendors={vendors} onOpen={(v) => setDrawerVendor(v)} />
         </div>
@@ -305,13 +305,14 @@ function VendorsCard({ vendors, onOpen }) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <h3 className="font-medium text-gray-dark truncate flex-1 min-w-0">{v.name}</h3>
+                  {/* Show Verified next to title only on mobile */}
                   {v.verified && (
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-[10px]">
+                    <span className="inline-flex md:hidden items-center gap-1 px-1.5 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-[10px]">
                       <ShieldCheck className="w-3.5 h-3.5" /> Bab.ai Verified
                     </span>
                   )}
                 </div>
-                <div className="mt-1 grid items-center gap-1 sm:gap-2 text-[11px] sm:text-xs text-gray-medium grid-cols-[auto_auto_1fr_auto] md:grid-cols-[auto_auto_auto_1fr_auto]">
+                <div className="mt-1 grid items-center gap-1 md:gap-1.5 text-[11px] sm:text-xs text-gray-medium grid-cols-[auto_auto_1fr_auto] md:grid-cols-[auto_auto_auto_1fr_auto]">
                   <span className="inline-flex items-center gap-1 px-1 sm:px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20 max-w-full">
                     On-time {v.onTime}%
                   </span>
@@ -328,16 +329,22 @@ function VendorsCard({ vendors, onOpen }) {
                   <span className="hidden md:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20">
                     Price est. {v.priceEstimate}
                   </span>
-                  {/* Desktop spacer to push delivery right */}
+                  {/* Desktop spacer */}
                   <span className="hidden md:block" />
-                  {/* Delivery chip aligned to the right on desktop */}
-                  <span className="hidden md:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20 whitespace-nowrap justify-self-end">
+                </div>
+              </div>
+              <div className="hidden md:flex shrink-0 items-center gap-2" aria-hidden>
+                <div className="flex flex-col items-end gap-1 text-xs text-gray-medium">
+                  {v.verified && (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-[10px]">
+                      <ShieldCheck className="w-3.5 h-3.5" /> Bab.ai Verified
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-[10px] whitespace-nowrap">
                     <Truck className="w-3.5 h-3.5" /> {v.delivery}
                   </span>
                 </div>
-              </div>
-              <div className="hidden md:flex shrink-0 text-xs text-gray-medium items-center self-center" aria-hidden>
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-4 h-4 self-center text-gray-medium" />
               </div>
             </div>
           </button>
