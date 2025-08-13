@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useCallback, memo, useEffect, Suspense } from 'react'
+import React, { useState, useCallback, memo, useEffect, Suspense, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Edit2, Trash2, Plus, Minus, X } from 'lucide-react'
 
@@ -441,6 +441,13 @@ const ReviewOrderContent = () => {
     whatsappPhone: searchParams.get('phone') || '+91 98765 43210',
   })
 
+  // Snapshot of original items to detect changes on submit
+  const originalSnapshotRef = useRef(new Map()) // id -> { material_name, sub_type, dimensions, quantity }
+  const originalIdsRef = useRef(new Set()) // only server-backed ids
+
+  const isUuid = useCallback((v) => typeof v === 'string' && /^[0-9a-fA-F-]{36}$/.test(v), [])
+  const normalize = (v) => (v == null ? '' : String(v).trim())
+
   // Mobile detection
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -478,6 +485,21 @@ const ReviewOrderContent = () => {
             ...item,
           }))
           setOrderData(orderItems)
+
+          // Build original snapshot for change detection
+          const snap = new Map()
+          const idSet = new Set()
+          for (const it of orderItems) {
+            if (isUuid(it.id)) idSet.add(it.id)
+            snap.set(it.id, {
+              material_name: normalize(it.material_name),
+              sub_type: normalize(it.sub_type),
+              dimensions: normalize(it.dimensions),
+              quantity: Number(it.quantity) || 1,
+            })
+          }
+          originalSnapshotRef.current = snap
+          originalIdsRef.current = idSet
         }
       } catch (error) {
         console.error('Error loading order data:', error)
@@ -489,7 +511,7 @@ const ReviewOrderContent = () => {
     }
 
     loadData()
-  }, [uuid])
+  }, [uuid, isUuid])
 
   // Event handlers
   const handleCellEdit = useCallback((rowId, field, value) => {
@@ -548,6 +570,65 @@ const ReviewOrderContent = () => {
 
     setIsSubmitting(true)
     try {
+      // 1) Persist only changed server-backed items via update-order API
+      if (orderData.length > 0) {
+        const snap = originalSnapshotRef.current
+        const serverIds = originalIdsRef.current
+        const changed = orderData.filter((item) => {
+          if (!serverIds.has(item.id)) return false // skip new/temporary rows
+          const prev = snap.get(item.id)
+          if (!prev) return false
+          return (
+            normalize(item.material_name) !== prev.material_name ||
+            normalize(item.sub_type) !== prev.sub_type ||
+            normalize(item.dimensions) !== prev.dimensions ||
+            (Number(item.quantity) || 1) !== prev.quantity
+          )
+        })
+
+        if (changed.length) {
+          const updateResults = await Promise.all(
+            changed.map(async (item) => {
+              try {
+                const res = await fetch(`/api/orders/update-order/${item.id}`,
+                  {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      material_name: item.material_name || '',
+                      sub_type: item.sub_type || '',
+                      dimensions: item.dimensions || '',
+                      quantity: Math.max(1, Number(item.quantity) || 1),
+                    }),
+                  }
+                )
+                let data = null
+                try { data = await res.json() } catch {}
+                return { id: item.id, ok: res.ok, status: res.status, data }
+              } catch (err) {
+                return { id: item?.id, ok: false, error: err?.message }
+              }
+            })
+          )
+
+          const failures = updateResults.filter(r => !r.ok)
+          if (failures.length) {
+            console.warn('Some items failed to update:', failures)
+          }
+
+          // Update snapshot for changed items to prevent repeat updates next submit
+          for (const it of changed) {
+            originalSnapshotRef.current.set(it.id, {
+              material_name: normalize(it.material_name),
+              sub_type: normalize(it.sub_type),
+              dimensions: normalize(it.dimensions),
+              quantity: Math.max(1, Number(it.quantity) || 1),
+            })
+          }
+        }
+      }
+
+      // 2) Store customer data in localStorage
       // Store customer data in localStorage
       const customerData = {
         name: customerInfo.name,
@@ -557,7 +638,7 @@ const ReviewOrderContent = () => {
       }
       localStorage.setItem('customerInfo', JSON.stringify(customerData))
 
-      // Navigate to vendor selection with only UUID
+      // 3) Navigate to vendor selection with only UUID
       const queryParams = new URLSearchParams({
         uuid: uuid || '',
       })
