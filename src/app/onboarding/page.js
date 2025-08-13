@@ -1,10 +1,19 @@
-"use client"
+'use client'
 
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Info, ShieldCheck, CheckCircle2, ChevronRight, Phone, Truck } from 'lucide-react'
+import {
+  Info,
+  ShieldCheck,
+  CheckCircle2,
+  ChevronRight,
+  Phone,
+  Truck,
+} from 'lucide-react'
+import dynamic from 'next/dynamic'
+const CanvasFX = dynamic(() => import('../components/CanvasFX'), { ssr: false })
 
 export default function OnboardingPage() {
   // Tabs (mobile)
@@ -99,18 +108,26 @@ export default function OnboardingPage() {
   return (
     <main className="relative z-10">
       <section className="container relative mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Title */}
-        <div className="max-w-3xl mx-auto text-center">
+        {/* Background FX (non-blocking) */}
+        <div className="absolute inset-x-0 top-0 z-0 h-[220px] sm:h-[260px] opacity-80 pointer-events-none">
+          <CanvasFX
+            variant="orbs"
+            count={260}
+            colors={['#e5e7eb', '#cbd5e1', '#94a3b8']}
+          />
+        </div>
+        <div className="relative z-10 max-w-3xl mx-auto text-center">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-dark mb-2">
             Credit & Vendor Selection
           </h1>
           <p className="text-gray-medium">
-            Review your credit details and choose a vendor that supports purchases on credit.
+            Review your credit details and choose a vendor that supports
+            purchases on credit.
           </p>
         </div>
 
-  {/* Tabs for mobile and tablet */}
-  <div className="lg:hidden mt-6">
+        {/* Tabs for mobile and tablet */}
+        <div className="lg:hidden mt-6">
           <div className="flex border border-gray-medium/20 rounded-lg p-1 bg-white shadow-sm">
             <button
               className={`flex-1 py-2.5 text-sm rounded-md transition ${
@@ -146,13 +163,23 @@ export default function OnboardingPage() {
                 rechecking={rechecking}
               />
             }
-            vendorsContent={<VendorsCard vendors={vendors} onOpen={(v) => setDrawerVendor(v)} />}
+            vendorsContent={
+              <VendorsCard
+                vendors={vendors}
+                onOpen={(v) => setDrawerVendor(v)}
+              />
+            }
           />
         </div>
 
-  {/* Desktop Cards (lg and above) */}
-  <div className="hidden lg:grid grid-cols-2 gap-6 mt-8">
-          <CreditCard credit={credit} usedPct={usedPct} onIncrease={handleIncreaseLimit} rechecking={rechecking} />
+        {/* Desktop Cards (lg and above) */}
+        <div className="hidden lg:grid grid-cols-2 gap-6 mt-8">
+          <CreditCard
+            credit={credit}
+            usedPct={usedPct}
+            onIncrease={handleIncreaseLimit}
+            rechecking={rechecking}
+          />
           <VendorsCard vendors={vendors} onOpen={(v) => setDrawerVendor(v)} />
         </div>
 
@@ -177,10 +204,13 @@ export default function OnboardingPage() {
             <div className="bg-white border border-gray-medium/20 shadow-lg rounded-xl px-4 py-3 flex items-center gap-3 max-w-lg w-[95%]">
               <div className="flex-1">
                 <p className="text-sm text-gray-dark">
-                  Confirm with <span className="font-medium">{selectedVendor.name}</span> on WhatsApp?
+                  Confirm with{' '}
+                  <span className="font-medium">{selectedVendor.name}</span> on
+                  WhatsApp?
                 </p>
                 <p className="text-xs text-gray-medium line-clamp-2">
-                  “Hi, I’d like to proceed with a credit-based order via bab.ai. Please share final quote and delivery timeline.”
+                  “Hi, I’d like to proceed with a credit-based order via bab.ai.
+                  Please share final quote and delivery timeline.”
                 </p>
               </div>
               <button
@@ -202,7 +232,9 @@ function CreditCard({ credit, usedPct, onIncrease, rechecking }) {
     <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 sm:p-6">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-dark">Credit Information</h2>
+          <h2 className="text-lg font-semibold text-gray-dark">
+            Credit Information
+          </h2>
           <p className="text-sm text-gray-medium">Available limit and usage</p>
         </div>
         <div className="text-xs text-gray-medium flex flex-col items-end">
@@ -217,9 +249,13 @@ function CreditCard({ credit, usedPct, onIncrease, rechecking }) {
                 priority
               />
             </div>
-            <p className="font-medium text-gray-dark leading-tight whitespace-nowrap">{credit.partner.name}</p>
+            <p className="font-medium text-gray-dark leading-tight whitespace-nowrap">
+              {credit.partner.name}
+            </p>
           </div>
-          <p className="leading-tight mt-0.5">{credit.partner.regulated ? 'Regulated by RBI' : ''}</p>
+          <p className="leading-tight mt-0.5">
+            {credit.partner.regulated ? 'Regulated by RBI' : ''}
+          </p>
         </div>
       </div>
 
@@ -234,13 +270,17 @@ function CreditCard({ credit, usedPct, onIncrease, rechecking }) {
         </div>
         <div className="mt-2 flex items-center justify-between text-xs sm:text-sm">
           <span className="text-gray-medium">Used {usedPct}%</span>
-          <span className="text-gray-dark font-medium">Available ₹{(credit.available / 1000).toFixed(0)}k</span>
+          <span className="text-gray-dark font-medium">
+            Available ₹{(credit.available / 1000).toFixed(0)}k
+          </span>
         </div>
       </div>
 
       {/* Trust Score */}
       <div className="mt-4 flex items-center gap-2 text-sm">
-        <span className="font-medium text-gray-dark">Bab.ai Trust Score: {credit.trustScore}</span>
+        <span className="font-medium text-gray-dark">
+          Bab.ai Trust Score: {credit.trustScore}
+        </span>
         <div className="relative group">
           <Info className="w-4 h-4 text-gray-medium" />
           <div className="absolute left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block rounded-md border border-gray-medium/20 bg-white p-2 text-xs text-gray-dark shadow">
@@ -251,10 +291,22 @@ function CreditCard({ credit, usedPct, onIncrease, rechecking }) {
 
       {/* Breakdown */}
       <div className="mt-4 grid grid-cols-2 gap-2.5 text-xs sm:text-sm">
-        <BreakdownItem label="Total Credit Limit" value={`₹${(credit.total / 1000).toFixed(0)}k`} />
-        <BreakdownItem label="Used Credit" value={`₹${(credit.used / 1000).toFixed(0)}k`} />
-        <BreakdownItem label="Available Credit" value={`₹${(credit.available / 1000).toFixed(0)}k`} />
-        <BreakdownItem label="Rate / Tenure" value={`${credit.rate} • ${credit.tenure}`} />
+        <BreakdownItem
+          label="Total Credit Limit"
+          value={`₹${(credit.total / 1000).toFixed(0)}k`}
+        />
+        <BreakdownItem
+          label="Used Credit"
+          value={`₹${(credit.used / 1000).toFixed(0)}k`}
+        />
+        <BreakdownItem
+          label="Available Credit"
+          value={`₹${(credit.available / 1000).toFixed(0)}k`}
+        />
+        <BreakdownItem
+          label="Rate / Tenure"
+          value={`${credit.rate} • ${credit.tenure}`}
+        />
       </div>
 
       <div className="mt-4">
@@ -273,7 +325,9 @@ function CreditCard({ credit, usedPct, onIncrease, rechecking }) {
 function BreakdownItem({ label, value }) {
   return (
     <div className="rounded-lg border border-gray-medium/20 p-2.5 sm:p-3 bg-white">
-      <p className="text-[11px] sm:text-xs text-gray-medium leading-tight">{label}</p>
+      <p className="text-[11px] sm:text-xs text-gray-medium leading-tight">
+        {label}
+      </p>
       <p className="mt-0.5 sm:mt-1 font-medium text-gray-dark">{value}</p>
     </div>
   )
@@ -284,7 +338,9 @@ function VendorsCard({ vendors, onOpen }) {
     <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 sm:p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-dark">Vendors supporting credit</h2>
+          <h2 className="text-lg font-semibold text-gray-dark">
+            Vendors supporting credit
+          </h2>
           <p className="text-sm text-gray-medium">Choose a vendor to proceed</p>
         </div>
       </div>
@@ -299,7 +355,9 @@ function VendorsCard({ vendors, onOpen }) {
             <div className="flex items-start justify-between gap-2.5 sm:gap-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                  <h3 className="font-medium text-gray-dark truncate flex-1 min-w-0">{v.name}</h3>
+                  <h3 className="font-medium text-gray-dark truncate flex-1 min-w-0">
+                    {v.name}
+                  </h3>
                   {/* Show Verified next to title only on mobile */}
                   {v.verified && (
                     <span className="inline-flex md:hidden items-center gap-1 px-1.5 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-[10px]">
@@ -328,7 +386,10 @@ function VendorsCard({ vendors, onOpen }) {
                   <span className="hidden md:block" />
                 </div>
               </div>
-              <div className="hidden md:flex shrink-0 items-center gap-2" aria-hidden>
+              <div
+                className="hidden md:flex shrink-0 items-center gap-2"
+                aria-hidden
+              >
                 <div className="flex flex-col items-end gap-1 text-xs text-gray-medium">
                   {v.verified && (
                     <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-[10px]">
@@ -359,10 +420,13 @@ function AnimatedPanels({ activeTab, prevTab, creditContent, vendorsContent }) {
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
-    const panel = activeTab === 'credit' ? creditRef.current : vendorsRef.current
+    const panel =
+      activeTab === 'credit' ? creditRef.current : vendorsRef.current
     if (!panel) return
     const nextHeight = panel.offsetHeight
-    container.style.height = container.offsetHeight ? `${container.offsetHeight}px` : 'auto'
+    container.style.height = container.offsetHeight
+      ? `${container.offsetHeight}px`
+      : 'auto'
     // Force reflow
     void container.offsetHeight
     container.style.transition = 'height 250ms ease'
@@ -417,14 +481,16 @@ function Portal({ children }) {
   const [mounted, setMounted] = useState(false)
   const elRef = useRef(null)
   if (!elRef.current) {
-    elRef.current = typeof document !== 'undefined' ? document.createElement('div') : null
+    elRef.current =
+      typeof document !== 'undefined' ? document.createElement('div') : null
   }
   useEffect(() => {
     if (!elRef.current || typeof document === 'undefined') return
     document.body.appendChild(elRef.current)
     setMounted(true)
     return () => {
-      if (elRef.current?.parentNode) elRef.current.parentNode.removeChild(elRef.current)
+      if (elRef.current?.parentNode)
+        elRef.current.parentNode.removeChild(elRef.current)
     }
   }, [])
   if (!mounted || !elRef.current) return null
@@ -484,16 +550,22 @@ function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
     <div className="fixed inset-0 z-[9999]">
       {/* Overlay */}
       <div
-        className={`absolute inset-0 bg-black/40 backdrop-blur-[2px] ${noMotion ? 'transition-none' : 'transition-opacity duration-300'} ${show ? 'opacity-100' : 'opacity-0'} z-[9999]`}
+        className={`absolute inset-0 bg-black/40 backdrop-blur-[2px] ${
+          noMotion ? 'transition-none' : 'transition-opacity duration-300'
+        } ${show ? 'opacity-100' : 'opacity-0'} z-[9999]`}
         onClick={handleClose}
       />
 
       {/* Panel */}
       <aside
         ref={panelRef}
-  className={`absolute right-0 top-0 h-full w-full sm:max-w-md bg-white border-l border-gray-medium/20 shadow-2xl ring-1 ring-gray-900/5 rounded-l-2xl will-change-transform transform-gpu ${noMotion ? 'transition-none' : 'transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]'} ${
+        className={`absolute right-0 top-0 h-full w-full sm:max-w-md bg-white border-l border-gray-medium/20 shadow-2xl ring-1 ring-gray-900/5 rounded-l-2xl will-change-transform transform-gpu ${
+          noMotion
+            ? 'transition-none'
+            : 'transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]'
+        } ${
           show ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-100'
-  } z-[10000] isolate`}
+        } z-[10000] isolate`}
         role="dialog"
         aria-modal="true"
         onTouchStart={(e) => {
@@ -505,7 +577,10 @@ function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
         }}
         onTouchMove={(e) => {
           if (!dragging.current || noMotion) return
-          touchDeltaX.current = Math.max(0, e.touches[0].clientX - touchStartX.current)
+          touchDeltaX.current = Math.max(
+            0,
+            e.touches[0].clientX - touchStartX.current
+          )
           const dx = touchDeltaX.current
           if (panelRef.current) {
             panelRef.current.style.transform = `translateX(${dx}px)`
@@ -517,7 +592,8 @@ function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
           const shouldClose = touchDeltaX.current > 80
           if (shouldClose) {
             // animate out
-            if (panelRef.current && !noMotion) panelRef.current.style.transition = `transform ${animMs}ms cubic-bezier(0.16,1,0.3,1)`
+            if (panelRef.current && !noMotion)
+              panelRef.current.style.transition = `transform ${animMs}ms cubic-bezier(0.16,1,0.3,1)`
             setShow(false)
             setTimeout(() => onDismiss?.(), animMs)
           } else {
@@ -533,7 +609,9 @@ function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
           {/* Header */}
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-lg font-semibold text-gray-dark">{vendor.name}</h3>
+              <h3 className="text-lg font-semibold text-gray-dark">
+                {vendor.name}
+              </h3>
               <div className="mt-1 flex items-center gap-2 text-sm text-gray-medium">
                 {vendor.verified && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-xs">
@@ -560,12 +638,18 @@ function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
           {/* Content */}
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between rounded-lg border border-gray-medium/20 p-3">
-              <span className="text-gray-medium">Price estimate for your PO</span>
-              <span className="font-medium text-gray-dark">{vendor.priceEstimate}</span>
+              <span className="text-gray-medium">
+                Price estimate for your PO
+              </span>
+              <span className="font-medium text-gray-dark">
+                {vendor.priceEstimate}
+              </span>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-gray-medium/20 p-3">
               <span className="text-gray-medium">Delivery timeline</span>
-              <span className="font-medium text-gray-dark">{vendor.delivery}</span>
+              <span className="font-medium text-gray-dark">
+                {vendor.delivery}
+              </span>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <a
@@ -578,7 +662,8 @@ function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
                 onClick={() => openWhatsApp(vendor)}
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] text-white px-3 py-2 text-sm hover:opacity-90"
               >
-                <WhatsAppIcon className="w-4 h-4 text-white drop-shadow-sm" /> WhatsApp
+                <WhatsAppIcon className="w-4 h-4 text-white drop-shadow-sm" />{' '}
+                WhatsApp
               </button>
             </div>
           </div>
