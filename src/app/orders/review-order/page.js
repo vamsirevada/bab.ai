@@ -603,7 +603,7 @@ const ReviewOrderContent = () => {
                   }
                 )
                 let data = null
-                try { data = await res.json() } catch {}
+                try { data = await res.json()} catch {}
                 return { id: item.id, ok: res.ok, status: res.status, data }
               } catch (err) {
                 return { id: item?.id, ok: false, error: err?.message }
@@ -628,8 +628,7 @@ const ReviewOrderContent = () => {
         }
       }
 
-      // 2) Store customer data in localStorage
-      // Store customer data in localStorage
+      // 2) Store customer data and current order items in localStorage
       const customerData = {
         name: customerInfo.name,
         phone: customerInfo.phone,
@@ -637,6 +636,15 @@ const ReviewOrderContent = () => {
         address: customerInfo.address,
       }
       localStorage.setItem('customerInfo', JSON.stringify(customerData))
+
+      // Prepare items payload for submission later
+      const itemsPayload = orderData.map((it) => ({
+        material_name: it.material_name || '',
+        sub_type: it.sub_type || '',
+        dimensions: it.dimensions || '',
+        quantity: Math.max(1, Number(it.quantity) || 1),
+      }))
+      localStorage.setItem('orderItems', JSON.stringify(itemsPayload))
 
       // 3) Navigate to vendor selection with only UUID
       const queryParams = new URLSearchParams({
