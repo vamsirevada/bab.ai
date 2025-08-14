@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import {  Clock, CheckCircle2, CreditCard, MessageSquare, FileText, ShieldCheck } from 'lucide-react'
+import {  Clock, CheckCircle2, CreditCard, FileText, ShieldCheck } from 'lucide-react'
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [vendor, setVendor] = useState(null)
@@ -201,5 +201,24 @@ export default function OrderConfirmationPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-3"></div>
+        <p className="text-gray-600 text-sm">Loading order confirmation...</p>
+      </div>
+    </div>
+  )
+}
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <OrderConfirmationContent />
+    </Suspense>
   )
 }
