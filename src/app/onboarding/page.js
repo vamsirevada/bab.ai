@@ -2,10 +2,13 @@
 
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Info, ShieldCheck, CheckCircle2, ChevronRight, Phone, Truck, Clock, Users, FileText, ArrowRight } from 'lucide-react'
+import { Info, ShieldCheck, CheckCircle2, ChevronRight, ChevronDown, Phone, Truck, Clock, Users, FileText, ArrowRight } from 'lucide-react'
 
 export default function OnboardingPage() {
+  const router = useRouter()
+
   // Mock order items data
   const orderItems = useMemo(
     () => [
@@ -105,7 +108,6 @@ export default function OnboardingPage() {
 
   const [drawerVendor, setDrawerVendor] = useState(null)
   const [selectedVendor, setSelectedVendor] = useState(null)
-  const [showNextStepsOverlay, setShowNextStepsOverlay] = useState(false)
   const [rechecking, setRechecking] = useState(false)
 
   const handleIncreaseLimit = () => {
@@ -116,7 +118,9 @@ export default function OnboardingPage() {
   const handleVendorSelection = (vendor) => {
     setSelectedVendor(vendor)
     setDrawerVendor(null)
-    setShowNextStepsOverlay(true)
+    // Navigate to order confirmation page with vendor data
+    const vendorData = encodeURIComponent(JSON.stringify(vendor))
+    router.push(`/order-confirmation?vendor=${vendorData}`)
   }
 
   const openWhatsApp = (vendor) => {
@@ -147,11 +151,13 @@ export default function OnboardingPage() {
             rechecking={rechecking}
           />
 
-          {/* Items List Section */}
-          <ItemsListSection items={orderItems} />
+
 
           {/* Vendors List Section */}
           <VendorsListSection vendors={vendors} onOpen={(v) => setDrawerVendor(v)} />
+
+            {/* Items List Section */}
+          <ItemsListSection items={orderItems} />
         </div>
 
         {/* Slide-Over Drawer (Animated) */}
@@ -162,20 +168,6 @@ export default function OnboardingPage() {
               onDismiss={() => setDrawerVendor(null)}
               onSelectVendor={handleVendorSelection}
               openWhatsApp={openWhatsApp}
-            />
-          </Portal>
-        )}
-
-        {/* Next Steps Overlay */}
-        {showNextStepsOverlay && selectedVendor && (
-          <Portal>
-            <NextStepsOverlay
-              vendor={selectedVendor}
-              onDismiss={() => setShowNextStepsOverlay(false)}
-              onContinue={() => {
-                setShowNextStepsOverlay(false)
-                // Add navigation logic here
-              }}
             />
           </Portal>
         )}
@@ -251,6 +243,8 @@ function CreditInformationSection({ credit, usedPct, onIncrease, rechecking }) {
 
 // Items List Section
 function ItemsListSection({ items }) {
+  const [isExpanded, setIsExpanded] = useState(false)
+
   return (
     <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 lg:p-6">
       {/* Compact Header */}
@@ -266,25 +260,44 @@ function ItemsListSection({ items }) {
         </div>
       </div>
 
-      {/* Compact Items List */}
-      <div className="space-y-2">
-        {items.map((item) => (
-          <div key={item.id} className="flex items-center justify-between p-3 bg-gray-light/5 rounded-lg hover:bg-gray-light/10 transition-colors">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-medium text-gray-dark text-sm truncate">{item.material_name}</h3>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-xs text-gray-medium whitespace-nowrap">
-                  {item.quantity} {item.unit}
-                </span>
-              </div>
-              <p className="text-xs text-gray-medium truncate">{item.sub_type} • {item.dimensions}</p>
-            </div>
-            <div className="text-right ml-3">
-              <p className="font-semibold text-gray-dark text-sm">{item.estimatedPrice}</p>
-            </div>
-          </div>
-        ))}
+      {/* Expand/Collapse Button */}
+      <div className="mb-4">
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-light/10 hover:bg-gray-light/20 border border-gray-medium/20 rounded-lg transition-colors text-gray-dark"
+        >
+          <span className="text-sm font-medium">
+            {isExpanded ? 'Hide Items' : 'View Items'}
+          </span>
+          {isExpanded ? (
+            <ChevronDown className="w-4 h-4 rotate-180 transition-transform duration-200" />
+          ) : (
+            <ChevronDown className="w-4 h-4 transition-transform duration-200" />
+          )}
+        </button>
       </div>
+
+      {/* Compact Items List - Collapsible */}
+      {isExpanded && (
+        <div className="space-y-2 animate-in slide-in-from-top-2 duration-200">
+          {items.map((item) => (
+            <div key={item.id} className="flex items-center justify-between p-3 bg-gray-light/5 rounded-lg hover:bg-gray-light/10 transition-colors">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-medium text-gray-dark text-sm truncate">{item.material_name}</h3>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-xs text-gray-medium whitespace-nowrap">
+                    {item.quantity} {item.unit}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-medium truncate">{item.sub_type} • {item.dimensions}</p>
+              </div>
+              <div className="text-right ml-3">
+                <p className="font-semibold text-gray-dark text-sm">{item.estimatedPrice}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -293,13 +306,11 @@ function ItemsListSection({ items }) {
 function VendorsListSection({ vendors, onOpen }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 lg:p-6">
-      {/* Compact Header */}
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-gray-dark">Select Vendor ({vendors.length})</h2>
         <p className="text-sm text-gray-medium">Choose from verified vendors who accept credit purchases</p>
       </div>
 
-      {/* Vendors List */}
       <div className="space-y-3">
         {vendors.map((vendor) => (
           <button
@@ -309,7 +320,6 @@ function VendorsListSection({ vendors, onOpen }) {
           >
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                {/* Vendor name and verification in one line */}
                 <div className="flex items-center gap-2 mb-2">
                   <h3 className="font-medium text-gray-dark text-sm">{vendor.name}</h3>
                   {vendor.verified && (
@@ -319,7 +329,6 @@ function VendorsListSection({ vendors, onOpen }) {
                   )}
                 </div>
 
-                {/* Compact chips layout */}
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-xs">
                     {vendor.onTime}% on-time
@@ -334,9 +343,14 @@ function VendorsListSection({ vendors, onOpen }) {
                 </div>
               </div>
 
-              {/* Right arrow */}
-              <div className="ml-3 flex-shrink-0">
-                <ChevronRight className="w-4 h-4 text-gray-medium group-hover:text-gray-dark transition-colors" />
+              {/* Enhanced More Info Button */}
+              <div className="ml-3 flex items-center gap-2">
+                <span className="text-xs text-gray-medium hidden sm:block group-hover:text-gray-dark transition-colors">
+                  More info
+                </span>
+                <div className="flex-shrink-0 p-1 rounded-full group-hover:bg-gray-light/40 transition-colors">
+                  <ChevronRight className="w-4 h-4 text-gray-medium group-hover:text-gray-dark transition-colors" />
+                </div>
               </div>
             </div>
           </button>
@@ -527,173 +541,6 @@ function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
           </div>
         </div>
       </aside>
-    </div>
-  )
-}
-
-// Next Steps Overlay Component
-function NextStepsOverlay({ vendor, onDismiss, onContinue }) {
-  const [show, setShow] = useState(false)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShow(true), 50)
-    return () => clearTimeout(timer)
-  }, [])
-
-  const handleClose = () => {
-    setShow(false)
-    setTimeout(() => onDismiss?.(), 300)
-  }
-
-  const nextSteps = [
-    {
-      stage: 1,
-      title: "Order Processing",
-      description: "Your order is being prepared and validated",
-      status: "current",
-      icon: FileText,
-      time: "Next 15 minutes"
-    },
-    {
-      stage: 2,
-      title: "Vendor Confirmation",
-      description: `${vendor.name} will confirm availability and final pricing`,
-      status: "upcoming",
-      icon: Users,
-      time: "Within 2 hours"
-    },
-    {
-      stage: 3,
-      title: "Delivery Scheduling",
-      description: "Coordinate delivery timeline and logistics",
-      status: "upcoming",
-      icon: Truck,
-      time: vendor.delivery
-    },
-    {
-      stage: 4,
-      title: "Order Fulfillment",
-      description: "Materials delivered to your site",
-      status: "upcoming",
-      icon: CheckCircle2,
-      time: "As scheduled"
-    }
-  ]
-
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      {/* Overlay */}
-      <div
-        className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
-          show ? 'opacity-100' : 'opacity-0'
-        }`}
-        onClick={handleClose}
-      />
-
-      {/* Modal */}
-      <div
-        className={`relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col transform transition-all duration-300 ${
-          show ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
-        }`}
-      >
-        {/* Header */}
-        <div className="flex-shrink-0 p-6 border-b border-gray-medium/20">
-          <div className="flex items-start justify-between">
-            <div>
-              <h3 className="text-xl font-semibold text-gray-dark mb-1">
-                Vendor Selected!
-              </h3>
-              <p className="text-sm text-gray-medium">
-                {vendor.name} • {vendor.priceEstimate}
-              </p>
-            </div>
-            <button
-              onClick={handleClose}
-              className="p-2 hover:bg-gray-light/30 rounded-lg transition-colors"
-            >
-              <span className="text-gray-medium text-lg">✕</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="mb-6">
-            <h4 className="text-lg font-medium text-gray-dark mb-2">What happens next?</h4>
-            <p className="text-sm text-gray-medium">
-              Here&apos;s the step-by-step process for your order with {vendor.name}
-            </p>
-          </div>
-
-          {/* Steps */}
-          <div className="space-y-4">
-            {nextSteps.map((step, index) => {
-              const Icon = step.icon
-              const isCompleted = step.status === 'completed'
-              const isCurrent = step.status === 'current'
-
-              return (
-                <div key={step.stage} className="flex gap-4">
-                  {/* Step indicator */}
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        isCurrent
-                          ? 'bg-blue-100 border-2 border-blue-500'
-                          : isCompleted
-                          ? 'bg-green-100 border-2 border-green-500'
-                          : 'bg-gray-100 border-2 border-gray-300'
-                      }`}
-                    >
-                      <Icon
-                        className={`w-5 h-5 ${
-                          isCurrent
-                            ? 'text-blue-600'
-                            : isCompleted
-                            ? 'text-green-600'
-                            : 'text-gray-400'
-                        }`}
-                      />
-                    </div>
-                    {index < nextSteps.length - 1 && (
-                      <div className="w-0.5 h-8 bg-gray-200 mt-2" />
-                    )}
-                  </div>
-
-                  {/* Step content */}
-                  <div className="flex-1 pb-8">
-                    <div className="flex items-center justify-between mb-1">
-                      <h5 className="font-medium text-gray-dark">{step.title}</h5>
-                      <span className="text-xs text-gray-medium flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {step.time}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-medium">{step.description}</p>
-                    {isCurrent && (
-                      <div className="mt-2">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium">
-                          In Progress
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex-shrink-0 p-6 border-t border-gray-medium/20 bg-gray-light/10">
-          <button
-            onClick={handleClose}
-            className="w-full px-4 py-2 bg-gray-dark text-white rounded-lg hover:bg-gray-medium transition-colors font-medium"
-          >
-            OK
-          </button>
-        </div>
-      </div>
     </div>
   )
 }
