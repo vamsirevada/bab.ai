@@ -154,7 +154,11 @@ export default function OnboardingPage() {
 
 
           {/* Vendors List Section */}
-          <VendorsListSection vendors={vendors} onOpen={(v) => setDrawerVendor(v)} />
+          <VendorsListSection
+            vendors={vendors}
+            onOpen={(v) => setDrawerVendor(v)}
+            onSelectVendor={handleVendorSelection}
+          />
 
             {/* Items List Section */}
           <ItemsListSection items={orderItems} />
@@ -166,7 +170,6 @@ export default function OnboardingPage() {
             <SlideOver
               vendor={drawerVendor}
               onDismiss={() => setDrawerVendor(null)}
-              onSelectVendor={handleVendorSelection}
               openWhatsApp={openWhatsApp}
             />
           </Portal>
@@ -303,7 +306,7 @@ function ItemsListSection({ items }) {
 }
 
 // Vendors List Section - Optimized layout
-function VendorsListSection({ vendors, onOpen }) {
+function VendorsListSection({ vendors, onOpen, onSelectVendor }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 lg:p-6">
       <div className="mb-4">
@@ -313,10 +316,10 @@ function VendorsListSection({ vendors, onOpen }) {
 
       <div className="space-y-3">
         {vendors.map((vendor) => (
-          <button
+          <div
             key={vendor.id}
-            onClick={() => onOpen(vendor)}
-            className="w-full text-left rounded-xl border border-gray-medium/20 hover:border-gray-medium/40 hover:bg-gray-light/20 transition-all p-3 group"
+            onClick={() => onSelectVendor?.(vendor)}
+            className="w-full rounded-xl border border-gray-medium/20 hover:border-gray-medium/40 hover:bg-gray-light/20 transition-all p-3 group cursor-pointer"
           >
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
@@ -329,12 +332,9 @@ function VendorsListSection({ vendors, onOpen }) {
                   )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mb-3">
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-xs">
                     {vendor.onTime}% on-time
-                  </span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-xs">
-                    {vendor.pastTxns} orders
                   </span>
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-xs font-medium">
                     <Truck className="w-3 h-3" />
@@ -343,17 +343,23 @@ function VendorsListSection({ vendors, onOpen }) {
                 </div>
               </div>
 
-              {/* Enhanced More Info Button */}
-              <div className="ml-3 flex items-center gap-2">
-                <span className="text-xs text-gray-medium hidden sm:block group-hover:text-gray-dark transition-colors">
-                  More info
+              {/* Details Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpen(vendor);
+                }}
+                className="ml-3 flex items-center gap-1 p-2 rounded-lg hover:bg-gray-light/40 transition-colors group/details"
+              >
+                <span className="text-xs text-gray-medium hidden sm:block group-hover/details:text-gray-dark transition-colors">
+                  Details
                 </span>
-                <div className="flex-shrink-0 p-1 rounded-full group-hover:bg-gray-light/40 transition-colors">
-                  <ChevronRight className="w-4 h-4 text-gray-medium group-hover:text-gray-dark transition-colors" />
+                <div className="flex-shrink-0">
+                  <ChevronRight className="w-4 h-4 text-gray-medium group-hover/details:text-gray-dark transition-colors" />
                 </div>
-              </div>
+              </button>
             </div>
-          </button>
+          </div>
         ))}
       </div>
     </div>
@@ -379,7 +385,7 @@ function Portal({ children }) {
 }
 
 // Right slide-over with overlay fade and smooth entrance/exit
-function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
+function SlideOver({ vendor, onDismiss, openWhatsApp }) {
   const [show, setShow] = useState(false)
   const panelRef = useRef(null)
   const touchStartX = useRef(0)
@@ -530,14 +536,23 @@ function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="mt-auto pt-2">
-            <button
-              onClick={() => onSelectVendor?.(vendor)}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-gray-dark text-white px-4 py-2.5 text-sm font-medium hover:bg-gray-medium"
-            >
-              <CheckCircle2 className="w-5 h-5" /> Select Vendor
-            </button>
+          {/* Additional Info Section */}
+          <div className="space-y-3 text-sm">
+            <h4 className="font-medium text-gray-dark">Additional Details</h4>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-2 bg-gray-light/10 rounded-lg">
+                <span className="text-gray-medium">Vendor Rating</span>
+                <span className="font-medium text-gray-dark">4.{Math.floor(Math.random() * 9 + 1)}/5</span>
+              </div>
+              <div className="flex items-center justify-between p-2 bg-gray-light/10 rounded-lg">
+                <span className="text-gray-medium">Payment Terms</span>
+                <span className="font-medium text-gray-dark">Credit Accepted</span>
+              </div>
+              <div className="flex items-center justify-between p-2 bg-gray-light/10 rounded-lg">
+                <span className="text-gray-medium">Minimum Order</span>
+                <span className="font-medium text-gray-dark">₹50,000</span>
+              </div>
+            </div>
           </div>
         </div>
       </aside>
