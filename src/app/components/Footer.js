@@ -5,8 +5,38 @@ import { usePathname } from 'next/navigation'
 const Footer = () => {
   const pathname = usePathname()
   const isOrderPage = pathname?.includes('/orders/')
+  const isOnboardingPage = pathname?.includes('/onboarding')
 
-  return !isOrderPage ? (
+  // Show minimal footer for order and onboarding pages
+  if (isOrderPage || isOnboardingPage) {
+    return (
+      <footer className="text-gray-dark relative border-t border-gray-medium/20 bg-white/80 backdrop-blur-sm">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 relative z-10">
+          <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+            <div className="text-gray-medium text-sm font-body">
+              <p>bab.ai@2025</p>
+            </div>
+            <div className="flex space-x-4 text-xs">
+              <Link
+                href="/privacy-policy"
+                className="text-gray-medium hover:text-brand-primary transition-colors duration-200 font-body"
+              >
+                Privacy
+              </Link>
+              <Link
+                href="/terms-of-service"
+                className="text-gray-medium hover:text-brand-primary transition-colors duration-200 font-body"
+              >
+                Terms
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
+    )
+  }
+
+  return (
     <footer className="text-gray-dark relative overflow-hidden border-t border-gray-medium/20">
       {/* Background decoration */}
       <div className="absolute inset-0"></div>
@@ -178,7 +208,7 @@ const Footer = () => {
         </div>
       </div>
     </footer>
-  ) : null
+  )
 }
 
 export default Footer

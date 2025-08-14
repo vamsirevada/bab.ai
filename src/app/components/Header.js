@@ -7,6 +7,8 @@ import { usePathname } from 'next/navigation'
 const Header = () => {
   const pathname = usePathname()
   const isOrderPage = pathname?.includes('/orders/')
+  const isOnboardingPage = pathname?.includes('/onboarding')
+  const isOrderConfirmationPage = pathname?.includes('/order-confirmation')
 
   return (
     <header className="relative z-20">
@@ -24,7 +26,7 @@ const Header = () => {
             </div>
 
             {/* bab.ai text with verification - hidden on order pages */}
-            {!isOrderPage && (
+            {!isOrderPage && !isOnboardingPage && !isOrderConfirmationPage && (
               <div className="flex items-center gap-1.5">
                 <p className="text-2xl sm:text-3xl font-bold text-brand-dark font-heading leading-none">
                   bab.ai

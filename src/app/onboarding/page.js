@@ -118,9 +118,14 @@ export default function OnboardingPage() {
   const handleVendorSelection = (vendor) => {
     setSelectedVendor(vendor)
     setDrawerVendor(null)
-    // Navigate to order confirmation page with vendor data
-    const vendorData = encodeURIComponent(JSON.stringify(vendor))
-    router.push(`/order-confirmation?vendor=${vendorData}`)
+  }
+
+  const handleProceedToOrder = () => {
+    if (selectedVendor) {
+      // Navigate to order confirmation page with vendor data
+      const vendorData = encodeURIComponent(JSON.stringify(selectedVendor))
+      router.push(`/order-confirmation?vendor=${vendorData}`)
+    }
   }
 
   const openWhatsApp = (vendor) => {
@@ -158,11 +163,32 @@ export default function OnboardingPage() {
             vendors={vendors}
             onOpen={(v) => setDrawerVendor(v)}
             onSelectVendor={handleVendorSelection}
+            selectedVendor={selectedVendor}
           />
 
             {/* Items List Section */}
           <ItemsListSection items={orderItems} />
         </div>
+
+        {/* Floating Proceed Button */}
+        {selectedVendor && (
+          <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 px-6 w-full max-w-sm" style={{ zIndex: 99999, position: 'fixed' }}>
+            <button
+              onClick={handleProceedToOrder}
+              className="bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg hover:shadow-3xl border border-gray-600 transition-all duration-300 flex items-center justify-center gap-2 animate-bounce w-full relative"
+              style={{
+                boxShadow: '0 20px 40px -8px rgba(0, 0, 0, 0.6), 0 10px 20px -5px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1), 0 0 20px 0 rgba(0, 0, 0, 0.2)',
+                zIndex: 100000
+              }}
+            >
+              <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-green-400" />
+              <span className="font-medium text-sm truncate">
+                Proceed with {selectedVendor.name}
+              </span>
+              <ArrowRight className="w-4 h-4 flex-shrink-0" />
+            </button>
+          </div>
+        )}
 
         {/* Slide-Over Drawer (Animated) */}
         {drawerVendor && (
@@ -246,7 +272,9 @@ function CreditInformationSection({ credit, usedPct, onIncrease, rechecking }) {
 
 // Items List Section
 function ItemsListSection({ items }) {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [showAllItems, setShowAllItems] = useState(false)
+  const visibleItems = showAllItems ? items : items.slice(0, 2)
+  const hasMoreItems = items.length > 2
 
   return (
     <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 lg:p-6">
@@ -263,42 +291,42 @@ function ItemsListSection({ items }) {
         </div>
       </div>
 
-      {/* Expand/Collapse Button */}
-      <div className="mb-4">
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-light/10 hover:bg-gray-light/20 border border-gray-medium/20 rounded-lg transition-colors text-gray-dark"
-        >
-          <span className="text-sm font-medium">
-            {isExpanded ? 'Hide Items' : 'View Items'}
-          </span>
-          {isExpanded ? (
-            <ChevronDown className="w-4 h-4 rotate-180 transition-transform duration-200" />
-          ) : (
-            <ChevronDown className="w-4 h-4 transition-transform duration-200" />
-          )}
-        </button>
+      {/* Items List - Show 2 initially */}
+      <div className="space-y-2">
+        {visibleItems.map((item) => (
+          <div key={item.id} className="flex items-center justify-between p-3 bg-gray-light/5 rounded-lg hover:bg-gray-light/10 transition-colors">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-medium text-gray-dark text-sm truncate">{item.material_name}</h3>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-xs text-gray-medium whitespace-nowrap">
+                  {item.quantity} {item.unit}
+                </span>
+              </div>
+              <p className="text-xs text-gray-medium truncate">{item.sub_type} • {item.dimensions}</p>
+            </div>
+            <div className="text-right ml-3">
+              <p className="font-semibold text-gray-dark text-sm">{item.estimatedPrice}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Compact Items List - Collapsible */}
-      {isExpanded && (
-        <div className="space-y-2 animate-in slide-in-from-top-2 duration-200">
-          {items.map((item) => (
-            <div key={item.id} className="flex items-center justify-between p-3 bg-gray-light/5 rounded-lg hover:bg-gray-light/10 transition-colors">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-medium text-gray-dark text-sm truncate">{item.material_name}</h3>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-xs text-gray-medium whitespace-nowrap">
-                    {item.quantity} {item.unit}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-medium truncate">{item.sub_type} • {item.dimensions}</p>
-              </div>
-              <div className="text-right ml-3">
-                <p className="font-semibold text-gray-dark text-sm">{item.estimatedPrice}</p>
-              </div>
-            </div>
-          ))}
+      {/* View More Items Button */}
+      {hasMoreItems && (
+        <div className="mt-4">
+          <button
+            onClick={() => setShowAllItems(!showAllItems)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-light/10 hover:bg-gray-light/20 border border-gray-medium/20 rounded-lg transition-colors text-gray-dark"
+          >
+            <span className="text-sm font-medium">
+              {showAllItems ? `Hide ${items.length - 2} items` : `View ${items.length - 2} more items`}
+            </span>
+            {showAllItems ? (
+              <ChevronDown className="w-4 h-4 rotate-180 transition-transform duration-200" />
+            ) : (
+              <ChevronDown className="w-4 h-4 transition-transform duration-200" />
+            )}
+          </button>
         </div>
       )}
     </div>
@@ -306,7 +334,7 @@ function ItemsListSection({ items }) {
 }
 
 // Vendors List Section - Optimized layout
-function VendorsListSection({ vendors, onOpen, onSelectVendor }) {
+function VendorsListSection({ vendors, onOpen, onSelectVendor, selectedVendor }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 lg:p-6">
       <div className="mb-4">
@@ -315,52 +343,65 @@ function VendorsListSection({ vendors, onOpen, onSelectVendor }) {
       </div>
 
       <div className="space-y-3">
-        {vendors.map((vendor) => (
-          <div
-            key={vendor.id}
-            onClick={() => onSelectVendor?.(vendor)}
-            className="w-full rounded-xl border border-gray-medium/20 hover:border-gray-medium/40 hover:bg-gray-light/20 transition-all p-3 group cursor-pointer"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-medium text-gray-dark text-sm">{vendor.name}</h3>
-                  {vendor.verified && (
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-xs">
-                      <ShieldCheck className="w-3 h-3" /> Verified
+        {vendors.map((vendor) => {
+          const isSelected = selectedVendor?.id === vendor.id;
+          return (
+            <div
+              key={vendor.id}
+              onClick={() => onSelectVendor?.(vendor)}
+              className={`w-full rounded-xl border transition-all p-3 group cursor-pointer ${
+                isSelected
+                  ? 'border-gray-dark border-2 bg-gray-light/30 shadow-md'
+                  : 'border-gray-medium/20 hover:border-gray-medium/40 hover:bg-gray-light/20'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="font-medium text-gray-dark text-sm">{vendor.name}</h3>
+                    {vendor.verified && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-xs">
+                        <ShieldCheck className="w-3 h-3" /> Verified
+                      </span>
+                    )}
+                    {isSelected && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-dark text-white text-xs font-medium">
+                        <CheckCircle2 className="w-3 h-3" />
+                        Selected
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-xs">
+                      {vendor.onTime}% on-time
                     </span>
-                  )}
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-xs font-medium">
+                      <Truck className="w-3 h-3" />
+                      {vendor.delivery}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-xs">
-                    {vendor.onTime}% on-time
+                {/* Details Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpen(vendor);
+                  }}
+                  className="ml-3 flex items-center gap-1 p-2 rounded-lg hover:bg-gray-light/40 transition-colors group/details"
+                >
+                  <span className="text-xs text-gray-medium hidden sm:block group-hover/details:text-gray-dark transition-colors">
+                    Details
                   </span>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-xs font-medium">
-                    <Truck className="w-3 h-3" />
-                    {vendor.delivery}
-                  </span>
-                </div>
+                  <div className="flex-shrink-0">
+                    <ChevronRight className="w-4 h-4 text-gray-medium group-hover/details:text-gray-dark transition-colors" />
+                  </div>
+                </button>
               </div>
-
-              {/* Details Button */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpen(vendor);
-                }}
-                className="ml-3 flex items-center gap-1 p-2 rounded-lg hover:bg-gray-light/40 transition-colors group/details"
-              >
-                <span className="text-xs text-gray-medium hidden sm:block group-hover/details:text-gray-dark transition-colors">
-                  Details
-                </span>
-                <div className="flex-shrink-0">
-                  <ChevronRight className="w-4 h-4 text-gray-medium group-hover/details:text-gray-dark transition-colors" />
-                </div>
-              </button>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   )

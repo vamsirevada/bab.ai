@@ -8,6 +8,22 @@ function OrderConfirmationContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [vendor, setVendor] = useState(null)
+  const [animationPhase, setAnimationPhase] = useState(0) // 0: show "1", 1: morphing, 2: show tick
+
+  // Animation cycle for step 1 completion indicator
+  useEffect(() => {
+    const cycle = () => {
+      // Show "1" for 2 seconds
+      setTimeout(() => setAnimationPhase(1), 2000) // Start morphing
+      setTimeout(() => setAnimationPhase(2), 2500) // Show tick
+      setTimeout(() => setAnimationPhase(0), 4500) // Back to "1"
+    }
+
+    cycle()
+    const interval = setInterval(cycle, 5000) // Repeat every 5 seconds
+
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     // Get vendor data from URL params or localStorage
@@ -30,8 +46,8 @@ function OrderConfirmationContent() {
       title: "Express Purchase Intent with Credit",
       icon: CreditCard,
       description: "Choose your vendor and tell Bab.ai you want to purchase from them using your available credit.",
-      whatHappens: "We notify the vendor instantly via WhatsApp.",
-      status: "current",
+      whatHappens: "Vendor has been notified via WhatsApp.",
+      status: "completed",
       time: "Instant"
     },
     {
@@ -40,7 +56,7 @@ function OrderConfirmationContent() {
       icon: FileText,
       description: "If the vendor is interested — whether through Bab.ai or from your prior offline discussions — they confirm and upload the official invoice.",
       whatHappens: " Bab.ai stores the invoice securely and prepares the payment channel.",
-      status: "upcoming",
+      status: "current",
       time: "2-4 hours"
     },
     {
@@ -70,26 +86,80 @@ function OrderConfirmationContent() {
   }
 
   return (
-    <div className="min-h-screen py-4 sm:py-6">
+    <>
+      <style jsx>{`
+        @keyframes drawTick {
+          0% {
+            stroke-dashoffset: 20;
+          }
+          100% {
+            stroke-dashoffset: 0;
+          }
+        }
+        .draw-tick {
+          animation: drawTick 0.8s ease-out forwards;
+        }
+      `}</style>
+
+      <div className="min-h-screen py-4 sm:py-6">
       <div className="max-w-xl mx-auto px-4">
         {/* Compact Content */}
         <div className="rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
           {/* Success Receipt Card - Compact */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 min-h-[33vh]">
             {/* Compact Header */}
-            <div className="text-center py-2 px-4 bg-gray-25 border-b border-gray-100">
-              <div className="text-xs text-gray-500">Order Confirmed</div>
+            <div className="text-center py-3 px-4 bg-gray-25 border-b border-gray-100">
+              <div className="text-sm text-gray-600 font-medium">
+                Order confirmed with <span className="font-bold text-gray-800">&apos;{vendor.name}&apos;</span>
+              </div>
             </div>
 
             {/* Compact Success Section */}
-            <div className="bg-gradient-to-b from-green-25 to-green-50 py-4 px-4 text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                  <CheckCircle2 className="w-4 h-4 text-white" />
+            <div className="bg-gradient-to-b from-green-25 to-green-50 py-8 px-4 text-center relative overflow-hidden flex-1 flex flex-col justify-center">
+              <div className="flex items-center justify-center gap-3 mb-3 relative">
+                {/* Custom Success Icon with animations */}
+                <div className="relative">
+                  {/* Ripple effects - larger to match video */}
+                  <div className="absolute inset-0 w-20 h-20 bg-green-400 rounded-full animate-ping opacity-25"></div>
+                  <div className="absolute inset-0 w-20 h-20 bg-green-300 rounded-full animate-ping opacity-15" style={{
+                    animationDelay: '0.3s'
+                  }}></div>
+
+                  {/* Main success video - much larger */}
+                  <div className="relative w-20 h-20 rounded-full flex items-center justify-center overflow-hidden shadow-xl shadow-green-300">
+                    <video
+                      className="w-20 h-20 object-cover"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                    >
+                      <source src="/assets/videos/success.mp4" type="video/mp4" />
+                      <source src="/assets/videos/success.webm" type="video/webm" />
+                      {/* Fallback SVG for browsers that don't support video */}
+                      <svg
+                        className="w-14 h-14 text-green-500"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </video>
+                  </div>
                 </div>
-                <span className="text-lg font-semibold text-gray-900">{vendor.priceEstimate}</span>
               </div>
-              <p className="text-xs text-gray-600">Estimated • {vendor.name}</p>
+
+              {/* Success Message */}
+              <div className="space-y-2">
+                <h2 className="text-xl font-bold text-green-800">Order Confirmed!</h2>
+                <p className="text-sm text-green-700">Your purchase intent has been successfully submitted</p>
+              </div>
             </div>
 
             {/* Compact Details */}
@@ -108,16 +178,14 @@ function OrderConfirmationContent() {
 
           {/* Enhanced Next Steps Section */}
           <div className="mb-6">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 mb-4 border border-blue-100">
+            <div className="p-4 mb-4">
               <h2 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
                 <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-bold">!</span>
                 </div>
                 What happens next?
               </h2>
-              <p className="text-sm text-blue-700 font-medium">
-                Follow these steps to complete your order
-              </p>
+
             </div>
           </div>
 
@@ -133,13 +201,64 @@ function OrderConfirmationContent() {
                   <div className="flex flex-col items-center">
 
                     <div
-                      className={`w-7 h-7 rounded-full flex items-center justify-center font-medium text-xs ${
-                        isCurrent
+                      className={`w-7 h-7 rounded-full flex items-center justify-center font-medium text-xs transition-all duration-500 ${
+                        step.status === 'completed'
+                          ? 'bg-green-100 border border-green-400 text-green-600'
+                          : isCurrent
                           ? 'bg-blue-100 border border-blue-400 text-blue-600'
                           : 'bg-gray-100 border border-gray-300 text-gray-500'
                       }`}
                     >
-                      <step.icon className="w-4 h-4 text-gray-500" />
+                      {step.status === 'completed' ? (
+                        <div className="relative w-4 h-4 flex items-center justify-center">
+                          {/* Number "1" */}
+                          <span
+                            className={`absolute font-bold transition-all duration-500 ${
+                              animationPhase === 0
+                                ? 'opacity-100 scale-100 rotate-0'
+                                : animationPhase === 1
+                                ? 'opacity-50 scale-75 rotate-45'
+                                : 'opacity-0 scale-50 rotate-90'
+                            }`}
+                          >
+                            1
+                          </span>
+
+                          {/* Hand-drawn style tick mark */}
+                          <svg
+                            className={`absolute w-4 h-4 transition-all duration-500 ${
+                              animationPhase === 0
+                                ? 'opacity-0 scale-50 rotate-45'
+                                : animationPhase === 1
+                                ? 'opacity-50 scale-75 rotate-0'
+                                : 'opacity-100 scale-100 rotate-0'
+                            }`}
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            style={{
+                              left: '50%',
+                              top: '50%',
+                              transform: 'translate(-50%, -50%)'
+                            }}
+                          >
+                            <path
+                              d="M6 12l3 3L18 9"
+                              className={animationPhase === 2 ? 'draw-tick' : ''}
+                              style={{
+                                strokeDasharray: '15',
+                                strokeDashoffset: animationPhase === 2 ? '0' : '15',
+                                transition: 'stroke-dashoffset 0.8s ease-out'
+                              }}
+                            />
+                          </svg>
+                        </div>
+                      ) : (
+                        step.stage
+                      )}
                     </div>
                     {index < nextSteps.length - 1 && (
                       <div className="w-0.5 h-18 bg-gray-200 mt-1.5" />
@@ -149,8 +268,9 @@ function OrderConfirmationContent() {
                   {/* Compact step content */}
                   <div className="flex-1 min-w-0">
                     {/* Line 1: Title with Icon */}
-                    <h3 className="text-sm font-medium text-gray-900 leading-tight mb-1">
-                      {step.title}
+                    <h3 className="text-sm font-medium text-gray-900 leading-tight mb-1 flex items-center gap-2">
+                      <span>{step.title}</span>
+                      <step.icon className="w-4 h-4 text-gray-500" />
                     </h3>
 
                     {/* Line 2: Description */}
@@ -159,12 +279,15 @@ function OrderConfirmationContent() {
                     </p>
 
                     {/* Line 3: What Happens */}
-                    <p className="text-[10px] text-gray-600 leading-snug mb-1.5">
-                      <span className="font-medium text-blue-700">What happens now:</span> {step.whatHappens}
+                    <p className="text-[10px] leading-snug mb-1.5">
+                      <span className='font-medium text-blue-700'>
+                       {step.whatHappens}
+                      </span>
                     </p>
 
                     {/* Line 4: Time & Status Badges - Right Aligned */}
-                    <div className="flex items-center justify-end gap-2">
+                    {step.status !== 'completed' && (
+                        <div className="flex items-center justify-end gap-2">
                       <span className="inline-flex items-center px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded text-[9px] font-medium">
                         <Clock className="w-3.5 h-3.5 mr-1" />
                         {step.time}
@@ -175,6 +298,8 @@ function OrderConfirmationContent() {
                         </span>
                       )}
                     </div>
+                    )}
+
                   </div>
                 </div>
               )
@@ -209,7 +334,8 @@ function OrderConfirmationContent() {
           </p>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 
