@@ -92,7 +92,7 @@ const SelectVendorsContent = () => {
     setCustomerInfo({
       uuid,
       name: customerData.name || 'Construction Team',
-      phone: customerData.phone || '+91 98765 43210',
+      phone: customerData.phone || '+91 99663 30468',
       site: customerData.site || 'Construction Project',
       address: customerData.address || 'Project Site Address',
     })

@@ -434,11 +434,11 @@ const ReviewOrderContent = () => {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [customerInfo, setCustomerInfo] = useState({
     name: searchParams.get('name') || 'Construction Team',
-    phone: searchParams.get('phone') || '+91 98765 43210',
+    phone: searchParams.get('phone') || '+91 99663 30468',
     site: searchParams.get('site') || 'Construction Project',
     address: searchParams.get('address') || 'Project Site Address',
     whatsappName: searchParams.get('name') || 'Construction Team',
-    whatsappPhone: searchParams.get('phone') || '+91 98765 43210',
+    whatsappPhone: searchParams.get('phone') || '+91 99663 30468',
   })
 
   // Snapshot of original items to detect changes on submit
