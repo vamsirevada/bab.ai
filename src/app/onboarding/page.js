@@ -109,6 +109,28 @@ export default function OnboardingPage() {
   const [drawerVendor, setDrawerVendor] = useState(null)
   const [selectedVendor, setSelectedVendor] = useState(null)
   const [rechecking, setRechecking] = useState(false)
+  const [isMobileHovered, setIsMobileHovered] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Auto-cycle animation for mobile
+  useEffect(() => {
+    if (isMobile && selectedVendor) {
+      const interval = setInterval(() => {
+        setIsMobileHovered(prev => !prev)
+      }, 1000) // Toggle every 1 second (slower)
+      return () => clearInterval(interval)
+    }
+  }, [isMobile, selectedVendor])
 
   const handleIncreaseLimit = () => {
     setRechecking(true)
@@ -172,20 +194,49 @@ export default function OnboardingPage() {
 
         {/* Floating Proceed Button */}
         {selectedVendor && (
-          <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 px-6 w-full max-w-sm" style={{ zIndex: 99999, position: 'fixed' }}>
+          <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 px-3 w-full max-w-xs" style={{ zIndex: 99999, position: 'fixed' }}>
             <button
               onClick={handleProceedToOrder}
-              className="bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg hover:shadow-3xl border border-gray-600 transition-all duration-300 flex items-center justify-center gap-2 animate-bounce w-full relative"
+              onTouchStart={() => isMobile && setIsMobileHovered(true)}
+              onTouchEnd={() => isMobile && setTimeout(() => setIsMobileHovered(false), 150)}
+              className={`bg-blue-50/95 backdrop-blur-sm text-gray-900 border border-blue-100/60 px-3 py-2 rounded-full shadow-sm transition-all duration-500 ease-out flex items-center gap-2 w-full relative group overflow-hidden ${
+                isMobile
+                  ? (isMobileHovered ? 'bg-gray-900 text-white border-gray-900 shadow-lg' : '')
+                  : 'hover:bg-gray-900 hover:text-white hover:border-gray-900 hover:shadow-lg'
+              }`}
               style={{
-                boxShadow: '0 20px 40px -8px rgba(0, 0, 0, 0.6), 0 10px 20px -5px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1), 0 0 20px 0 rgba(0, 0, 0, 0.2)',
-                zIndex: 100000
+                zIndex: 100000,
+                height: '38px'
               }}
             >
-              <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-green-400" />
-              <span className="font-medium text-sm truncate">
-                Proceed with {selectedVendor.name}
-              </span>
-              <ArrowRight className="w-4 h-4 flex-shrink-0" />
+              {/* Background animation overlay */}
+              <div className={`absolute inset-0 bg-gray-900 transition-transform duration-500 ease-out origin-left rounded-full ${
+                isMobile
+                  ? (isMobileHovered ? 'scale-x-100' : 'scale-x-0')
+                  : 'scale-x-0 group-hover:scale-x-100'
+              }`}></div>
+
+              {/* Content wrapper */}
+              <div className="relative z-10 flex items-center justify-center gap-1.5 w-full">
+                {/* Icon container - circle and arrow both change on hover */}
+                <div className={`w-5 h-5 bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                  isMobile
+                    ? (isMobileHovered ? 'bg-white' : '')
+                    : 'group-hover:bg-white'
+                }`}>
+                  {/* Arrow with color inversion on hover/touch */}
+                  <ArrowRight className={`w-3 h-3 transition-all duration-300 ${
+                    isMobile
+                      ? (isMobileHovered ? 'text-gray-900' : 'text-white')
+                      : 'text-white group-hover:text-gray-900'
+                  }`} />
+                </div>
+
+                {/* Text */}
+                <span className="font-medium text-xs transition-all duration-300 truncate">
+                  Continue with {selectedVendor.name}
+                </span>
+              </div>
             </button>
           </div>
         )}
