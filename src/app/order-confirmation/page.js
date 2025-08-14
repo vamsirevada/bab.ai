@@ -74,43 +74,51 @@ function OrderConfirmationContent() {
       <div className="max-w-xl mx-auto px-4">
         {/* Compact Content */}
         <div className="rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
-          <div className="bg-gray-50 rounded-lg p-3 mb-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-2 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
-              Selected Vendor
-            </h3>
-            <div className="flex items-center justify-between">
-              <div className="min-w-0 flex-1">
-                <h4 className="font-medium text-gray-900 text-sm">{vendor.name}</h4>
-                <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-600">
-                  <span>{vendor.onTime}% on-time</span>
-                  <span>•</span>
-                  <span>{vendor.pastTxns} orders</span>
-                  <span>•</span>
-                  <span>{vendor.delivery}</span>
-                </div>
-              </div>
-              <div className="text-right flex-shrink-0">
-                <p className="text-lg font-semibold text-gray-900">{vendor.priceEstimate}</p>
-                <p className="text-xs text-gray-600">Estimated</p>
-              </div>
+          {/* Success Receipt Card - Compact */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+            {/* Compact Header */}
+            <div className="text-center py-2 px-4 bg-gray-25 border-b border-gray-100">
+              <div className="text-xs text-gray-500">Order Confirmed</div>
             </div>
-            <div className="mt-2 pt-2 border-t border-gray-200 text-right">
-              <button
-                onClick={handleGoBack}
-                className="text-sm text-blue-600 hover:text-blue-700 transition-colors font-medium"
-              >
-                Change Vendor
-              </button>
+
+            {/* Compact Success Section */}
+            <div className="bg-gradient-to-b from-green-25 to-green-50 py-4 px-4 text-center">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                  <CheckCircle2 className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-lg font-semibold text-gray-900">{vendor.priceEstimate}</span>
+              </div>
+              <p className="text-xs text-gray-600">Estimated • {vendor.name}</p>
+            </div>
+
+            {/* Compact Details */}
+            <div className="px-4 py-2">
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <span>Order #{Math.random().toString(36).substr(2, 6).toUpperCase()}</span>
+                <button
+                  onClick={handleGoBack}
+                  className="text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  Change Vendor
+                </button>
+              </div>
             </div>
           </div>
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 mb-0.5">
-              What happens next?
-            </h2>
-            <p className="text-sm text-gray-600">
-              Step-by-step process for your order
-            </p>
+
+          {/* Enhanced Next Steps Section */}
+          <div className="mb-6">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 mb-4 border border-blue-100">
+              <h2 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">!</span>
+                </div>
+                What happens next?
+              </h2>
+              <p className="text-sm text-blue-700 font-medium">
+                Follow these steps to complete your order
+              </p>
+            </div>
           </div>
 
           {/* Compact Steps */}
@@ -123,6 +131,7 @@ function OrderConfirmationContent() {
                 <div key={step.stage} className="flex gap-2.5">
                   {/* Smaller step indicator */}
                   <div className="flex flex-col items-center">
+
                     <div
                       className={`w-7 h-7 rounded-full flex items-center justify-center font-medium text-xs ${
                         isCurrent
@@ -130,7 +139,7 @@ function OrderConfirmationContent() {
                           : 'bg-gray-100 border border-gray-300 text-gray-500'
                       }`}
                     >
-                      {step.stage}
+                      <step.icon className="w-4 h-4 text-gray-500" />
                     </div>
                     {index < nextSteps.length - 1 && (
                       <div className="w-0.5 h-18 bg-gray-200 mt-1.5" />
@@ -141,7 +150,7 @@ function OrderConfirmationContent() {
                   <div className="flex-1 min-w-0">
                     {/* Line 1: Title with Icon */}
                     <h3 className="text-sm font-medium text-gray-900 leading-tight mb-1">
-                      {step.title} <step.icon className="w-3.5 h-3.5 text-blue-600 inline align-text-bottom ml-1" />
+                      {step.title}
                     </h3>
 
                     {/* Line 2: Description */}
