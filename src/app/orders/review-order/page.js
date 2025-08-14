@@ -635,7 +635,10 @@ const ReviewOrderContent = () => {
         site: customerInfo.site,
         address: customerInfo.address,
       }
+
       localStorage.setItem('customerInfo', JSON.stringify(customerData))
+
+      console.log('order data:', orderData)
 
       // Prepare items payload for submission later
       const itemsPayload = orderData.map((it) => ({

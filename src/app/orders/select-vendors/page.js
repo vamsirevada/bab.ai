@@ -78,8 +78,10 @@ const SelectVendorsContent = () => {
         customerData = JSON.parse(storedData)
       }
       const storedItems = localStorage.getItem('orderItems')
+
       if (storedItems) {
         const parsed = JSON.parse(storedItems)
+        console.log('Parsed items:', parsed)
         if (Array.isArray(parsed)) setOrderItems(parsed)
       }
     } catch (error) {
@@ -226,14 +228,16 @@ const SelectVendorsContent = () => {
       const requestId = customerInfo.uuid
       const payload = {
         request_id: requestId,
+        status: 'DRAFT',
         delivery_location: customerInfo.address || null,
         notes: `Vendors selected: ${selectedVendors
           .map((v) => v.name)
           .join(', ')}${
           customerInfo.site ? ` | Site: ${customerInfo.site}` : ''
         }`,
-        expected_delivery_date: null,
+        expected_delivery_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         items: orderItems,
+        sender_id: customerInfo.phone,
       }
 
       console.log('Submitting order with payload:', payload)

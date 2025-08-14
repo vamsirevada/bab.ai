@@ -9,7 +9,7 @@ const Footer = () => {
   return !isOrderPage ? (
     <footer className="text-gray-dark relative overflow-hidden border-t border-gray-medium/20">
       {/* Background decoration */}
-      <div className="absolute inset-0 bg-gray-light/10"></div>
+      <div className="absolute inset-0"></div>
       <div className="absolute top-0 left-0 w-64 h-64 bg-gray-medium/5 rounded-full -translate-y-32 -translate-x-32"></div>
       <div className="absolute bottom-0 right-0 w-48 h-48 bg-gray-medium/5 rounded-full translate-y-24 translate-x-24"></div>
 

@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { Info, ShieldCheck, CheckCircle2, ChevronRight, Phone, Truck } from 'lucide-react'
 
 export default function OnboardingPage() {
-  // Tabs (mobile)
+  // Tabs for all screen sizes
   const [activeTab, setActiveTab] = useState('credit') // 'credit' | 'vendors'
   const [prevTab, setPrevTab] = useState('credit')
 
@@ -15,6 +15,20 @@ export default function OnboardingPage() {
     setPrevTab(activeTab)
     setActiveTab(tab)
   }
+
+  // Dynamic content for title and description based on active tab
+  const dynamicContent = useMemo(() => {
+    if (activeTab === 'vendors') {
+      return {
+        title: "Vendor Selection",
+        description: "Choose from verified vendors who accept credit purchases and offer competitive rates."
+      }
+    }
+    return {
+      title: "Credit Information",
+      description: "Review your credit details and available purchasing limits."
+    }
+  }, [activeTab])
 
   // Credit mock
   const credit = useMemo(
@@ -101,21 +115,21 @@ export default function OnboardingPage() {
       <section className="container relative mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Title */}
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-dark mb-2">
-            Credit & Vendor Selection
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-dark mb-2 transition-all duration-300 ease-in-out">
+            {dynamicContent.title}
           </h1>
-          <p className="text-gray-medium">
-            Review your credit details and choose a vendor that supports purchases on credit.
+          <p className="text-gray-medium transition-all duration-300 ease-in-out">
+            {dynamicContent.description}
           </p>
         </div>
 
-  {/* Tabs for mobile and tablet */}
-  <div className="lg:hidden mt-6">
+        {/* Tabs for all screen sizes */}
+        <div className="mt-6 max-w-md mx-auto">
           <div className="flex border border-gray-medium/20 rounded-lg p-1 bg-white shadow-sm">
             <button
-              className={`flex-1 py-2.5 text-sm rounded-md transition ${
+              className={`flex-1 py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
                 activeTab === 'credit'
-                  ? 'bg-gray-dark text-white'
+                  ? 'bg-gray-dark text-white shadow-sm'
                   : 'text-gray-dark hover:bg-gray-light/30'
               }`}
               onClick={() => handleTabChange('credit')}
@@ -123,9 +137,9 @@ export default function OnboardingPage() {
               Credit Information
             </button>
             <button
-              className={`flex-1 py-2.5 text-sm rounded-md transition ${
+              className={`flex-1 py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
                 activeTab === 'vendors'
-                  ? 'bg-gray-dark text-white'
+                  ? 'bg-gray-dark text-white shadow-sm'
                   : 'text-gray-dark hover:bg-gray-light/30'
               }`}
               onClick={() => handleTabChange('vendors')}
@@ -133,8 +147,10 @@ export default function OnboardingPage() {
               Vendor Selection
             </button>
           </div>
+        </div>
 
-          {/* Animated Panels */}
+        {/* Animated Panels for all screen sizes */}
+        <div className="mt-8">
           <AnimatedPanels
             activeTab={activeTab}
             prevTab={prevTab}
@@ -148,12 +164,6 @@ export default function OnboardingPage() {
             }
             vendorsContent={<VendorsCard vendors={vendors} onOpen={(v) => setDrawerVendor(v)} />}
           />
-        </div>
-
-  {/* Desktop Cards (lg and above) */}
-  <div className="hidden lg:grid grid-cols-2 gap-6 mt-8">
-          <CreditCard credit={credit} usedPct={usedPct} onIncrease={handleIncreaseLimit} rechecking={rechecking} />
-          <VendorsCard vendors={vendors} onOpen={(v) => setDrawerVendor(v)} />
         </div>
 
         {/* Slide-Over Drawer (Animated) */}
@@ -199,21 +209,21 @@ export default function OnboardingPage() {
 
 function CreditCard({ credit, usedPct, onIncrease, rechecking }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 sm:p-6">
+    <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-dark">Credit Information</h2>
-          <p className="text-sm text-gray-medium">Available limit and usage</p>
+          <h2 className="text-lg lg:text-xl font-semibold text-gray-dark">Credit Information</h2>
+          <p className="text-sm lg:text-base text-gray-medium">Available limit and usage</p>
         </div>
-        <div className="text-xs text-gray-medium flex flex-col items-end">
+        <div className="text-xs lg:text-sm text-gray-medium flex flex-col items-end">
           <div className="flex items-center gap-2">
-            <div className="h-6 w-12 rounded-md bg-white border border-gray-medium/30 overflow-hidden flex items-center justify-center">
+            <div className="h-6 w-12 lg:h-8 lg:w-16 rounded-md bg-white border border-gray-medium/30 overflow-hidden flex items-center justify-center">
               <Image
                 src="/assets/icons/NBFC_logo.jpg"
                 alt={`${credit.partner.name} logo`}
                 width={48}
                 height={24}
-                className="h-5 w-14 object-contain"
+                className="h-5 w-14 lg:h-6 lg:w-16 object-contain"
                 priority
               />
             </div>
@@ -224,46 +234,46 @@ function CreditCard({ credit, usedPct, onIncrease, rechecking }) {
       </div>
 
       {/* Large Bar */}
-      <div className="mt-4">
-        <div className="h-3 w-full rounded-full bg-gray-light/40 border border-gray-medium/20 overflow-hidden">
+      <div className="mt-4 lg:mt-6">
+        <div className="h-3 lg:h-4 w-full rounded-full bg-gray-light/40 border border-gray-medium/20 overflow-hidden">
           <div
             className="h-full bg-gray-dark rounded-full"
             style={{ width: `${usedPct}%` }}
             aria-label={`Used ${usedPct}%`}
           />
         </div>
-        <div className="mt-2 flex items-center justify-between text-xs sm:text-sm">
+        <div className="mt-2 lg:mt-3 flex items-center justify-between text-xs sm:text-sm lg:text-base">
           <span className="text-gray-medium">Used {usedPct}%</span>
           <span className="text-gray-dark font-medium">Available ₹{(credit.available / 1000).toFixed(0)}k</span>
         </div>
       </div>
 
       {/* Trust Score */}
-      <div className="mt-4 flex items-center gap-2 text-sm">
+      <div className="mt-4 lg:mt-6 flex items-center gap-2 text-sm lg:text-base">
         <span className="font-medium text-gray-dark">Bab.ai Trust Score: {credit.trustScore}</span>
         <div className="relative group">
-          <Info className="w-4 h-4 text-gray-medium" />
-          <div className="absolute left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block rounded-md border border-gray-medium/20 bg-white p-2 text-xs text-gray-dark shadow">
+          <Info className="w-4 h-4 lg:w-5 lg:h-5 text-gray-medium" />
+          <div className="absolute left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block rounded-md border border-gray-medium/20 bg-white p-2 text-xs lg:text-sm text-gray-dark shadow z-10">
             Based on payment history, business details, and order behavior.
           </div>
         </div>
       </div>
 
       {/* Breakdown */}
-      <div className="mt-4 grid grid-cols-2 gap-2.5 text-xs sm:text-sm">
+      <div className="mt-4 lg:mt-6 grid grid-cols-2 gap-2.5 lg:gap-4 text-xs sm:text-sm lg:text-base">
         <BreakdownItem label="Total Credit Limit" value={`₹${(credit.total / 1000).toFixed(0)}k`} />
         <BreakdownItem label="Used Credit" value={`₹${(credit.used / 1000).toFixed(0)}k`} />
         <BreakdownItem label="Available Credit" value={`₹${(credit.available / 1000).toFixed(0)}k`} />
         <BreakdownItem label="Rate / Tenure" value={`${credit.rate} • ${credit.tenure}`} />
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 lg:mt-6">
         <button
           onClick={onIncrease}
-          className="inline-flex items-center gap-2 rounded-lg border border-gray-medium/20 px-3 py-2 text-sm text-gray-dark hover:bg-gray-light/40"
+          className="inline-flex items-center gap-2 rounded-lg border border-gray-medium/20 px-3 py-2 lg:px-4 lg:py-3 text-sm lg:text-base text-gray-dark hover:bg-gray-light/40 transition-colors"
         >
           {rechecking ? 'Checking…' : 'Increase my limit'}
-          {!rechecking && <ChevronRight className="w-4 h-4" />}
+          {!rechecking && <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5" />}
         </button>
       </div>
     </div>
@@ -272,34 +282,34 @@ function CreditCard({ credit, usedPct, onIncrease, rechecking }) {
 
 function BreakdownItem({ label, value }) {
   return (
-    <div className="rounded-lg border border-gray-medium/20 p-2.5 sm:p-3 bg-white">
-      <p className="text-[11px] sm:text-xs text-gray-medium leading-tight">{label}</p>
-      <p className="mt-0.5 sm:mt-1 font-medium text-gray-dark">{value}</p>
+    <div className="rounded-lg border border-gray-medium/20 p-2.5 sm:p-3 lg:p-4 bg-white">
+      <p className="text-[11px] sm:text-xs lg:text-sm text-gray-medium leading-tight">{label}</p>
+      <p className="mt-0.5 sm:mt-1 lg:mt-1.5 font-medium text-gray-dark lg:text-lg">{value}</p>
     </div>
   )
 }
 
 function VendorsCard({ vendors, onOpen }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 sm:p-6">
+    <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-dark">Vendors supporting credit</h2>
-          <p className="text-sm text-gray-medium">Choose a vendor to proceed</p>
+          <h2 className="text-lg lg:text-xl font-semibold text-gray-dark">Vendors supporting credit</h2>
+          <p className="text-sm lg:text-base text-gray-medium">Choose a vendor to proceed</p>
         </div>
       </div>
 
-      <div className="mt-4 space-y-3">
+      <div className="mt-4 lg:mt-6 space-y-3 lg:space-y-4">
         {vendors.map((v) => (
           <button
             key={v.id}
             onClick={() => onOpen(v)}
-            className="w-full text-left rounded-xl border border-gray-medium/20 hover:border-gray-medium/40 hover:bg-gray-light/30 transition p-3 sm:p-4"
+            className="w-full text-left rounded-xl border border-gray-medium/20 hover:border-gray-medium/40 hover:bg-gray-light/30 transition p-3 sm:p-4 lg:p-5"
           >
-            <div className="flex items-start justify-between gap-2.5 sm:gap-3">
+            <div className="flex items-start justify-between gap-2.5 sm:gap-3 lg:gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                  <h3 className="font-medium text-gray-dark truncate flex-1 min-w-0">{v.name}</h3>
+                  <h3 className="font-medium text-gray-dark truncate flex-1 min-w-0 lg:text-lg">{v.name}</h3>
                   {/* Show Verified next to title only on mobile */}
                   {v.verified && (
                     <span className="inline-flex md:hidden items-center gap-1 px-1.5 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-[10px]">
@@ -307,7 +317,7 @@ function VendorsCard({ vendors, onOpen }) {
                     </span>
                   )}
                 </div>
-                <div className="mt-1 grid items-center gap-1 md:gap-1.5 text-[11px] sm:text-xs text-gray-medium grid-cols-[auto_auto_1fr_auto] md:grid-cols-[auto_auto_auto_1fr_auto]">
+                <div className="mt-1 lg:mt-2 grid items-center gap-1 md:gap-1.5 lg:gap-2 text-[11px] sm:text-xs lg:text-sm text-gray-medium grid-cols-[auto_auto_1fr_auto] md:grid-cols-[auto_auto_auto_1fr_auto]">
                   <span className="inline-flex items-center gap-1 px-1 sm:px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20 max-w-full">
                     On-time {v.onTime}%
                   </span>
@@ -329,17 +339,17 @@ function VendorsCard({ vendors, onOpen }) {
                 </div>
               </div>
               <div className="hidden md:flex shrink-0 items-center gap-2" aria-hidden>
-                <div className="flex flex-col items-end gap-1 text-xs text-gray-medium">
+                <div className="flex flex-col items-end gap-1 text-xs lg:text-sm text-gray-medium">
                   {v.verified && (
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-[10px]">
-                      <ShieldCheck className="w-3.5 h-3.5" /> Bab.ai Verified
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 lg:px-2 lg:py-1 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-[10px] lg:text-xs">
+                      <ShieldCheck className="w-3.5 h-3.5 lg:w-4 lg:h-4" /> Bab.ai Verified
                     </span>
                   )}
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-[10px] whitespace-nowrap">
-                    <Truck className="w-3.5 h-3.5" /> {v.delivery}
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 lg:px-2 lg:py-1 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-[10px] lg:text-xs whitespace-nowrap">
+                    <Truck className="w-3.5 h-3.5 lg:w-4 lg:h-4" /> {v.delivery}
                   </span>
                 </div>
-                <ChevronRight className="w-4 h-4 self-center text-gray-medium" />
+                <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 self-center text-gray-medium" />
               </div>
             </div>
           </button>
