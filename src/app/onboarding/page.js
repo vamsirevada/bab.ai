@@ -2,35 +2,43 @@
 
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import Link from 'next/link'
 import Image from 'next/image'
-import { Info, ShieldCheck, CheckCircle2, ChevronRight, Phone, Truck } from 'lucide-react'
+import { Info, ShieldCheck, CheckCircle2, ChevronRight, Phone, Truck, Clock, Users, FileText, ArrowRight } from 'lucide-react'
 
 export default function OnboardingPage() {
-  // Tabs for all screen sizes
-  const [activeTab, setActiveTab] = useState('credit') // 'credit' | 'vendors'
-  const [prevTab, setPrevTab] = useState('credit')
-
-  const handleTabChange = (tab) => {
-    setPrevTab(activeTab)
-    setActiveTab(tab)
-  }
-
-  // Dynamic content for title and description based on active tab
-  const dynamicContent = useMemo(() => {
-    if (activeTab === 'vendors') {
-      return {
-        title: "Vendor Selection",
-        description: "Choose from verified vendors who accept credit purchases and offer competitive rates."
+  // Mock order items data
+  const orderItems = useMemo(
+    () => [
+      {
+        id: 1,
+        material_name: 'Steel Rods',
+        sub_type: 'TMT Bars',
+        dimensions: '12mm x 6m',
+        quantity: 50,
+        unit: 'pieces',
+        estimatedPrice: '₹25,000'
+      },
+      {
+        id: 2,
+        material_name: 'Cement',
+        sub_type: 'Portland Cement',
+        dimensions: '50kg bags',
+        quantity: 100,
+        unit: 'bags',
+        estimatedPrice: '₹32,000'
+      },
+      {
+        id: 3,
+        material_name: 'Bricks',
+        sub_type: 'Red Clay Bricks',
+        dimensions: '230x110x75mm',
+        quantity: 5000,
+        unit: 'pieces',
+        estimatedPrice: '₹40,000'
       }
-    }
-    return {
-      title: "Credit Information",
-      description: "Review your credit details and available purchasing limits."
-    }
-  }, [activeTab])
-
-  // Credit mock
+    ],
+    []
+  )  // Credit mock
   const credit = useMemo(
     () => ({
       total: 500000, // ₹
@@ -97,11 +105,18 @@ export default function OnboardingPage() {
 
   const [drawerVendor, setDrawerVendor] = useState(null)
   const [selectedVendor, setSelectedVendor] = useState(null)
+  const [showNextStepsOverlay, setShowNextStepsOverlay] = useState(false)
   const [rechecking, setRechecking] = useState(false)
 
   const handleIncreaseLimit = () => {
     setRechecking(true)
     setTimeout(() => setRechecking(false), 1200)
+  }
+
+  const handleVendorSelection = (vendor) => {
+    setSelectedVendor(vendor)
+    setDrawerVendor(null)
+    setShowNextStepsOverlay(true)
   }
 
   const openWhatsApp = (vendor) => {
@@ -112,58 +127,31 @@ export default function OnboardingPage() {
 
   return (
     <main className="relative z-10">
-      <section className="container relative mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Title */}
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-dark mb-2 transition-all duration-300 ease-in-out">
-            {dynamicContent.title}
+      <section className="container relative mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* Compact Page Title */}
+        <div className="max-w-4xl mx-auto text-center mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-dark mb-1">
+            Credit & Order Summary
           </h1>
-          <p className="text-gray-medium transition-all duration-300 ease-in-out">
-            {dynamicContent.description}
+          <p className="text-sm text-gray-medium">
+            Review your credit details, order items, and select a vendor to proceed.
           </p>
         </div>
 
-        {/* Tabs for all screen sizes */}
-        <div className="mt-6 max-w-md mx-auto">
-          <div className="flex border border-gray-medium/20 rounded-lg p-1 bg-white shadow-sm">
-            <button
-              className={`flex-1 py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
-                activeTab === 'credit'
-                  ? 'bg-gray-dark text-white shadow-sm'
-                  : 'text-gray-dark hover:bg-gray-light/30'
-              }`}
-              onClick={() => handleTabChange('credit')}
-            >
-              Credit Information
-            </button>
-            <button
-              className={`flex-1 py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
-                activeTab === 'vendors'
-                  ? 'bg-gray-dark text-white shadow-sm'
-                  : 'text-gray-dark hover:bg-gray-light/30'
-              }`}
-              onClick={() => handleTabChange('vendors')}
-            >
-              Vendor Selection
-            </button>
-          </div>
-        </div>
-
-        {/* Animated Panels for all screen sizes */}
-        <div className="mt-8">
-          <AnimatedPanels
-            activeTab={activeTab}
-            prevTab={prevTab}
-            creditContent={
-              <CreditCard
-                credit={credit}
-                usedPct={usedPct}
-                onIncrease={handleIncreaseLimit}
-                rechecking={rechecking}
-              />
-            }
-            vendorsContent={<VendorsCard vendors={vendors} onOpen={(v) => setDrawerVendor(v)} />}
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* Credit Information Section */}
+          <CreditInformationSection
+            credit={credit}
+            usedPct={usedPct}
+            onIncrease={handleIncreaseLimit}
+            rechecking={rechecking}
           />
+
+          {/* Items List Section */}
+          <ItemsListSection items={orderItems} />
+
+          {/* Vendors List Section */}
+          <VendorsListSection vendors={vendors} onOpen={(v) => setDrawerVendor(v)} />
         </div>
 
         {/* Slide-Over Drawer (Animated) */}
@@ -172,252 +160,187 @@ export default function OnboardingPage() {
             <SlideOver
               vendor={drawerVendor}
               onDismiss={() => setDrawerVendor(null)}
-              onSelectVendor={(v) => {
-                setSelectedVendor(v)
-                setDrawerVendor(null)
-              }}
+              onSelectVendor={handleVendorSelection}
               openWhatsApp={openWhatsApp}
             />
           </Portal>
         )}
 
-        {/* WhatsApp confirmation bar */}
-        {selectedVendor && (
-          <div className="fixed bottom-4 inset-x-0 flex justify-center z-40">
-            <div className="bg-white border border-gray-medium/20 shadow-lg rounded-xl px-4 py-3 flex items-center gap-3 max-w-lg w-[95%]">
-              <div className="flex-1">
-                <p className="text-sm text-gray-dark">
-                  Confirm with <span className="font-medium">{selectedVendor.name}</span> on WhatsApp?
-                </p>
-                <p className="text-xs text-gray-medium line-clamp-2">
-                  “Hi, I’d like to proceed with a credit-based order via bab.ai. Please share final quote and delivery timeline.”
-                </p>
-              </div>
-              <button
-                onClick={() => openWhatsApp(selectedVendor)}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#25D366] text-white px-3 py-2 text-sm hover:opacity-90"
-              >
-                <WhatsAppIcon className="w-5 h-5" /> Send
-              </button>
-            </div>
-          </div>
+        {/* Next Steps Overlay */}
+        {showNextStepsOverlay && selectedVendor && (
+          <Portal>
+            <NextStepsOverlay
+              vendor={selectedVendor}
+              onDismiss={() => setShowNextStepsOverlay(false)}
+              onContinue={() => {
+                setShowNextStepsOverlay(false)
+                // Add navigation logic here
+              }}
+            />
+          </Portal>
         )}
       </section>
     </main>
   )
 }
 
-function CreditCard({ credit, usedPct, onIncrease, rechecking }) {
+// Credit Information Section - Optimized for space saving
+function CreditInformationSection({ credit, usedPct, onIncrease, rechecking }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-lg lg:text-xl font-semibold text-gray-dark">Credit Information</h2>
-          <p className="text-sm lg:text-base text-gray-medium">Available limit and usage</p>
-        </div>
-        <div className="text-xs lg:text-sm text-gray-medium flex flex-col items-end">
+    <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 lg:p-6">
+      {/* Compact Header with inline NBFC info */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-semibold text-gray-dark">Credit Information</h2>
           <div className="flex items-center gap-2">
-            <div className="h-6 w-12 lg:h-8 lg:w-16 rounded-md bg-white border border-gray-medium/30 overflow-hidden flex items-center justify-center">
+            <div className="h-6 w-12 rounded-md bg-white border border-gray-medium/30 overflow-hidden flex items-center justify-center">
               <Image
                 src="/assets/icons/NBFC_logo.jpg"
                 alt={`${credit.partner.name} logo`}
                 width={48}
                 height={24}
-                className="h-5 w-14 lg:h-6 lg:w-16 object-contain"
+                className="h-4 w-10 object-contain"
                 priority
               />
             </div>
-            <p className="font-medium text-gray-dark leading-tight whitespace-nowrap">{credit.partner.name}</p>
+            <span className="text-xs text-gray-medium">{credit.partner.name}</span>
           </div>
-          <p className="leading-tight mt-0.5">{credit.partner.regulated ? 'Regulated by RBI' : ''}</p>
+        </div>
+        <div className="text-right">
+          <p className="text-lg font-semibold text-gray-dark">₹{(credit.available / 1000).toFixed(0)}k</p>
+          <p className="text-xs text-gray-medium">Available</p>
         </div>
       </div>
 
-      {/* Large Bar */}
-      <div className="mt-4 lg:mt-6">
-        <div className="h-3 lg:h-4 w-full rounded-full bg-gray-light/40 border border-gray-medium/20 overflow-hidden">
+      {/* Compact Usage Bar */}
+      <div className="mb-4">
+        <div className="h-3 w-full rounded-full bg-gray-light/40 border border-gray-medium/20 overflow-hidden">
           <div
-            className="h-full bg-gray-dark rounded-full"
+            className="h-full bg-gray-dark rounded-full transition-all duration-300"
             style={{ width: `${usedPct}%` }}
             aria-label={`Used ${usedPct}%`}
           />
         </div>
-        <div className="mt-2 lg:mt-3 flex items-center justify-between text-xs sm:text-sm lg:text-base">
-          <span className="text-gray-medium">Used {usedPct}%</span>
-          <span className="text-gray-dark font-medium">Available ₹{(credit.available / 1000).toFixed(0)}k</span>
+        <div className="mt-2 flex items-center justify-between text-xs text-gray-medium">
+          <span>Used {usedPct}%</span>
+          <span>₹{(credit.used / 1000).toFixed(0)}k / ₹{(credit.total / 1000).toFixed(0)}k</span>
         </div>
       </div>
 
-      {/* Trust Score */}
-      <div className="mt-4 lg:mt-6 flex items-center gap-2 text-sm lg:text-base">
-        <span className="font-medium text-gray-dark">Bab.ai Trust Score: {credit.trustScore}</span>
-        <div className="relative group">
-          <Info className="w-4 h-4 lg:w-5 lg:h-5 text-gray-medium" />
-          <div className="absolute left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block rounded-md border border-gray-medium/20 bg-white p-2 text-xs lg:text-sm text-gray-dark shadow z-10">
-            Based on payment history, business details, and order behavior.
-          </div>
+      {/* Compact Stats Row */}
+      <div className="flex items-center justify-between text-xs">
+        <div className="flex items-center gap-4">
+          <span className="inline-flex items-center px-2 py-1 rounded-full bg-white border border-gray-medium/20 text-gray-medium">
+            Rate: <span className="text-gray-dark font-medium ml-1">{credit.rate}</span>
+          </span>
+          <span className="inline-flex items-center px-2 py-1 rounded-full bg-white border border-gray-medium/20 text-gray-medium">
+            Trust: <span className="text-gray-dark font-medium ml-1">{credit.trustScore}</span>
+          </span>
         </div>
-      </div>
-
-      {/* Breakdown */}
-      <div className="mt-4 lg:mt-6 grid grid-cols-2 gap-2.5 lg:gap-4 text-xs sm:text-sm lg:text-base">
-        <BreakdownItem label="Total Credit Limit" value={`₹${(credit.total / 1000).toFixed(0)}k`} />
-        <BreakdownItem label="Used Credit" value={`₹${(credit.used / 1000).toFixed(0)}k`} />
-        <BreakdownItem label="Available Credit" value={`₹${(credit.available / 1000).toFixed(0)}k`} />
-        <BreakdownItem label="Rate / Tenure" value={`${credit.rate} • ${credit.tenure}`} />
-      </div>
-
-      <div className="mt-4 lg:mt-6">
         <button
           onClick={onIncrease}
-          className="inline-flex items-center gap-2 rounded-lg border border-gray-medium/20 px-3 py-2 lg:px-4 lg:py-3 text-sm lg:text-base text-gray-dark hover:bg-gray-light/40 transition-colors"
+          className="inline-flex items-center gap-1 rounded-lg border border-gray-medium/20 px-2 py-1 text-xs text-gray-dark hover:bg-gray-light/40 transition-colors"
         >
-          {rechecking ? 'Checking…' : 'Increase my limit'}
-          {!rechecking && <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5" />}
+          {rechecking ? 'Checking…' : 'Increase limit'}
+          {!rechecking && <ChevronRight className="w-3 h-3" />}
         </button>
       </div>
     </div>
   )
 }
 
-function BreakdownItem({ label, value }) {
+// Items List Section
+function ItemsListSection({ items }) {
   return (
-    <div className="rounded-lg border border-gray-medium/20 p-2.5 sm:p-3 lg:p-4 bg-white">
-      <p className="text-[11px] sm:text-xs lg:text-sm text-gray-medium leading-tight">{label}</p>
-      <p className="mt-0.5 sm:mt-1 lg:mt-1.5 font-medium text-gray-dark lg:text-lg">{value}</p>
-    </div>
-  )
-}
-
-function VendorsCard({ vendors, onOpen }) {
-  return (
-    <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between">
+    <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 lg:p-6">
+      {/* Compact Header */}
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg lg:text-xl font-semibold text-gray-dark">Vendors supporting credit</h2>
-          <p className="text-sm lg:text-base text-gray-medium">Choose a vendor to proceed</p>
+          <h2 className="text-lg font-semibold text-gray-dark">Order Items ({items.length})</h2>
+        </div>
+        <div className="text-right">
+          <p className="text-lg font-semibold text-gray-dark">
+            ₹{items.reduce((sum, item) => sum + parseInt(item.estimatedPrice.replace(/[₹,]/g, '')), 0).toLocaleString()}
+          </p>
+          <p className="text-xs text-gray-medium">Total Estimate</p>
         </div>
       </div>
 
-      <div className="mt-4 lg:mt-6 space-y-3 lg:space-y-4">
-        {vendors.map((v) => (
-          <button
-            key={v.id}
-            onClick={() => onOpen(v)}
-            className="w-full text-left rounded-xl border border-gray-medium/20 hover:border-gray-medium/40 hover:bg-gray-light/30 transition p-3 sm:p-4 lg:p-5"
-          >
-            <div className="flex items-start justify-between gap-2.5 sm:gap-3 lg:gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <h3 className="font-medium text-gray-dark truncate flex-1 min-w-0 lg:text-lg">{v.name}</h3>
-                  {/* Show Verified next to title only on mobile */}
-                  {v.verified && (
-                    <span className="inline-flex md:hidden items-center gap-1 px-1.5 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-[10px]">
-                      <ShieldCheck className="w-3.5 h-3.5" /> Bab.ai Verified
-                    </span>
-                  )}
-                </div>
-                <div className="mt-1 lg:mt-2 grid items-center gap-1 md:gap-1.5 lg:gap-2 text-[11px] sm:text-xs lg:text-sm text-gray-medium grid-cols-[auto_auto_1fr_auto] md:grid-cols-[auto_auto_auto_1fr_auto]">
-                  <span className="inline-flex items-center gap-1 px-1 sm:px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20 max-w-full">
-                    On-time {v.onTime}%
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-1 sm:px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20 max-w-full">
-                    Past txns {v.pastTxns}
-                  </span>
-                  {/* Mobile spacer to push delivery to the right */}
-                  <span className="block md:hidden" />
-                  {/* Delivery chip (mobile) right-aligned */}
-                  <span className="md:hidden inline-flex items-center gap-1 px-1 sm:px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20 justify-self-end">
-                    <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {v.delivery}
-                  </span>
-                  {/* Desktop price estimate */}
-                  <span className="hidden md:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white border border-gray-medium/20">
-                    Price est. {v.priceEstimate}
-                  </span>
-                  {/* Desktop spacer */}
-                  <span className="hidden md:block" />
-                </div>
+      {/* Compact Items List */}
+      <div className="space-y-2">
+        {items.map((item) => (
+          <div key={item.id} className="flex items-center justify-between p-3 bg-gray-light/5 rounded-lg hover:bg-gray-light/10 transition-colors">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-medium text-gray-dark text-sm truncate">{item.material_name}</h3>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-xs text-gray-medium whitespace-nowrap">
+                  {item.quantity} {item.unit}
+                </span>
               </div>
-              <div className="hidden md:flex shrink-0 items-center gap-2" aria-hidden>
-                <div className="flex flex-col items-end gap-1 text-xs lg:text-sm text-gray-medium">
-                  {v.verified && (
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 lg:px-2 lg:py-1 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-[10px] lg:text-xs">
-                      <ShieldCheck className="w-3.5 h-3.5 lg:w-4 lg:h-4" /> Bab.ai Verified
-                    </span>
-                  )}
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 lg:px-2 lg:py-1 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-[10px] lg:text-xs whitespace-nowrap">
-                    <Truck className="w-3.5 h-3.5 lg:w-4 lg:h-4" /> {v.delivery}
-                  </span>
-                </div>
-                <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 self-center text-gray-medium" />
-              </div>
+              <p className="text-xs text-gray-medium truncate">{item.sub_type} • {item.dimensions}</p>
             </div>
-          </button>
+            <div className="text-right ml-3">
+              <p className="font-semibold text-gray-dark text-sm">{item.estimatedPrice}</p>
+            </div>
+          </div>
         ))}
       </div>
     </div>
   )
 }
 
-// Animated mobile panels: smoothly slide/fade between tabs and animate container height
-function AnimatedPanels({ activeTab, prevTab, creditContent, vendorsContent }) {
-  const containerRef = useRef(null)
-  const creditRef = useRef(null)
-  const vendorsRef = useRef(null)
-
-  // Animate height to fit active panel
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-    const panel = activeTab === 'credit' ? creditRef.current : vendorsRef.current
-    if (!panel) return
-    const nextHeight = panel.offsetHeight
-    container.style.height = container.offsetHeight ? `${container.offsetHeight}px` : 'auto'
-    // Force reflow
-    void container.offsetHeight
-    container.style.transition = 'height 250ms ease'
-    container.style.height = `${nextHeight}px`
-    const cleanup = () => {
-      container.style.height = 'auto'
-      container.style.transition = ''
-    }
-    const t = setTimeout(cleanup, 300)
-    return () => clearTimeout(t)
-  }, [activeTab])
-
-  const leftActive = activeTab === 'credit'
-  const leftWasActive = prevTab === 'credit'
-
+// Vendors List Section - Optimized layout
+function VendorsListSection({ vendors, onOpen }) {
   return (
-    <div className="mt-4 relative" ref={containerRef}>
-      <div className="relative">
-        {/* Credit panel */}
-        <div
-          ref={creditRef}
-          className={`absolute inset-0 will-change-transform transition-[transform,opacity] duration-300 ease-out ${
-            leftActive
-              ? 'translate-x-0 opacity-100 relative'
-              : leftWasActive
-              ? '-translate-x-6 opacity-0 pointer-events-none'
-              : '-translate-x-6 opacity-0 pointer-events-none'
-          }`}
-        >
-          {creditContent}
-        </div>
+    <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 lg:p-6">
+      {/* Compact Header */}
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-gray-dark">Select Vendor ({vendors.length})</h2>
+        <p className="text-sm text-gray-medium">Choose from verified vendors who accept credit purchases</p>
+      </div>
 
-        {/* Vendors panel */}
-        <div
-          ref={vendorsRef}
-          className={`absolute inset-0 will-change-transform transition-[transform,opacity] duration-300 ease-out ${
-            activeTab === 'vendors'
-              ? 'translate-x-0 opacity-100 relative'
-              : prevTab === 'vendors'
-              ? 'translate-x-6 opacity-0 pointer-events-none'
-              : 'translate-x-6 opacity-0 pointer-events-none'
-          }`}
-        >
-          {vendorsContent}
-        </div>
+      {/* Vendors List */}
+      <div className="space-y-3">
+        {vendors.map((vendor) => (
+          <button
+            key={vendor.id}
+            onClick={() => onOpen(vendor)}
+            className="w-full text-left rounded-xl border border-gray-medium/20 hover:border-gray-medium/40 hover:bg-gray-light/20 transition-all p-3 group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex-1 min-w-0">
+                {/* Vendor name and verification in one line */}
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="font-medium text-gray-dark text-sm">{vendor.name}</h3>
+                  {vendor.verified && (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-xs">
+                      <ShieldCheck className="w-3 h-3" /> Verified
+                    </span>
+                  )}
+                </div>
+
+                {/* Compact chips layout */}
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-xs">
+                    {vendor.onTime}% on-time
+                  </span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-xs">
+                    {vendor.pastTxns} orders
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-xs font-medium">
+                    <Truck className="w-3 h-3" />
+                    {vendor.delivery}
+                  </span>
+                </div>
+              </div>
+
+              {/* Right arrow */}
+              <div className="ml-3 flex-shrink-0">
+                <ChevronRight className="w-4 h-4 text-gray-medium group-hover:text-gray-dark transition-colors" />
+              </div>
+            </div>
+          </button>
+        ))}
       </div>
     </div>
   )
@@ -604,6 +527,173 @@ function SlideOver({ vendor, onDismiss, onSelectVendor, openWhatsApp }) {
           </div>
         </div>
       </aside>
+    </div>
+  )
+}
+
+// Next Steps Overlay Component
+function NextStepsOverlay({ vendor, onDismiss, onContinue }) {
+  const [show, setShow] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShow(true), 50)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const handleClose = () => {
+    setShow(false)
+    setTimeout(() => onDismiss?.(), 300)
+  }
+
+  const nextSteps = [
+    {
+      stage: 1,
+      title: "Order Processing",
+      description: "Your order is being prepared and validated",
+      status: "current",
+      icon: FileText,
+      time: "Next 15 minutes"
+    },
+    {
+      stage: 2,
+      title: "Vendor Confirmation",
+      description: `${vendor.name} will confirm availability and final pricing`,
+      status: "upcoming",
+      icon: Users,
+      time: "Within 2 hours"
+    },
+    {
+      stage: 3,
+      title: "Delivery Scheduling",
+      description: "Coordinate delivery timeline and logistics",
+      status: "upcoming",
+      icon: Truck,
+      time: vendor.delivery
+    },
+    {
+      stage: 4,
+      title: "Order Fulfillment",
+      description: "Materials delivered to your site",
+      status: "upcoming",
+      icon: CheckCircle2,
+      time: "As scheduled"
+    }
+  ]
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Overlay */}
+      <div
+        className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
+          show ? 'opacity-100' : 'opacity-0'
+        }`}
+        onClick={handleClose}
+      />
+
+      {/* Modal */}
+      <div
+        className={`relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col transform transition-all duration-300 ${
+          show ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+        }`}
+      >
+        {/* Header */}
+        <div className="flex-shrink-0 p-6 border-b border-gray-medium/20">
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-xl font-semibold text-gray-dark mb-1">
+                Vendor Selected!
+              </h3>
+              <p className="text-sm text-gray-medium">
+                {vendor.name} • {vendor.priceEstimate}
+              </p>
+            </div>
+            <button
+              onClick={handleClose}
+              className="p-2 hover:bg-gray-light/30 rounded-lg transition-colors"
+            >
+              <span className="text-gray-medium text-lg">✕</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="mb-6">
+            <h4 className="text-lg font-medium text-gray-dark mb-2">What happens next?</h4>
+            <p className="text-sm text-gray-medium">
+              Here&apos;s the step-by-step process for your order with {vendor.name}
+            </p>
+          </div>
+
+          {/* Steps */}
+          <div className="space-y-4">
+            {nextSteps.map((step, index) => {
+              const Icon = step.icon
+              const isCompleted = step.status === 'completed'
+              const isCurrent = step.status === 'current'
+
+              return (
+                <div key={step.stage} className="flex gap-4">
+                  {/* Step indicator */}
+                  <div className="flex flex-col items-center">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        isCurrent
+                          ? 'bg-blue-100 border-2 border-blue-500'
+                          : isCompleted
+                          ? 'bg-green-100 border-2 border-green-500'
+                          : 'bg-gray-100 border-2 border-gray-300'
+                      }`}
+                    >
+                      <Icon
+                        className={`w-5 h-5 ${
+                          isCurrent
+                            ? 'text-blue-600'
+                            : isCompleted
+                            ? 'text-green-600'
+                            : 'text-gray-400'
+                        }`}
+                      />
+                    </div>
+                    {index < nextSteps.length - 1 && (
+                      <div className="w-0.5 h-8 bg-gray-200 mt-2" />
+                    )}
+                  </div>
+
+                  {/* Step content */}
+                  <div className="flex-1 pb-8">
+                    <div className="flex items-center justify-between mb-1">
+                      <h5 className="font-medium text-gray-dark">{step.title}</h5>
+                      <span className="text-xs text-gray-medium flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {step.time}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-medium">{step.description}</p>
+                    {isCurrent && (
+                      <div className="mt-2">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium">
+                          In Progress
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex-shrink-0 p-6 border-t border-gray-medium/20 bg-gray-light/10">
+          <button
+            onClick={handleClose}
+            className="w-full px-4 py-2 bg-gray-dark text-white rounded-lg hover:bg-gray-medium transition-colors font-medium"
+          >
+            OK
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
