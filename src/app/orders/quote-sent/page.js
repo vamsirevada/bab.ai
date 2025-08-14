@@ -1,6 +1,9 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+// Render this page dynamically as it depends on search params
+export const dynamic = 'force-dynamic'
+
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CheckCircle2, Clock, ArrowLeft, Send, Eye } from 'lucide-react'
 
@@ -31,7 +34,7 @@ const Button = ({ children, onClick, variant = 'default', className = '' }) => {
   )
 }
 
-export default function QuoteSentPage() {
+function QuoteSentContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const requestIdParam = searchParams.get('request_id') || ''
@@ -341,5 +344,24 @@ export default function QuoteSentPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+const QuoteSentLoading = () => (
+  <div className="min-h-screen relative">
+    <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 relative z-10">
+      <Card className="p-6">
+        <div className="h-6 w-40 bg-gray-100 rounded mb-3" />
+        <div className="h-4 w-64 bg-gray-100 rounded" />
+      </Card>
+    </div>
+  </div>
+)
+
+export default function QuoteSent() {
+  return (
+    <Suspense fallback={<QuoteSentLoading />}>
+      <QuoteSentContent />
+    </Suspense>
   )
 }
