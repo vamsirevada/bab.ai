@@ -6,7 +6,10 @@ export async function GET(request, { params }) {
   const { id } = await params
 
   if (!id) {
-    return NextResponse.json({ error: 'Order ID parameter is required' }, { status: 400 })
+    return NextResponse.json(
+      { error: 'Order ID parameter is required' },
+      { status: 400 }
+    )
   }
 
   try {
@@ -45,7 +48,7 @@ export async function GET(request, { params }) {
         )
         return {
           ...quote,
-          items: itemsResult.rows
+          items: itemsResult.rows,
         }
       })
     )
@@ -56,7 +59,10 @@ export async function GET(request, { params }) {
     return NextResponse.json(
       {
         error: 'Failed to fetch order quotes',
-        message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+        message:
+          process.env.NODE_ENV === 'development'
+            ? error.message
+            : 'Internal server error',
       },
       { status: 500 }
     )
@@ -68,7 +74,10 @@ export async function POST(request, { params }) {
   const { id } = await params
 
   if (!id) {
-    return NextResponse.json({ error: 'Order ID parameter is required' }, { status: 400 })
+    return NextResponse.json(
+      { error: 'Order ID parameter is required' },
+      { status: 400 }
+    )
   }
 
   try {
@@ -82,13 +91,19 @@ export async function POST(request, { params }) {
     }
 
     // Verify order exists
-    const orderCheck = await pool.query('SELECT id FROM material_requests WHERE id = $1', [id])
+    const orderCheck = await pool.query(
+      'SELECT id FROM material_requests WHERE id = $1',
+      [id]
+    )
     if (orderCheck.rows.length === 0) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // Verify vendor exists
-    const vendorCheck = await pool.query('SELECT id FROM vendors WHERE id = $1', [vendor_id])
+    const vendorCheck = await pool.query(
+      'SELECT id FROM vendors WHERE id = $1',
+      [vendor_id]
+    )
     if (vendorCheck.rows.length === 0) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 })
     }
@@ -108,12 +123,21 @@ export async function POST(request, { params }) {
       for (const item of items) {
         await client.query(
           'INSERT INTO quote_items (quote_id, item_id, quoted_price, delivery_days, comments) VALUES ($1, $2, $3, $4, $5)',
-          [quoteId, item.item_id, item.quoted_price, item.delivery_days, item.comments]
+          [
+            quoteId,
+            item.item_id,
+            item.quoted_price,
+            item.delivery_days,
+            item.comments,
+          ]
         )
       }
 
       await client.query('COMMIT')
-      return NextResponse.json({ id: quoteId, message: 'Quote created successfully for order' }, { status: 201 })
+      return NextResponse.json(
+        { id: quoteId, message: 'Quote created successfully for order' },
+        { status: 201 }
+      )
     } catch (error) {
       await client.query('ROLLBACK')
       throw error
@@ -125,7 +149,10 @@ export async function POST(request, { params }) {
     return NextResponse.json(
       {
         error: 'Failed to create quote for order',
-        message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+        message:
+          process.env.NODE_ENV === 'development'
+            ? error.message
+            : 'Internal server error',
       },
       { status: 500 }
     )

@@ -10,15 +10,57 @@ export default function DashboardPage() {
       creditEligible: 750000, // INR
       creditAvailed: 210000, // INR
       transactions: [
-        { id: 'TXN-0041', type: 'Drawdown', amount: 80000, date: '2025-07-02', status: 'Settled' },
-        { id: 'TXN-0040', type: 'Repayment', amount: 25000, date: '2025-06-20', status: 'Settled' },
-        { id: 'TXN-0039', type: 'Drawdown', amount: 50000, date: '2025-06-14', status: 'Settled' },
-        { id: 'TXN-0038', type: 'Repayment', amount: 20000, date: '2025-06-01', status: 'Settled' },
+        {
+          id: 'TXN-0041',
+          type: 'Drawdown',
+          amount: 80000,
+          date: '2025-07-02',
+          status: 'Settled',
+        },
+        {
+          id: 'TXN-0040',
+          type: 'Repayment',
+          amount: 25000,
+          date: '2025-06-20',
+          status: 'Settled',
+        },
+        {
+          id: 'TXN-0039',
+          type: 'Drawdown',
+          amount: 50000,
+          date: '2025-06-14',
+          status: 'Settled',
+        },
+        {
+          id: 'TXN-0038',
+          type: 'Repayment',
+          amount: 20000,
+          date: '2025-06-01',
+          status: 'Settled',
+        },
       ],
       orders: [
-        { id: 'ORD-1027', vendor: 'Acme Industrial', amount: 120000, date: '2025-07-08', status: 'Delivered' },
-        { id: 'ORD-1026', vendor: 'Delta Supplies', amount: 85000, date: '2025-06-18', status: 'Shipped' },
-        { id: 'ORD-1025', vendor: 'Omni Tools', amount: 45000, date: '2025-06-03', status: 'Completed' },
+        {
+          id: 'ORD-1027',
+          vendor: 'Acme Industrial',
+          amount: 120000,
+          date: '2025-07-08',
+          status: 'Delivered',
+        },
+        {
+          id: 'ORD-1026',
+          vendor: 'Delta Supplies',
+          amount: 85000,
+          date: '2025-06-18',
+          status: 'Shipped',
+        },
+        {
+          id: 'ORD-1025',
+          vendor: 'Omni Tools',
+          amount: 45000,
+          date: '2025-06-03',
+          status: 'Completed',
+        },
       ],
     }),
     []
@@ -41,8 +83,12 @@ export default function DashboardPage() {
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
         <div className="max-w-6xl mx-auto">
           <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl font-bold text-brand-dark">Dashboard</h1>
-            <p className="text-gray-600 mt-2">Your credit insights, activity, and orders at a glance</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-brand-dark">
+              Dashboard
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Your credit insights, activity, and orders at a glance
+            </p>
           </div>
 
           {/* Top KPI cards */}
@@ -53,8 +99,12 @@ export default function DashboardPage() {
                   <CreditCard size={20} />
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-gray-500">Eligible Limit</p>
-                  <p className="text-xl font-semibold text-brand-dark">{formatINR(data.creditEligible)}</p>
+                  <p className="text-xs uppercase tracking-wide text-gray-500">
+                    Eligible Limit
+                  </p>
+                  <p className="text-xl font-semibold text-brand-dark">
+                    {formatINR(data.creditEligible)}
+                  </p>
                 </div>
               </div>
             </div>
@@ -64,8 +114,12 @@ export default function DashboardPage() {
                   <Wallet size={20} />
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-gray-500">Availed Credit</p>
-                  <p className="text-xl font-semibold text-brand-dark">{formatINR(data.creditAvailed)}</p>
+                  <p className="text-xs uppercase tracking-wide text-gray-500">
+                    Availed Credit
+                  </p>
+                  <p className="text-xl font-semibold text-brand-dark">
+                    {formatINR(data.creditAvailed)}
+                  </p>
                 </div>
               </div>
               <div className="mt-4">
@@ -75,7 +129,9 @@ export default function DashboardPage() {
                     style={{ width: `${utilizationPct}%` }}
                   />
                 </div>
-                <p className="mt-2 text-xs text-gray-600">Utilization: {utilizationPct}%</p>
+                <p className="mt-2 text-xs text-gray-600">
+                  Utilization: {utilizationPct}%
+                </p>
               </div>
             </div>
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -84,9 +140,14 @@ export default function DashboardPage() {
                   <Activity size={20} />
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-gray-500">Active Transactions</p>
+                  <p className="text-xs uppercase tracking-wide text-gray-500">
+                    Active Transactions
+                  </p>
                   <p className="text-xl font-semibold text-brand-dark">
-                    {data.transactions.filter((t) => t.status !== 'Settled').length}
+                    {
+                      data.transactions.filter((t) => t.status !== 'Settled')
+                        .length
+                    }
                   </p>
                 </div>
               </div>
@@ -97,9 +158,15 @@ export default function DashboardPage() {
                   <Package size={20} />
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-gray-500">Open Orders</p>
+                  <p className="text-xs uppercase tracking-wide text-gray-500">
+                    Open Orders
+                  </p>
                   <p className="text-xl font-semibold text-brand-dark">
-                    {data.orders.filter((o) => ['Shipped', 'Processing'].includes(o.status)).length}
+                    {
+                      data.orders.filter((o) =>
+                        ['Shipped', 'Processing'].includes(o.status)
+                      ).length
+                    }
                   </p>
                 </div>
               </div>
@@ -111,7 +178,9 @@ export default function DashboardPage() {
             {/* Transactions */}
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-brand-dark">Recent Transactions</h2>
+                <h2 className="text-lg font-semibold text-brand-dark">
+                  Recent Transactions
+                </h2>
                 <span className="text-xs text-gray-500">Last 30 days</span>
               </div>
               <div className="mt-4 overflow-x-auto">
@@ -153,7 +222,9 @@ export default function DashboardPage() {
             {/* Orders */}
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-brand-dark">Past Orders</h2>
+                <h2 className="text-lg font-semibold text-brand-dark">
+                  Past Orders
+                </h2>
                 <span className="text-xs text-gray-500">Recent</span>
               </div>
               <div className="mt-4 overflow-x-auto">
