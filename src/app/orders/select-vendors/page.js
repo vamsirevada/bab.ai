@@ -226,7 +226,6 @@ const SelectVendorsContent = () => {
       const requestId = customerInfo.uuid
       const payload = {
         request_id: requestId,
-        status: 'requested',
         delivery_location: customerInfo.address || null,
         notes: `Vendors selected: ${selectedVendors
           .map((v) => v.name)
