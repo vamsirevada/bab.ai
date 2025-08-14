@@ -1,5 +1,12 @@
 'use client'
-import React, { useState, useCallback, memo, useEffect, Suspense, useRef } from 'react'
+import React, {
+  useState,
+  useCallback,
+  memo,
+  useEffect,
+  Suspense,
+  useRef,
+} from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Edit2, Trash2, Plus, Minus, X } from 'lucide-react'
 
@@ -445,7 +452,10 @@ const ReviewOrderContent = () => {
   const originalSnapshotRef = useRef(new Map()) // id -> { material_name, sub_type, dimensions, quantity }
   const originalIdsRef = useRef(new Set()) // only server-backed ids
 
-  const isUuid = useCallback((v) => typeof v === 'string' && /^[0-9a-fA-F-]{36}$/.test(v), [])
+  const isUuid = useCallback(
+    (v) => typeof v === 'string' && /^[0-9a-fA-F-]{36}$/.test(v),
+    []
+  )
   const normalize = (v) => (v == null ? '' : String(v).trim())
 
   // Mobile detection
@@ -590,20 +600,20 @@ const ReviewOrderContent = () => {
           const updateResults = await Promise.all(
             changed.map(async (item) => {
               try {
-                const res = await fetch(`/api/orders/${item.id}`,
-                  {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      material_name: item.material_name || '',
-                      sub_type: item.sub_type || '',
-                      dimensions: item.dimensions || '',
-                      quantity: Math.max(1, Number(item.quantity) || 1),
-                    }),
-                  }
-                )
+                const res = await fetch(`/api/orders/${item.id}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    material_name: item.material_name || '',
+                    sub_type: item.sub_type || '',
+                    dimensions: item.dimensions || '',
+                    quantity: Math.max(1, Number(item.quantity) || 1),
+                  }),
+                })
                 let data = null
-                try { data = await res.json()} catch {}
+                try {
+                  data = await res.json()
+                } catch {}
                 return { id: item.id, ok: res.ok, status: res.status, data }
               } catch (err) {
                 return { id: item?.id, ok: false, error: err?.message }
@@ -611,7 +621,7 @@ const ReviewOrderContent = () => {
             })
           )
 
-          const failures = updateResults.filter(r => !r.ok)
+          const failures = updateResults.filter((r) => !r.ok)
           if (failures.length) {
             console.warn('Some items failed to update:', failures)
           }
@@ -637,8 +647,6 @@ const ReviewOrderContent = () => {
       }
 
       localStorage.setItem('customerInfo', JSON.stringify(customerData))
-
-      console.log('order data:', orderData)
 
       // Prepare items payload for submission later
       const itemsPayload = orderData.map((it) => ({

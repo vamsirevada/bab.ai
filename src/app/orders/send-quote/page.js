@@ -2,12 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import {
-  Send,
-  Clock,
-  Calculator,
-  ArrowLeft,
-} from 'lucide-react'
+import { Send, Clock, Calculator, ArrowLeft } from 'lucide-react'
 
 // Generic Button
 const Button = ({
@@ -164,6 +159,7 @@ const SendQuoteContent = () => {
   const [orderData, setOrderData] = useState([])
   const [customerInfo, setCustomerInfo] = useState({})
   const [vendorInfo, setVendorInfo] = useState({
+    id: null,
     name: 'ABC Materials Pvt Ltd',
     contact: '+91 98765 43210',
     email: 'vendor@example.com',
@@ -173,6 +169,47 @@ const SendQuoteContent = () => {
   const [isLoading, setIsLoading] = useState(true)
 
   const uuid = searchParams.get('uuid')
+
+  // Load vendor data from API
+  useEffect(() => {
+    const loadVendorData = async () => {
+      try {
+        console.log('Loading vendor data...')
+        const response = await fetch('/api/vendors')
+
+        if (response.ok) {
+          const vendors = await response.json()
+          console.log('Vendors loaded:', vendors)
+
+          // Use the first vendor or find specific vendor based on some criteria
+          if (vendors && vendors.length > 0) {
+            const selectedVendor = vendors[0] // You can modify this logic as needed
+            const vendorData = {
+              id: selectedVendor.vendor_id,
+              name: selectedVendor.name || 'ABC Materials Pvt Ltd',
+              contact: selectedVendor.phone_number || '+91 98765 43210',
+              email: selectedVendor.email || 'vendor@example.com',
+            }
+            console.log('Setting vendor info:', vendorData)
+            setVendorInfo(vendorData)
+          } else {
+            // No vendors found, keep default with null id
+            console.warn('No vendors found in database')
+            setVendorInfo((prev) => ({ ...prev, id: null }))
+          }
+        } else {
+          console.error('Failed to fetch vendors:', response.statusText)
+          setVendorInfo((prev) => ({ ...prev, id: null }))
+        }
+      } catch (error) {
+        console.error('Error loading vendor data:', error)
+        // Keep default vendor info with null id if API fails
+        setVendorInfo((prev) => ({ ...prev, id: null }))
+      }
+    }
+
+    loadVendorData()
+  }, [])
 
   // Load order data from API
   useEffect(() => {
@@ -270,25 +307,55 @@ const SendQuoteContent = () => {
       return
     }
 
+    // Validate required UUIDs
+    if (!uuid) {
+      alert('Missing request ID. Please refresh the page and try again.')
+      return
+    }
+
+    if (!vendorInfo.id) {
+      console.log('Current vendorInfo:', vendorInfo)
+      alert(
+        'Vendor information is not available. Please refresh the page and try again.'
+      )
+      return
+    }
+
+    console.log('Submitting with vendor_id:', vendorInfo.id)
+
     setIsSubmitting(true)
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Store quote data
+      // Prepare quote data in VendorQuoteResponse format
       const quoteData = {
-        orderId: `BAB${Date.now().toString().slice(-6)}`,
-        customerInfo,
-        vendorInfo,
+        request_id: uuid,
+        vendor_id: vendorInfo.id,
         items: orderData.map((item) => ({
-          ...item,
-          quoted_price: quotePrices[item.id],
-          total: parseFloat(quotePrices[item.id]) * item.quantity,
+          item_id: item.id,
+          quoted_price: parseFloat(quotePrices[item.id]) || 0,
+          delivery_days: item.delivery_days || null,
+          comments: item.comments || null,
         })),
-        totalAmount: calculateTotal(),
-        submittedAt: new Date().toISOString(),
       }
 
+      console.log('Submitting quote data:', quoteData)
+
+      // Call the send-quote API
+      const response = await fetch('/api/quotes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(quoteData),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Failed to send quote: ${response.statusText}`)
+      }
+
+      const result = await response.json()
+      console.log('Quote sent successfully:', result)
+
+      // Store quote data locally for reference
       localStorage.setItem('quoteData', JSON.stringify(quoteData))
 
       // Navigate to receive quote page
@@ -485,7 +552,7 @@ const SendQuoteContent = () => {
               ) : (
                 <>
                   <Send className="w-4 h-4 mr-2" />
-                  Submit Quote (₹{(totalAmount * 1.18).toFixed(2)})
+                  Send Quote (₹{(totalAmount * 1.18).toFixed(2)})
                 </>
               )}
             </Button>

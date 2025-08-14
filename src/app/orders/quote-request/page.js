@@ -56,9 +56,6 @@ const Card = ({ children, className = '' }) => {
 
 // Main component wrapped in Suspense
 const QuoteRequestContent = () => {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-
   // ... rest of your component logic here
   const [selectedVendors, setSelectedVendors] = useState([])
   const [customerInfo, setCustomerInfo] = useState({})

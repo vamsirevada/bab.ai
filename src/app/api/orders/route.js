@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
+import pool from '@/lib/db'
 
-// Server-side proxy to avoid CORS when submitting orders from the client
+// GET /api/orders - List all orders with optional filtering
+
+// POST /api/orders - Submit order (consolidates submit-order functionality)
 export async function POST(request) {
   try {
     const payload = await request.json()
-
     const targetUrl =
       process.env.SUBMIT_ORDER_URL ||
       'https://bug-saving-frog.ngrok-free.app/submit-order'
@@ -14,11 +16,9 @@ export async function POST(request) {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        // Suppress ngrok browser warning page in dev
         'ngrok-skip-browser-warning': 'true',
       },
       body: JSON.stringify(payload),
-      // Do not cache proxy responses
       cache: 'no-store',
     })
 

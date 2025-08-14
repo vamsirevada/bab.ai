@@ -81,7 +81,6 @@ const SelectVendorsContent = () => {
 
       if (storedItems) {
         const parsed = JSON.parse(storedItems)
-        console.log('Parsed items:', parsed)
         if (Array.isArray(parsed)) setOrderItems(parsed)
       }
     } catch (error) {
@@ -242,7 +241,7 @@ const SelectVendorsContent = () => {
 
       console.log('Submitting order with payload:', payload)
 
-      const res = await fetch('/api/orders/submit-order', {
+      const res = await fetch('/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
