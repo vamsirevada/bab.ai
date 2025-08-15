@@ -377,7 +377,7 @@ Thank you for using bab.ai! We'll keep you updated on your order status.`
         </Card>
 
         {/* Order Items */}
-        <Card className="p-6 mb-6">
+        <Card className="p-6 mb-6 paper">
           <h3 className="text-lg font-semibold text-gray-dark font-heading mb-4">
             Order Items
           </h3>

@@ -369,7 +369,7 @@ function ItemsListSection({ items }) {
   const hasMoreItems = items.length > 2
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 lg:p-6">
+    <div className="paper rounded-2xl border border-gray-medium/20 shadow-sm p-4 lg:p-6">
       {/* Compact Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -397,14 +397,14 @@ function ItemsListSection({ items }) {
         {visibleItems.map((item) => (
           <div
             key={item.id}
-            className="flex items-center justify-between p-3 bg-gray-light/5 rounded-lg hover:bg-gray-light/10 transition-colors"
+            className="flex items-center justify-between p-3 bg-white/60 border border-gray-medium/20 rounded-lg hover:bg-white/80 transition-colors"
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="font-medium text-gray-dark text-sm truncate">
                   {item.material_name}
                 </h3>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-xs text-gray-medium whitespace-nowrap">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-biscuit/40 border border-gray-medium/20 text-xs text-gray-dark whitespace-nowrap">
                   {item.quantity} {item.unit}
                 </span>
               </div>
@@ -426,7 +426,7 @@ function ItemsListSection({ items }) {
         <div className="mt-4">
           <button
             onClick={() => setShowAllItems(!showAllItems)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-light/10 hover:bg-gray-light/20 border border-gray-medium/20 rounded-lg transition-colors text-gray-dark"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-biscuit/40 hover:bg-biscuit/60 border border-gray-medium/20 rounded-lg transition-colors text-gray-dark"
           >
             <span className="text-sm font-medium">
               {showAllItems

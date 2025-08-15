@@ -21,6 +21,8 @@ module.exports = {
         // Functional Colors - Only essential ones
         success: '#10b981', // Green-500 - Success states
         whatsapp: '#25D366', // WhatsApp brand color
+        // Accent: Marie Gold biscuit-like warm beige for subtle backgrounds
+        biscuit: '#F6E2B3',
       },
       fontFamily: {
         heading: [
