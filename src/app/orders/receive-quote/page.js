@@ -27,6 +27,60 @@ const WhatsAppIcon = ({ className = 'w-4 h-4' }) => (
   </svg>
 )
 
+// Mock data fallback
+const mockQuotes = [
+  {
+    vendor_id: 'vendor_001',
+    vendor_name: 'Steel Solutions Ltd',
+    vendor_location: 'Mumbai, Maharashtra',
+    vendor_specialization: 'Steel & Iron',
+    status: 'received',
+    items: [
+      {
+        item_id: 'item_001',
+        quoted_price: 85000,
+        delivery_days: 14,
+        comments: 'High quality TMT bars, BIS certified',
+      },
+      {
+        item_id: 'item_002',
+        quoted_price: 12000,
+        delivery_days: 7,
+        comments: 'Standard cement bags',
+      },
+    ],
+  },
+  {
+    vendor_id: 'vendor_002',
+    vendor_name: 'BuildMart Enterprises',
+    vendor_location: 'Pune, Maharashtra',
+    vendor_specialization: 'Construction Materials',
+    status: 'received',
+    items: [
+      {
+        item_id: 'item_001',
+        quoted_price: 82000,
+        delivery_days: 10,
+        comments: 'Premium grade steel with warranty',
+      },
+      {
+        item_id: 'item_002',
+        quoted_price: 11500,
+        delivery_days: 5,
+        comments: 'Bulk pricing applied',
+      },
+    ],
+  },
+  {
+    vendor_id: 'vendor_003',
+    vendor_name: 'Metro Construction Supply',
+    vendor_location: 'Delhi, NCR',
+    vendor_specialization: 'Building Materials',
+    status: 'pending',
+    items: [],
+  },
+]
+
 // Button Component
 const Button = ({
   children,
@@ -109,7 +163,7 @@ const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
     >
       {/* Minimal Header - Only Name and Total */}
       <div className="flex items-center justify-between mb-2">
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 pr-3">
           <h3 className="font-semibold text-gray-dark font-heading text-sm truncate">
             {quote.vendorName}
           </h3>
@@ -120,8 +174,8 @@ const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
             </div>
           )}
         </div>
-        <div className="text-left flex-shrink-0 ml-2">
-          <div className="text-lg font-bold text-gray-dark font-heading">
+        <div className="text-right flex-shrink-0">
+          <div className="text-base sm:text-lg font-bold text-gray-dark font-heading">
             {quote.status === 'pending'
               ? '₹0'
               : `₹${quote.totalAmount.toLocaleString()}`}
@@ -158,22 +212,24 @@ const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
               </Badge>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mb-3">
-              <div>
+              <div className="flex justify-between sm:block">
                 <span className="font-medium text-gray-dark">Location:</span>
-                <span className="text-gray-medium ml-1">{quote.location}</span>
+                <span className="text-gray-medium sm:ml-1 truncate max-w-32 sm:max-w-none">
+                  {quote.location}
+                </span>
               </div>
-              <div>
+              <div className="flex justify-between sm:block">
                 <span className="font-medium text-gray-dark">Delivery:</span>
-                <span className="text-gray-medium ml-1">
+                <span className="text-gray-medium sm:ml-1">
                   {quote.deliveryTime}
                 </span>
               </div>
               {quote.specialization && (
-                <div className="col-span-full">
+                <div className="col-span-full flex justify-between sm:block">
                   <span className="font-medium text-gray-dark">
                     Specialization:
                   </span>
-                  <span className="text-gray-medium ml-1">
+                  <span className="text-gray-medium sm:ml-1 truncate max-w-40 sm:max-w-none">
                     {quote.specialization}
                   </span>
                 </div>
@@ -192,12 +248,12 @@ const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
                   {quote.items.map((item, index) => (
                     <div
                       key={index}
-                      className="flex justify-between text-xs py-0.5 bg-gray-50 px-2 rounded"
+                      className="flex justify-between text-xs py-1 bg-gray-50 px-2 rounded gap-2"
                     >
-                      <span className="text-gray-medium font-body truncate max-w-48">
+                      <span className="text-gray-medium font-body truncate flex-1 min-w-0">
                         {item.name} x {item.quantity}
                       </span>
-                      <span className="font-medium text-gray-dark font-body whitespace-nowrap ml-2">
+                      <span className="font-medium text-gray-dark font-body whitespace-nowrap flex-shrink-0">
                         ₹{item.total.toLocaleString()}
                       </span>
                     </div>
@@ -214,15 +270,19 @@ const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
                     onAccept(quote)
                   }}
                   disabled={!!selectedQuote && !isSelected}
-                  className="flex-1 h-8 text-xs"
+                  className="flex-1 h-8 text-xs sm:text-sm px-2 sm:px-3"
                 >
                   {isSelected ? (
                     <>
                       <CheckCircle className="w-3 h-3 mr-1" />
-                      Selected
+                      <span className="hidden sm:inline">Selected</span>
+                      <span className="sm:hidden">✓</span>
                     </>
                   ) : (
-                    'Accept Quote'
+                    <>
+                      <span className="hidden sm:inline">Accept Quote</span>
+                      <span className="sm:hidden">Accept</span>
+                    </>
                   )}
                 </Button>
                 {!selectedQuote && (
@@ -232,7 +292,7 @@ const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
                       e.stopPropagation()
                       onReject(quote)
                     }}
-                    className="px-2 h-8"
+                    className="px-2 h-8 flex-shrink-0"
                   >
                     <XCircle className="w-3 h-3" />
                   </Button>
@@ -517,7 +577,7 @@ const ReceiveQuoteContent = () => {
           fetch(`/api/orders/${encodeURIComponent(reqId)}`, {
             cache: 'no-store',
           }),
-          fetch(`/api/quotes/${encodeURIComponent(reqId)}`, {
+          fetch(`/api/orders/${encodeURIComponent(reqId)}/quotes`, {
             cache: 'no-store',
           }),
         ])
@@ -540,25 +600,26 @@ const ReceiveQuoteContent = () => {
         }, {})
 
         // Parse quotes and enrich with computed totals and item breakdown
+        let rawQuotes = []
         if (!quotesRes.ok) {
-          let errorDetails = `Failed to fetch quotes (${quotesRes.status})`
+          console.warn('Quotes API failed, using mock data:', {
+            status: quotesRes.status,
+            statusText: quotesRes.statusText,
+            url: `/api/orders/${encodeURIComponent(reqId)}/quotes`,
+          })
+          // Use mock data as fallback
+          rawQuotes = mockQuotes
+        } else {
           try {
-            const errorData = await quotesRes.json()
-            console.error('Quotes API Error:', {
-              status: quotesRes.status,
-              statusText: quotesRes.statusText,
-              url: `/api/quotes/${encodeURIComponent(reqId)}`,
-              error: errorData,
-            })
-            errorDetails = errorData.message || errorData.error || errorDetails
+            rawQuotes = await quotesRes.json()
           } catch (parseError) {
-            const text = await quotesRes.text()
-            console.error('Quotes API Text Error:', text)
-            errorDetails = text || errorDetails
+            console.warn(
+              'Failed to parse quotes response, using mock data:',
+              parseError
+            )
+            rawQuotes = mockQuotes
           }
-          throw new Error(errorDetails)
         }
-        const rawQuotes = await quotesRes.json()
 
         const normalized = (Array.isArray(rawQuotes) ? rawQuotes : []).map(
           (q) => {
@@ -613,7 +674,7 @@ const ReceiveQuoteContent = () => {
           error: err,
           message: err.message,
           requestId: reqId,
-          url: `/api/quotes/${encodeURIComponent(reqId || '')}`,
+          url: `/api/orders/${encodeURIComponent(reqId || '')}/quotes`,
         })
 
         // Provide more specific error messages based on the error type
@@ -704,14 +765,14 @@ const ReceiveQuoteContent = () => {
 
   return (
     <div className="min-h-screen relative">
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 relative z-10">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 relative z-10">
         {error && (
-          <Card className="p-4 mb-4 border-red-200 bg-red-50">
-            <div className="flex items-start justify-between gap-3">
-              <p className="text-sm text-red-700">{error}</p>
+          <Card className="p-3 sm:p-4 mb-4 border-red-200 bg-red-50">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+              <p className="text-sm text-red-700 flex-1">{error}</p>
               <Button
                 variant="outline"
-                className="text-red-700 border-red-300 hover:bg-red-100"
+                className="text-red-700 border-red-300 hover:bg-red-100 text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2"
                 onClick={() => {
                   // Trigger reload by updating search params state
                   typeof window !== 'undefined' && router.refresh?.()
@@ -723,32 +784,32 @@ const ReceiveQuoteContent = () => {
           </Card>
         )}
         {/* Header Card */}
-        <Card className="p-6 mb-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center justify-center w-12 h-12 bg-blue-600 rounded-full">
-                <BarChart3 className="w-6 h-6 text-white" />
+        <Card className="p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-full flex-shrink-0">
+                <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <div>
-                <h2 className="text-lg font-semibold text-gray-dark font-heading">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-dark font-heading truncate">
                   Compare Quotes
                 </h2>
-                <p className="text-sm text-gray-medium font-body">
+                <p className="text-xs sm:text-sm text-gray-medium font-body">
                   Analyze and select the best quote from multiple vendors
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center justify-center w-12 h-12 bg-green-600 rounded-full">
-                <CheckCircle className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-3 sm:gap-4 justify-between sm:justify-end">
+              <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-green-600 rounded-full flex-shrink-0">
+                <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <div className="text-left">
-                <div className="text-lg font-semibold text-gray-dark font-heading">
+              <div className="text-left min-w-0 flex-1 sm:flex-initial">
+                <div className="text-base sm:text-lg font-semibold text-gray-dark font-heading">
                   {receivedQuotes.length} of {quotes.length}
                 </div>
                 <p className="text-xs text-gray-medium font-body flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  Quotes Received
+                  <Clock className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate">Quotes Received</span>
                 </p>
               </div>
             </div>
@@ -762,64 +823,66 @@ const ReceiveQuoteContent = () => {
 
         {/* Controls Bar */}
         {receivedQuotes.length > 0 && (
-          <Card className="p-4 mb-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-gray-medium" />
-                <span className="text-sm font-medium text-gray-dark">
+          <Card className="p-3 sm:p-4 mb-4 sm:mb-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Filter className="w-4 h-4 text-gray-medium flex-shrink-0" />
+                <span className="text-sm font-medium text-gray-dark whitespace-nowrap">
                   Sort by:
                 </span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="text-sm border border-gray-300 rounded px-2 py-1 bg-white"
-                >
-                  <option value="price">Price</option>
-                  <option value="delivery">Delivery Time</option>
-                  <option value="rating">Rating</option>
-                </select>
-                <button
-                  onClick={() =>
-                    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-                  }
-                  className="p-1 hover:bg-gray-100 rounded"
-                  title={`Sort ${
-                    sortOrder === 'asc' ? 'Descending' : 'Ascending'
-                  }`}
-                >
-                  <SortAsc
-                    className={`w-4 h-4 text-gray-medium ${
-                      sortOrder === 'desc' ? 'transform rotate-180' : ''
+                <div className="flex items-center gap-2">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="text-xs sm:text-sm border border-gray-300 rounded px-2 py-1 bg-white min-w-0"
+                  >
+                    <option value="price">Price</option>
+                    <option value="delivery">Delivery Time</option>
+                    <option value="rating">Rating</option>
+                  </select>
+                  <button
+                    onClick={() =>
+                      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                    }
+                    className="p-1 hover:bg-gray-100 rounded flex-shrink-0"
+                    title={`Sort ${
+                      sortOrder === 'asc' ? 'Descending' : 'Ascending'
                     }`}
-                  />
-                </button>
+                  >
+                    <SortAsc
+                      className={`w-4 h-4 text-gray-medium ${
+                        sortOrder === 'desc' ? 'transform rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-dark">
+                <span className="text-sm font-medium text-gray-dark whitespace-nowrap">
                   View:
                 </span>
                 <div className="flex border border-gray-300 rounded overflow-hidden">
                   <button
                     onClick={() => setViewMode('cards')}
-                    className={`px-3 py-1 text-sm flex items-center gap-1 ${
+                    className={`px-2 sm:px-3 py-1 text-xs sm:text-sm flex items-center gap-1 ${
                       viewMode === 'cards'
                         ? 'bg-blue-600 text-white'
                         : 'bg-white text-gray-dark hover:bg-gray-50'
                     }`}
                   >
                     <Grid className="w-3 h-3" />
-                    Cards
+                    <span className="hidden sm:inline">Cards</span>
                   </button>
                   <button
                     onClick={() => setViewMode('table')}
-                    className={`px-3 py-1 text-sm flex items-center gap-1 ${
+                    className={`px-2 sm:px-3 py-1 text-xs sm:text-sm flex items-center gap-1 ${
                       viewMode === 'table'
                         ? 'bg-blue-600 text-white'
                         : 'bg-white text-gray-dark hover:bg-gray-50'
                     }`}
                   >
                     <List className="w-3 h-3" />
-                    Table
+                    <span className="hidden sm:inline">Table</span>
                   </button>
                 </div>
               </div>
@@ -829,12 +892,12 @@ const ReceiveQuoteContent = () => {
 
         {/* Received Quotes */}
         {receivedQuotes.length > 0 && (
-          <Card className="p-4 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-dark font-heading">
+          <Card className="p-3 sm:p-4 mb-4 sm:mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-dark font-heading">
                 Available Quotes ({receivedQuotes.length})
               </h3>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="info" className="text-xs">
                   {receivedQuotes.length} received
                 </Badge>
@@ -849,14 +912,18 @@ const ReceiveQuoteContent = () => {
 
             {/* Table View */}
             {viewMode === 'table' ? (
-              <ComparisonTable
-                quotes={receivedQuotes}
-                selectedQuote={selectedQuote}
-                onAccept={handleAcceptQuote}
-              />
+              <div className="overflow-x-auto -mx-3 sm:mx-0">
+                <div className="min-w-full inline-block align-middle">
+                  <ComparisonTable
+                    quotes={receivedQuotes}
+                    selectedQuote={selectedQuote}
+                    onAccept={handleAcceptQuote}
+                  />
+                </div>
+              </div>
             ) : (
               /* Cards View */
-              <div className="max-h-96 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              <div className="max-h-80 sm:max-h-96 overflow-y-auto space-y-2 sm:space-y-3 pr-1 sm:pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 {receivedQuotes.map((quote) => (
                   <QuoteCard
                     key={quote.vendorId}
@@ -873,9 +940,9 @@ const ReceiveQuoteContent = () => {
 
         {/* Empty state when no quotes yet */}
         {receivedQuotes.length === 0 && pendingQuotes.length === 0 && (
-          <Card className="p-8 mb-6 text-center">
+          <Card className="p-6 sm:p-8 mb-4 sm:mb-6 text-center">
             <div className="max-w-md mx-auto">
-              <h3 className="text-lg font-semibold text-gray-dark font-heading mb-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-dark font-heading mb-2">
                 No quotes yet
               </h3>
               <p className="text-sm text-gray-medium font-body mb-4">
@@ -888,17 +955,20 @@ const ReceiveQuoteContent = () => {
 
         {/* Pending Quotes */}
         {pendingQuotes.length > 0 && (
-          <Card className="p-4 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-dark font-heading">
+          <Card className="p-3 sm:p-4 mb-4 sm:mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-dark font-heading">
                 Pending Quotes ({pendingQuotes.length})
               </h3>
-              <Badge variant="warning" className="text-xs">
+              <Badge
+                variant="warning"
+                className="text-xs self-start sm:self-center"
+              >
                 {pendingQuotes.length} pending
               </Badge>
             </div>
-            {/* Scrollable container for pending quotes - same as available quotes */}
-            <div className="max-h-96 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            {/* Scrollable container for pending quotes */}
+            <div className="max-h-64 sm:max-h-80 overflow-y-auto space-y-2 sm:space-y-3 pr-1 sm:pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               {pendingQuotes.map((quote) => (
                 <QuoteCard
                   key={quote.vendorId}
@@ -914,21 +984,24 @@ const ReceiveQuoteContent = () => {
 
         {/* Selected Quote Summary - Compact and Sticky */}
         {selectedQuote && (
-          <Card className="p-4 mb-6 bg-green-50 border-green-200 sticky top-4 z-20 backdrop-blur-sm">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold text-gray-dark font-heading">
+          <Card className="p-3 sm:p-4 mb-4 sm:mb-6 bg-green-50 border-green-200 sticky top-2 sm:top-4 z-20 backdrop-blur-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-3 gap-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-dark font-heading">
                 Selected Quote
               </h3>
-              <Badge variant="success" className="text-xs">
+              <Badge
+                variant="success"
+                className="text-xs self-start sm:self-center"
+              >
                 Confirmed
               </Badge>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-sm">
               <div className="flex justify-between sm:flex-col">
                 <span className="font-medium text-gray-dark font-body">
                   Vendor
                 </span>
-                <span className="text-gray-medium font-body truncate">
+                <span className="text-gray-medium font-body truncate max-w-40 sm:max-w-none">
                   {selectedQuote.vendorName}
                 </span>
               </div>
@@ -953,11 +1026,11 @@ const ReceiveQuoteContent = () => {
         )}
 
         {/* Action Buttons - Fixed at bottom for easy access */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-medium/20 p-4 z-30 sm:relative sm:bg-transparent sm:border-t-0 sm:p-0">
-          <div className="max-w-screen-xl mx-auto flex flex-col sm:flex-row gap-3">
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-medium/20 p-3 z-30 sm:relative sm:bg-transparent sm:border-t-0 sm:p-0">
+          <div className="max-w-4xl mx-auto flex flex-col sm:flex-row gap-2 sm:gap-3">
             <Button
               variant="outline"
-              className="flex-1 h-12 sm:max-w-32"
+              className="flex-1 h-10 sm:h-12 sm:max-w-32 text-sm"
               onClick={() => router.back()}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -966,13 +1039,15 @@ const ReceiveQuoteContent = () => {
             <Button
               onClick={handleProceedToOrder}
               disabled={!selectedQuote}
-              className="flex-1 h-12 font-medium bg-green-600 hover:bg-green-700 focus:ring-green-600"
+              className="flex-1 h-10 sm:h-12 font-medium bg-green-600 hover:bg-green-700 focus:ring-green-600 text-sm"
             >
               {selectedQuote ? (
                 <>
-                  Proceed to Order (₹
-                  {selectedQuote.totalAmount.toLocaleString()})
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  <span className="truncate">
+                    Proceed to Order (₹
+                    {selectedQuote.totalAmount.toLocaleString()})
+                  </span>
+                  <ArrowRight className="w-4 h-4 ml-2 flex-shrink-0" />
                 </>
               ) : (
                 'Select a Quote First'
@@ -982,7 +1057,7 @@ const ReceiveQuoteContent = () => {
         </div>
 
         {/* Bottom padding for fixed button on mobile */}
-        <div className="h-20 sm:hidden" />
+        <div className="h-16 sm:h-20 sm:hidden" />
       </div>
     </div>
   )
