@@ -18,6 +18,7 @@ import {
   Eye,
   Grid,
   List,
+  ChevronRight,
 } from 'lucide-react'
 
 // WhatsApp Icon Component
@@ -151,38 +152,77 @@ const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const handleCardClick = (e) => {
-    setIsExpanded(!isExpanded)
+    // Only handle clicks on the main card, not buttons
+    if (e.target.closest('button')) return
+
+    // For received quotes, toggle selection only (expansion is handled by details button)
+    if (quote.status === 'received') {
+      if (isSelected) {
+        // If already selected, deselect it
+        onAccept(null)
+      } else {
+        // If not selected, select this quote
+        onAccept(quote)
+      }
+    }
   }
 
   return (
     <Card
-      className={`p-3 transition-all duration-200 hover:shadow-md cursor-pointer ${
-        isSelected ? 'ring-2 ring-green-500 bg-green-50/50' : ''
+      className={`p-3 transition-all duration-300 hover:shadow-md cursor-pointer rounded-xl ${
+        isSelected
+          ? 'border-2 border-gray-dark bg-gray-light/30 shadow-md'
+          : 'border border-gray-medium/20 hover:border-gray-medium/40 hover:bg-gray-light/20'
       } ${isExpanded ? 'shadow-lg' : ''}`}
       onClick={handleCardClick}
     >
-      {/* Minimal Header - Only Name and Total */}
+      {/* Minimal Header - Name, Total, and Details Button */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex-1 min-w-0 pr-3">
-          <h3 className="font-semibold text-gray-dark font-heading text-sm truncate">
-            {quote.vendorName}
-          </h3>
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="font-semibold text-gray-dark font-heading text-sm truncate">
+              {quote.vendorName}
+            </h3>
+            {isSelected && quote.status === 'received' && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-600 text-white text-xs font-medium">
+                <CheckCircle className="w-3 h-3" />
+                Selected
+              </span>
+            )}
+          </div>
+          {/* Total amount below vendor name - inline layout */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-medium font-body">
+              {quote.status === 'pending' ? 'Pending:' : 'Total Price:'}
+            </span>
+            <span className="text-base sm:text-lg font-bold text-gray-dark font-heading">
+              {quote.status === 'pending'
+                ? '₹0'
+                : `₹${quote.totalAmount.toLocaleString()}`}
+            </span>
+          </div>
           {/* Show expand indicator for collapsed state */}
-          {!isExpanded && (
+          {!isExpanded && quote.status !== 'received' && (
             <div className="text-xs text-gray-500 mt-1 font-medium">
-              Click card to view details ▼
+              Awaiting quote
             </div>
           )}
         </div>
-        <div className="text-right flex-shrink-0">
-          <div className="text-base sm:text-lg font-bold text-gray-dark font-heading">
-            {quote.status === 'pending'
-              ? '₹0'
-              : `₹${quote.totalAmount.toLocaleString()}`}
-          </div>
-          <p className="text-xs text-gray-medium font-body">
-            {quote.status === 'pending' ? 'Pending' : 'Total'}
-          </p>
+        {/* Details Button */}
+        <div className="flex-shrink-0">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsExpanded(!isExpanded)
+            }}
+            className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors duration-200 flex items-center"
+          >
+            <ChevronRight
+              className={`w-4 h-4 transition-transform duration-200 ${
+                isExpanded ? 'rotate-90' : ''
+              }`}
+            />
+          </button>
         </div>
       </div>
 
@@ -260,44 +300,6 @@ const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
                   ))}
                 </div>
               </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2">
-                <Button
-                  variant="success"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onAccept(quote)
-                  }}
-                  disabled={!!selectedQuote && !isSelected}
-                  className="flex-1 h-8 text-xs sm:text-sm px-2 sm:px-3"
-                >
-                  {isSelected ? (
-                    <>
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      <span className="hidden sm:inline">Selected</span>
-                      <span className="sm:hidden">✓</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="hidden sm:inline">Accept Quote</span>
-                      <span className="sm:hidden">Accept</span>
-                    </>
-                  )}
-                </Button>
-                {!selectedQuote && (
-                  <Button
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onReject(quote)
-                    }}
-                    className="px-2 h-8 flex-shrink-0"
-                  >
-                    <XCircle className="w-3 h-3" />
-                  </Button>
-                )}
-              </div>
             </>
           )}
 
@@ -309,13 +311,6 @@ const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
               </span>
             </div>
           )}
-
-          {/* Collapse Indicator */}
-          <div className="text-center mt-3 pt-2 border-t border-gray-100">
-            <div className="text-xs text-gray-500 font-medium">
-              ▲ Click card to collapse
-            </div>
-          </div>
         </div>
       )}
     </Card>
@@ -326,136 +321,156 @@ const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
 const ComparisonTable = ({ quotes, selectedQuote, onAccept }) => {
   if (quotes.length === 0) return null
 
-  const minPrice = Math.min(...quotes.map((q) => q.totalAmount))
-  const maxPrice = Math.max(...quotes.map((q) => q.totalAmount))
+  // Get all unique materials from all quotes
+  const allMaterials = []
+  const materialMap = new Map()
+
+  quotes.forEach((quote) => {
+    quote.items.forEach((item) => {
+      if (!materialMap.has(item.name)) {
+        materialMap.set(item.name, item.name)
+        allMaterials.push(item.name)
+      }
+    })
+  })
+
+  // Helper function to get price for a specific material from a quote
+  const getMaterialPrice = (quote, materialName) => {
+    const item = quote.items.find((item) => item.name === materialName)
+    return item ? item.unitPrice : null
+  }
+
+  // Helper function to find the lowest price for each material across all vendors
+  const getLowestPriceForMaterial = (materialName) => {
+    const prices = quotes
+      .map((quote) => getMaterialPrice(quote, materialName))
+      .filter((price) => price !== null)
+    return prices.length > 0 ? Math.min(...prices) : null
+  }
+
+  // Helper function to truncate material name
+  const truncateMaterialName = (name, maxLength = 24) => {
+    // On mobile, use shorter truncation
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
+    const actualMaxLength = isMobile ? Math.min(maxLength, 16) : maxLength
+    return name.length > actualMaxLength
+      ? `${name.substring(0, actualMaxLength)}...`
+      : name
+  }
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white">
-        <thead>
+      <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+        <thead className="sticky top-0 bg-white z-10">
           <tr className="border-b border-gray-200">
-            <th className="text-left py-3 px-4 font-semibold text-gray-dark">
-              Vendor
+            <th className="text-left py-3 px-2 sm:py-4 sm:px-4 font-semibold text-gray-dark sticky left-0 bg-white border-r border-gray-200 min-w-24 sm:min-w-32">
+              <span className="text-xs sm:text-sm">Material</span>
             </th>
-            <th className="text-left py-3 px-4 font-semibold text-gray-dark">
-              Total Price
-            </th>
-            <th className="text-left py-3 px-4 font-semibold text-gray-dark">
-              Delivery
-            </th>
-            <th className="text-left py-3 px-4 font-semibold text-gray-dark">
-              Rating
-            </th>
-            <th className="text-left py-3 px-4 font-semibold text-gray-dark">
-              Location
-            </th>
-            <th className="text-left py-3 px-4 font-semibold text-gray-dark">
-              Action
-            </th>
+            {quotes.map((quote) => {
+              const isSelected = selectedQuote?.vendorId === quote.vendorId
+              return (
+                <th
+                  key={quote.vendorId}
+                  className="text-center py-3 px-2 sm:py-4 sm:px-3 font-semibold text-gray-dark min-w-32 sm:min-w-44"
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <span
+                        className="font-medium text-xs sm:text-sm truncate max-w-20 sm:max-w-36"
+                        title={quote.vendorName}
+                      >
+                        {quote.vendorName}
+                      </span>
+                      {isSelected && (
+                        <Badge
+                          variant="success"
+                          className="text-xs px-1 py-0.5 sm:px-2 sm:py-1"
+                        >
+                          <span className="hidden sm:inline">Selected</span>
+                          <span className="sm:hidden">✓</span>
+                        </Badge>
+                      )}
+                    </div>
+                    {quote.specialization && (
+                      <div
+                        className="text-xs text-gray-medium font-normal truncate max-w-20 sm:max-w-40 hidden sm:block"
+                        title={quote.specialization}
+                      >
+                        {quote.specialization}
+                      </div>
+                    )}
+                  </div>
+                </th>
+              )
+            })}
           </tr>
         </thead>
         <tbody>
-          {quotes.map((quote) => {
-            const isSelected = selectedQuote?.vendorId === quote.vendorId
-            const isLowest = quote.totalAmount === minPrice
-            const isHighest =
-              quote.totalAmount === maxPrice && quotes.length > 1
-            const savingsFromMax = maxPrice - quote.totalAmount
+          {allMaterials.map((material, materialIndex) => {
+            const lowestPrice = getLowestPriceForMaterial(material)
 
             return (
               <tr
-                key={quote.vendorId}
-                className={`border-b border-gray-100 hover:bg-gray-50 ${
-                  isSelected ? 'bg-green-50 border-green-200' : ''
-                }`}
+                key={materialIndex}
+                className="border-b border-gray-100 hover:bg-gray-50"
               >
-                <td className="py-3 px-4">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-dark">
-                      {quote.vendorName}
-                    </span>
-                    {isLowest && quotes.length > 1 && (
-                      <Badge variant="success" className="text-xs">
-                        Best Price
-                      </Badge>
-                    )}
-                    {isSelected && (
-                      <Badge variant="info" className="text-xs">
-                        Selected
-                      </Badge>
-                    )}
-                  </div>
-                  {quote.specialization && (
-                    <div className="text-xs text-gray-medium mt-1">
-                      {quote.specialization}
-                    </div>
-                  )}
-                </td>
-                <td className="py-3 px-4">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`font-semibold ${
-                        isLowest ? 'text-green-600' : 'text-gray-dark'
-                      }`}
-                    >
-                      ₹{quote.totalAmount.toLocaleString()}
-                    </span>
-                    {isLowest && (
-                      <TrendingDown className="w-4 h-4 text-green-600" />
-                    )}
-                    {isHighest && (
-                      <TrendingUp className="w-4 h-4 text-red-500" />
-                    )}
-                  </div>
-                  {savingsFromMax > 0 && (
-                    <div className="text-xs text-green-600 mt-1">
-                      Save ₹{savingsFromMax.toLocaleString()}
-                    </div>
-                  )}
-                </td>
-                <td className="py-3 px-4">
-                  <span className="text-gray-medium">{quote.deliveryTime}</span>
-                </td>
-                <td className="py-3 px-4">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-3 h-3 ${
-                          i < quote.rating
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-200'
-                        }`}
-                      />
-                    ))}
-                    <span className="text-xs text-gray-medium ml-1">
-                      {quote.rating}.0
-                    </span>
-                  </div>
-                </td>
-                <td className="py-3 px-4">
-                  <span className="text-gray-medium">{quote.location}</span>
-                </td>
-                <td className="py-3 px-4">
-                  <Button
-                    variant={isSelected ? 'success' : 'default'}
-                    onClick={() => onAccept(quote)}
-                    className="text-xs px-3 py-1 h-8"
-                    disabled={isSelected}
+                <td className="py-2 px-2 sm:py-3 sm:px-4 sticky left-0 bg-white border-r border-gray-100">
+                  <div
+                    className="font-medium text-gray-dark text-xs sm:text-sm cursor-help"
+                    title={material}
                   >
-                    {isSelected ? (
-                      <>
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        Selected
-                      </>
-                    ) : (
-                      'Select'
-                    )}
-                  </Button>
+                    {truncateMaterialName(material, 16)}
+                  </div>
                 </td>
+                {quotes.map((quote) => {
+                  const price = getMaterialPrice(quote, material)
+                  const isLowest = price === lowestPrice && price !== null
+
+                  return (
+                    <td
+                      key={quote.vendorId}
+                      className="py-2 px-1 sm:py-3 sm:px-3 text-center"
+                    >
+                      {price !== null ? (
+                        <div className="flex items-center justify-center gap-0.5 sm:gap-1">
+                          <span
+                            className={`font-medium text-xs sm:text-sm ${
+                              isLowest ? 'text-green-600' : 'text-gray-dark'
+                            }`}
+                          >
+                            ₹{price.toLocaleString()}
+                          </span>
+                          {isLowest && (
+                            <TrendingDown className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-600" />
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-xs sm:text-sm">
+                          —
+                        </span>
+                      )}
+                    </td>
+                  )
+                })}
               </tr>
             )
           })}
+          {/* Total row */}
+          <tr className="border-t-2 border-gray-300 bg-gray-50 font-semibold">
+            <td className="py-3 px-2 sm:py-4 sm:px-4 sticky left-0 bg-gray-50 border-r border-gray-200 text-gray-dark">
+              <span className="text-xs sm:text-sm font-semibold">Total</span>
+            </td>
+            {quotes.map((quote) => (
+              <td
+                key={quote.vendorId}
+                className="py-3 px-1 sm:py-4 sm:px-3 text-center text-gray-dark"
+              >
+                <span className="text-xs sm:text-sm font-semibold">
+                  ₹{quote.totalAmount.toLocaleString()}
+                </span>
+              </td>
+            ))}
+          </tr>
         </tbody>
       </table>
     </div>
@@ -602,22 +617,59 @@ const ReceiveQuoteContent = () => {
         // Parse quotes and enrich with computed totals and item breakdown
         let rawQuotes = []
         if (!quotesRes.ok) {
-          console.warn('Quotes API failed, using mock data:', {
-            status: quotesRes.status,
-            statusText: quotesRes.statusText,
-            url: `/api/orders/${encodeURIComponent(reqId)}/quotes`,
-          })
-          // Use mock data as fallback
-          rawQuotes = mockQuotes
+          console.warn(
+            'Quotes API failed, using mock data with real order items:',
+            {
+              status: quotesRes.status,
+              statusText: quotesRes.statusText,
+              url: `/api/orders/${encodeURIComponent(reqId)}/quotes`,
+            }
+          )
+          // Use mock data as fallback but with real order items if available
+          rawQuotes = mockQuotes.map((mockQuote) => ({
+            ...mockQuote,
+            // Replace mock items with real order items if available
+            items:
+              orderItems.length > 0
+                ? orderItems.map((item, index) => ({
+                    item_id: item.id || `item_${index + 1}`,
+                    quoted_price:
+                      mockQuote.items[index]?.quoted_price ||
+                      85000 + index * 1000,
+                    delivery_days: mockQuote.items[index]?.delivery_days || 14,
+                    comments:
+                      mockQuote.items[index]?.comments ||
+                      `Quality ${item.material_name || 'materials'}`,
+                  }))
+                : mockQuote.items,
+          }))
         } else {
           try {
             rawQuotes = await quotesRes.json()
           } catch (parseError) {
             console.warn(
-              'Failed to parse quotes response, using mock data:',
+              'Failed to parse quotes response, using mock data with real order items:',
               parseError
             )
-            rawQuotes = mockQuotes
+            // Use mock data as fallback but with real order items if available
+            rawQuotes = mockQuotes.map((mockQuote) => ({
+              ...mockQuote,
+              // Replace mock items with real order items if available
+              items:
+                orderItems.length > 0
+                  ? orderItems.map((item, index) => ({
+                      item_id: item.id || `item_${index + 1}`,
+                      quoted_price:
+                        mockQuote.items[index]?.quoted_price ||
+                        85000 + index * 1000,
+                      delivery_days:
+                        mockQuote.items[index]?.delivery_days || 14,
+                      comments:
+                        mockQuote.items[index]?.comments ||
+                        `Quality ${item.material_name || 'materials'}`,
+                    }))
+                  : mockQuote.items,
+            }))
           }
         }
 
@@ -712,7 +764,7 @@ const ReceiveQuoteContent = () => {
 
   const handleProceedToOrder = () => {
     if (selectedQuote) {
-      router.push('/orders/place-order')
+      router.push('/orders/quote-accepted')
     }
   }
 
@@ -825,64 +877,96 @@ const ReceiveQuoteContent = () => {
         {receivedQuotes.length > 0 && (
           <Card className="p-3 sm:p-4 mb-4 sm:mb-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              <div className="flex items-center gap-2 flex-wrap">
-                <Filter className="w-4 h-4 text-gray-medium flex-shrink-0" />
-                <span className="text-sm font-medium text-gray-dark whitespace-nowrap">
-                  Sort by:
-                </span>
+              {/* Mobile: Single row with justified space between sort and view */}
+              <div className="flex items-center justify-between sm:justify-start sm:gap-2 sm:flex-wrap">
                 <div className="flex items-center gap-2">
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="text-xs sm:text-sm border border-gray-300 rounded px-2 py-1 bg-white min-w-0"
-                  >
-                    <option value="price">Price</option>
-                    <option value="delivery">Delivery Time</option>
-                    <option value="rating">Rating</option>
-                  </select>
-                  <button
-                    onClick={() =>
-                      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-                    }
-                    className="p-1 hover:bg-gray-100 rounded flex-shrink-0"
-                    title={`Sort ${
-                      sortOrder === 'asc' ? 'Descending' : 'Ascending'
-                    }`}
-                  >
-                    <SortAsc
-                      className={`w-4 h-4 text-gray-medium ${
-                        sortOrder === 'desc' ? 'transform rotate-180' : ''
+                  <Filter className="w-4 h-4 text-gray-medium flex-shrink-0" />
+                  {/* Hide "Sort by:" label on mobile for space */}
+                  <span className="hidden sm:inline text-sm font-medium text-gray-dark whitespace-nowrap">
+                    Sort by:
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="text-xs sm:text-sm border border-gray-300 rounded px-2 py-1 bg-white min-w-0"
+                    >
+                      <option value="price">Price</option>
+                      <option value="delivery">Delivery Time</option>
+                      <option value="rating">Rating</option>
+                    </select>
+                    <button
+                      onClick={() =>
+                        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                      }
+                      className="p-1 hover:bg-gray-100 rounded flex-shrink-0"
+                      title={`Sort ${
+                        sortOrder === 'asc' ? 'Descending' : 'Ascending'
                       }`}
-                    />
-                  </button>
+                    >
+                      <SortAsc
+                        className={`w-4 h-4 text-gray-medium ${
+                          sortOrder === 'desc' ? 'transform rotate-180' : ''
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
+                {/* View controls aligned to right on mobile */}
+                <div className="flex items-center sm:hidden">
+                  <div className="flex border border-gray-300 rounded overflow-hidden">
+                    <button
+                      onClick={() => setViewMode('cards')}
+                      className={`px-1.5 py-1 text-xs flex items-center ${
+                        viewMode === 'cards'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white text-gray-dark hover:bg-gray-50'
+                      }`}
+                      title="Cards View"
+                    >
+                      <Grid className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('table')}
+                      className={`px-1.5 py-1 text-xs flex items-center ${
+                        viewMode === 'table'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white text-gray-dark hover:bg-gray-50'
+                      }`}
+                      title="Table View"
+                    >
+                      <List className="w-3 h-3" />
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              {/* View controls separate on desktop */}
+              <div className="hidden sm:flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-dark whitespace-nowrap">
                   View:
                 </span>
                 <div className="flex border border-gray-300 rounded overflow-hidden">
                   <button
                     onClick={() => setViewMode('cards')}
-                    className={`px-2 sm:px-3 py-1 text-xs sm:text-sm flex items-center gap-1 ${
+                    className={`px-3 py-1 text-sm flex items-center gap-1 ${
                       viewMode === 'cards'
                         ? 'bg-blue-600 text-white'
                         : 'bg-white text-gray-dark hover:bg-gray-50'
                     }`}
                   >
                     <Grid className="w-3 h-3" />
-                    <span className="hidden sm:inline">Cards</span>
+                    <span>Cards</span>
                   </button>
                   <button
                     onClick={() => setViewMode('table')}
-                    className={`px-2 sm:px-3 py-1 text-xs sm:text-sm flex items-center gap-1 ${
+                    className={`px-3 py-1 text-sm flex items-center gap-1 ${
                       viewMode === 'table'
                         ? 'bg-blue-600 text-white'
                         : 'bg-white text-gray-dark hover:bg-gray-50'
                     }`}
                   >
                     <List className="w-3 h-3" />
-                    <span className="hidden sm:inline">Table</span>
+                    <span>Table</span>
                   </button>
                 </div>
               </div>
@@ -893,7 +977,7 @@ const ReceiveQuoteContent = () => {
         {/* Received Quotes */}
         {receivedQuotes.length > 0 && (
           <Card className="p-3 sm:p-4 mb-4 sm:mb-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
               <h3 className="text-base sm:text-lg font-semibold text-gray-dark font-heading">
                 Available Quotes ({receivedQuotes.length})
               </h3>
@@ -910,10 +994,48 @@ const ReceiveQuoteContent = () => {
               </div>
             </div>
 
-            {/* Table View */}
+            {/* Mobile-First Comparison View */}
             {viewMode === 'table' ? (
-              <div className="overflow-x-auto -mx-3 sm:mx-0">
+              <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
                 <div className="min-w-full inline-block align-middle">
+                  {/* Mobile Quick Summary Cards - Show above table on mobile */}
+                  <div className="grid grid-cols-1 sm:hidden gap-2 mb-4">
+                    {receivedQuotes.map((quote) => {
+                      const isSelected =
+                        selectedQuote?.vendorId === quote.vendorId
+                      return (
+                        <div
+                          key={quote.vendorId}
+                          className={`p-3 rounded-lg border-2 transition-all ${
+                            isSelected
+                              ? 'border-green-500 bg-green-50'
+                              : 'border-gray-200 bg-white'
+                          }`}
+                          onClick={() => handleAcceptQuote(quote)}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium text-sm text-gray-dark">
+                              {quote.vendorName}
+                            </span>
+                            {isSelected && (
+                              <Badge variant="success" className="text-xs">
+                                Selected
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-medium">
+                              {quote.deliveryTime}
+                            </span>
+                            <span className="font-semibold text-sm text-gray-dark">
+                              ₹{quote.totalAmount.toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
                   <ComparisonTable
                     quotes={receivedQuotes}
                     selectedQuote={selectedQuote}
@@ -923,7 +1045,7 @@ const ReceiveQuoteContent = () => {
               </div>
             ) : (
               /* Cards View */
-              <div className="max-h-80 sm:max-h-96 overflow-y-auto space-y-2 sm:space-y-3 pr-1 sm:pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              <div className="space-y-2 sm:space-y-3">
                 {receivedQuotes.map((quote) => (
                   <QuoteCard
                     key={quote.vendorId}
@@ -956,14 +1078,11 @@ const ReceiveQuoteContent = () => {
         {/* Pending Quotes */}
         {pendingQuotes.length > 0 && (
           <Card className="p-3 sm:p-4 mb-4 sm:mb-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
               <h3 className="text-base sm:text-lg font-semibold text-gray-dark font-heading">
                 Pending Quotes ({pendingQuotes.length})
               </h3>
-              <Badge
-                variant="warning"
-                className="text-xs self-start sm:self-center"
-              >
+              <Badge variant="warning" className="text-xs">
                 {pendingQuotes.length} pending
               </Badge>
             </div>
@@ -978,49 +1097,6 @@ const ReceiveQuoteContent = () => {
                   selectedQuote={selectedQuote}
                 />
               ))}
-            </div>
-          </Card>
-        )}
-
-        {/* Selected Quote Summary - Compact and Sticky */}
-        {selectedQuote && (
-          <Card className="p-3 sm:p-4 mb-4 sm:mb-6 bg-green-50 border-green-200 sticky top-2 sm:top-4 z-20 backdrop-blur-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-3 gap-2">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-dark font-heading">
-                Selected Quote
-              </h3>
-              <Badge
-                variant="success"
-                className="text-xs self-start sm:self-center"
-              >
-                Confirmed
-              </Badge>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-sm">
-              <div className="flex justify-between sm:flex-col">
-                <span className="font-medium text-gray-dark font-body">
-                  Vendor
-                </span>
-                <span className="text-gray-medium font-body truncate max-w-40 sm:max-w-none">
-                  {selectedQuote.vendorName}
-                </span>
-              </div>
-              <div className="flex justify-between sm:flex-col">
-                <span className="font-medium text-gray-dark font-body">
-                  Delivery
-                </span>
-                <span className="text-gray-medium font-body">
-                  {selectedQuote.deliveryTime}
-                </span>
-              </div>
-              <div className="flex justify-between sm:flex-col sm:border-l sm:border-green-300 sm:pl-3">
-                <span className="font-medium text-gray-dark font-body">
-                  Total
-                </span>
-                <span className="font-semibold text-gray-dark font-body">
-                  ₹{selectedQuote.totalAmount.toLocaleString()}
-                </span>
-              </div>
             </div>
           </Card>
         )}
@@ -1044,13 +1120,13 @@ const ReceiveQuoteContent = () => {
               {selectedQuote ? (
                 <>
                   <span className="truncate">
-                    Proceed to Order (₹
+                    Accept Quote (₹
                     {selectedQuote.totalAmount.toLocaleString()})
                   </span>
                   <ArrowRight className="w-4 h-4 ml-2 flex-shrink-0" />
                 </>
               ) : (
-                'Select a Quote First'
+                'Accept Quote'
               )}
             </Button>
           </div>
