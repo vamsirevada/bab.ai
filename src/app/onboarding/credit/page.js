@@ -43,7 +43,13 @@ export default function CreditCheckPage() {
     setError(null)
     setResult(null)
 
-    if (!form.businessName || !form.pan || !form.turnover || !form.years || !form.email) {
+    if (
+      !form.businessName ||
+      !form.pan ||
+      !form.turnover ||
+      !form.years ||
+      !form.email
+    ) {
       setError('Please fill all required fields.')
       return
     }
@@ -218,7 +224,8 @@ export default function CreditCheckPage() {
                 className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-dark focus:ring-brand-dark"
               />
               <label htmlFor="consent" className="text-sm text-gray-700">
-                I consent to the processing of my information to provide an indicative eligibility assessment.
+                I consent to the processing of my information to provide an
+                indicative eligibility assessment.
               </label>
             </div>
 
@@ -244,23 +251,32 @@ export default function CreditCheckPage() {
                   <div className="text-emerald-700">
                     <p className="font-semibold">Eligible</p>
                     <p className="mt-1 text-sm text-gray-700">
-                      Indicative Limit: <span className="font-medium">{formatINR(result.creditLimit)}</span>
+                      Indicative Limit:{' '}
+                      <span className="font-medium">
+                        {formatINR(result.creditLimit)}
+                      </span>
                     </p>
                     <p className="text-sm text-gray-700">
-                      Indicative APR: <span className="font-medium">{result.apr}%</span>
+                      Indicative APR:{' '}
+                      <span className="font-medium">{result.apr}%</span>
                     </p>
                     {result.message && (
-                      <p className="mt-2 text-sm text-gray-600">{result.message}</p>
+                      <p className="mt-2 text-sm text-gray-600">
+                        {result.message}
+                      </p>
                     )}
                   </div>
                 ) : (
                   <div className="text-red-700">
                     <p className="font-semibold">Not Eligible</p>
                     <p className="mt-1 text-sm text-gray-700">
-                      {result.reason || 'Does not meet the minimum criteria at this time.'}
+                      {result.reason ||
+                        'Does not meet the minimum criteria at this time.'}
                     </p>
                     {result.suggestion && (
-                      <p className="mt-2 text-sm text-gray-600">{result.suggestion}</p>
+                      <p className="mt-2 text-sm text-gray-600">
+                        {result.suggestion}
+                      </p>
                     )}
                   </div>
                 )}

@@ -6,7 +6,10 @@ export async function GET(request, { params }) {
   const { id } = await params
 
   if (!id) {
-    return NextResponse.json({ error: 'ID parameter is required' }, { status: 400 })
+    return NextResponse.json(
+      { error: 'ID parameter is required' },
+      { status: 400 }
+    )
   }
 
   try {
@@ -22,7 +25,10 @@ export async function GET(request, { params }) {
     return NextResponse.json(
       {
         error: 'Failed to fetch vendor',
-        message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+        message:
+          process.env.NODE_ENV === 'development'
+            ? error.message
+            : 'Internal server error',
       },
       { status: 500 }
     )
@@ -35,7 +41,10 @@ export async function PUT(request, { params }) {
   const { name, email, phone, category, address, status } = await request.json()
 
   if (!id) {
-    return NextResponse.json({ error: 'ID parameter is required' }, { status: 400 })
+    return NextResponse.json(
+      { error: 'ID parameter is required' },
+      { status: 400 }
+    )
   }
 
   try {
@@ -51,7 +60,10 @@ export async function PUT(request, { params }) {
     return NextResponse.json({ message: 'Vendor updated successfully' })
   } catch (error) {
     console.error('Error updating vendor:', error)
-    return NextResponse.json({ message: 'Error updating vendor' }, { status: 500 })
+    return NextResponse.json(
+      { message: 'Error updating vendor' },
+      { status: 500 }
+    )
   }
 }
 
@@ -60,7 +72,10 @@ export async function DELETE(request, { params }) {
   const { id } = await params
 
   if (!id) {
-    return NextResponse.json({ error: 'ID parameter is required' }, { status: 400 })
+    return NextResponse.json(
+      { error: 'ID parameter is required' },
+      { status: 400 }
+    )
   }
 
   try {
@@ -73,6 +88,9 @@ export async function DELETE(request, { params }) {
     return NextResponse.json({ message: 'Vendor deleted successfully' })
   } catch (error) {
     console.error('Error deleting vendor:', error)
-    return NextResponse.json({ message: 'Error deleting vendor' }, { status: 500 })
+    return NextResponse.json(
+      { message: 'Error deleting vendor' },
+      { status: 500 }
+    )
   }
 }

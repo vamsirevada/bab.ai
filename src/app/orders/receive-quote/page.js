@@ -257,72 +257,135 @@ const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
 // Main Component Content
 const ReceiveQuoteContent = () => {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [customerInfo, setCustomerInfo] = useState({})
   const [quotes, setQuotes] = useState([])
   const [selectedQuote, setSelectedQuote] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [requestId, setRequestId] = useState('')
 
-  // Load data on component mount
+  // Load data on component mount (fetch quotes for this request/order)
   useEffect(() => {
-    // Mock quotes data
-    const mockQuotes = [
-      {
-        vendorId: 'vendor1',
-        vendorName: 'ABC Materials Pvt Ltd',
-        location: 'Sector 15, Gurgaon',
-        rating: 4,
-        deliveryTime: '2-3 days',
-        specialization: 'Construction Materials',
-        status: 'received',
-        totalAmount: 45800,
-        items: [
-          { name: 'Modular Plates', quantity: 2, total: 25000 },
-          { name: 'Steel Rods', quantity: 12, total: 20800 },
-        ],
-      },
-      {
-        vendorId: 'vendor2',
-        vendorName: 'BuildMart Solutions',
-        location: 'Industrial Area, Delhi',
-        rating: 5,
-        deliveryTime: '1-2 days',
-        specialization: 'Premium Building Materials',
-        status: 'received',
-        totalAmount: 42500,
-        items: [
-          { name: 'Modular Plates', quantity: 2, total: 22000 },
-          { name: 'Steel Rods', quantity: 12, total: 20500 },
-        ],
-      },
-      {
-        vendorId: 'vendor3',
-        vendorName: 'Construction Hub',
-        location: 'Phase 2, Noida',
-        rating: 3,
-        deliveryTime: '3-4 days',
-        specialization: 'Bulk Construction Supplies',
-        status: 'pending',
-        totalAmount: 0,
-        items: [],
-      },
-    ]
+    const loadData = async () => {
+      setIsLoading(true)
+      setError(null)
 
-    try {
-      const storedCustomerInfo = localStorage.getItem('customerInfo')
-      if (storedCustomerInfo) {
-        setCustomerInfo(JSON.parse(storedCustomerInfo))
-      }
+      try {
+        // Read request id from query: support both uuid and request_id
+        const reqId = searchParams.get('uuid') || searchParams.get('request_id')
+        setRequestId(reqId || '')
 
-      // Simulate loading quotes
-      setTimeout(() => {
-        setQuotes(mockQuotes)
+        // Load basic customer info from localStorage if available
+        try {
+          const storedCustomerInfo = localStorage.getItem('customerInfo')
+          if (storedCustomerInfo) {
+            setCustomerInfo(JSON.parse(storedCustomerInfo))
+          }
+        } catch (e) {
+          // non-fatal
+          console.warn('Unable to read customerInfo from localStorage')
+        }
+
+        if (!reqId) {
+          setQuotes([])
+          setIsLoading(false)
+          return
+        }
+
+        // Fetch order items and quotes in parallel
+        const [orderRes, quotesRes] = await Promise.all([
+          fetch(`/api/orders/${encodeURIComponent(reqId)}`, {
+            cache: 'no-store',
+          }),
+          fetch(`/api/orders/${encodeURIComponent(reqId)}/quotes`, {
+            cache: 'no-store',
+          }),
+        ])
+
+        // Build a lookup of order item details (name, quantity) for totals
+        let orderItems = []
+        if (orderRes.ok) {
+          const data = await orderRes.json()
+          if (Array.isArray(data)) {
+            orderItems = data
+          }
+        }
+        const orderItemMap = orderItems.reduce((acc, item) => {
+          acc[item.id] = {
+            name:
+              item.material_name || item.name || item.title || 'Material Item',
+            quantity: Number(item.quantity) || 1,
+          }
+          return acc
+        }, {})
+
+        // Parse quotes and enrich with computed totals and item breakdown
+        if (!quotesRes.ok) {
+          const text = await quotesRes.text()
+          throw new Error(text || 'Failed to fetch quotes')
+        }
+        const rawQuotes = await quotesRes.json()
+
+        const normalized = (Array.isArray(rawQuotes) ? rawQuotes : []).map(
+          (q) => {
+            // Items come from quote_items table
+            const items = (q.items || []).map((qi) => {
+              const src = orderItemMap[qi.item_id] || {
+                name: `Item #${qi.item_id}`,
+                quantity: 1,
+              }
+              const unit = Number(qi.quoted_price) || 0
+              const qty = Number(src.quantity) || 1
+              const total = unit * qty
+              return {
+                name: src.name,
+                quantity: qty,
+                unitPrice: unit,
+                total,
+              }
+            })
+
+            const totalAmount = items.reduce((s, it) => s + it.total, 0)
+
+            // If API status not reliable, infer received when items exist
+            const status =
+              q.status || (items.length > 0 ? 'received' : 'pending')
+
+            // Derive delivery time from max delivery_days across items if present
+            const maxDays = Math.max(
+              0,
+              ...(q.items || [])
+                .map((qi) => Number(qi.delivery_days))
+                .filter((n) => !Number.isNaN(n))
+            )
+
+            return {
+              vendorId: q.vendor_id,
+              vendorName: q.vendor_name || `Vendor ${q.vendor_id}`,
+              location: q.vendor_location || '—',
+              rating: 4, // placeholder; adjust if rating exists in data
+              deliveryTime: maxDays ? `${maxDays} days` : 'N/A',
+              specialization: q.vendor_specialization || null,
+              status,
+              totalAmount,
+              items,
+            }
+          }
+        )
+
+        setQuotes(normalized)
+      } catch (err) {
+        console.error('Error loading quotes:', err)
+        setError('Failed to load quotes. Please try again later.')
+        setQuotes([])
+      } finally {
         setIsLoading(false)
-      }, 1500)
-    } catch (error) {
-      console.error('Error loading data:', error)
-      setIsLoading(false)
+      }
     }
-  }, [])
+
+    loadData()
+  }, [searchParams])
 
   const handleAcceptQuote = (quote) => {
     setSelectedQuote(quote)
@@ -357,6 +420,23 @@ const ReceiveQuoteContent = () => {
   return (
     <div className="min-h-screen relative">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 relative z-10">
+        {error && (
+          <Card className="p-4 mb-4 border-red-200 bg-red-50">
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-sm text-red-700">{error}</p>
+              <Button
+                variant="outline"
+                className="text-red-700 border-red-300 hover:bg-red-100"
+                onClick={() => {
+                  // Trigger reload by updating search params state
+                  typeof window !== 'undefined' && router.refresh?.()
+                }}
+              >
+                Retry
+              </Button>
+            </div>
+          </Card>
+        )}
         {/* Header Card */}
         <Card className="p-6 mb-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
@@ -369,7 +449,8 @@ const ReceiveQuoteContent = () => {
                   Received Quotes
                 </h2>
                 <p className="text-sm text-gray-medium font-body">
-                  Compare and select the best quote
+                  Compare and select the best quote{' '}
+                  {requestId && `• Request ${requestId}`}
                 </p>
               </div>
             </div>
@@ -412,6 +493,21 @@ const ReceiveQuoteContent = () => {
                   selectedQuote={selectedQuote}
                 />
               ))}
+            </div>
+          </Card>
+        )}
+
+        {/* Empty state when no quotes yet */}
+        {receivedQuotes.length === 0 && pendingQuotes.length === 0 && (
+          <Card className="p-8 mb-6 text-center">
+            <div className="max-w-md mx-auto">
+              <h3 className="text-lg font-semibold text-gray-dark font-heading mb-2">
+                No quotes yet
+              </h3>
+              <p className="text-sm text-gray-medium font-body mb-4">
+                Vendors are preparing their quotes. Check back soon.
+              </p>
+              <Button onClick={() => router.refresh?.()}>Refresh</Button>
             </div>
           </Card>
         )}

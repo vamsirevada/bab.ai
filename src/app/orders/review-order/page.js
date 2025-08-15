@@ -734,7 +734,7 @@ const ReviewOrderContent = () => {
         </Card>
 
         {/* Order Items */}
-        <Card className="p-6 mb-6 paper">
+        <Card className="p-6 mb-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-gray-dark font-heading">
               Order Items

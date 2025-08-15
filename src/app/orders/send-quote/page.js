@@ -174,26 +174,25 @@ const SendQuoteContent = () => {
   useEffect(() => {
     const loadVendorData = async () => {
       try {
-        console.log('Loading vendor data...')
         const response = await fetch('/api/vendors')
 
         if (response.ok) {
           const vendors = await response.json()
-          console.log('Vendors loaded:', vendors)
 
-          // Use the first vendor or find specific vendor based on some criteria
           if (vendors && vendors.length > 0) {
-            const selectedVendor = vendors[0] // You can modify this logic as needed
+            const selectedVendor = vendors[0]
             const vendorData = {
-              id: selectedVendor.vendor_id,
+              id: selectedVendor.id ?? selectedVendor.vendor_id ?? null,
               name: selectedVendor.name || 'ABC Materials Pvt Ltd',
-              contact: selectedVendor.phone_number || '+91 98765 43210',
+              contact:
+                selectedVendor.phone ||
+                selectedVendor.phone_number ||
+                '+91 98765 43210',
               email: selectedVendor.email || 'vendor@example.com',
             }
             console.log('Setting vendor info:', vendorData)
             setVendorInfo(vendorData)
           } else {
-            // No vendors found, keep default with null id
             console.warn('No vendors found in database')
             setVendorInfo((prev) => ({ ...prev, id: null }))
           }
@@ -203,7 +202,6 @@ const SendQuoteContent = () => {
         }
       } catch (error) {
         console.error('Error loading vendor data:', error)
-        // Keep default vendor info with null id if API fails
         setVendorInfo((prev) => ({ ...prev, id: null }))
       }
     }
@@ -355,11 +353,35 @@ const SendQuoteContent = () => {
       const result = await response.json()
       console.log('Quote sent successfully:', result)
 
-      // Store quote data locally for reference
-      localStorage.setItem('quoteData', JSON.stringify(quoteData))
+      // Extract a quote id from the server response when available
+      const newQuoteId =
+        result?.id ?? result?.quote_request_id ?? result?.data?.id ?? null
 
-      // Navigate to receive quote page
-      router.push('/orders/receive-quote')
+      // Store quote data locally for reference (including quantities for summary)
+      const stored = {
+        ...quoteData,
+        items: orderData.map((item) => ({
+          item_id: item.id,
+          quoted_price: parseFloat(quotePrices[item.id]) || 0,
+          delivery_days: item.delivery_days || null,
+          comments: item.comments || null,
+          quantity: item.quantity ?? 1,
+        })),
+        server_quote_id: newQuoteId || undefined,
+      }
+      localStorage.setItem('quoteData', JSON.stringify(stored))
+
+      // Navigate to quote-sent page with details in query (include quote_id if present)
+      const reqId = quoteData.request_id
+      const venId = quoteData.vendor_id
+      const qidPart = newQuoteId
+        ? `&quote_id=${encodeURIComponent(newQuoteId)}`
+        : ''
+      router.push(
+        `/orders/quote-sent?request_id=${encodeURIComponent(
+          reqId
+        )}&vendor_id=${encodeURIComponent(venId)}${qidPart}`
+      )
     } catch (error) {
       console.error('Error submitting quote:', error)
       alert('Failed to submit quote. Please try again.')
