@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { CheckCircle2, Clock, ArrowLeft, Send, Eye } from 'lucide-react'
+import { CheckCircle2, Clock, ArrowLeft, Send } from 'lucide-react'
 
 const Card = ({ children, className = '' }) => (
   <div
@@ -41,10 +41,9 @@ function QuoteSentContent() {
   const [pendingQuotes, setPendingQuotes] = useState([])
   const [loadingPending, setLoadingPending] = useState(true)
   const [errorPending, setErrorPending] = useState('')
-  const [serverQuote, setServerQuote] = useState(null)
-  const [loadingServerQuote, setLoadingServerQuote] = useState(false)
-  const [serverError, setServerError] = useState('')
+
   const [mounted, setMounted] = useState(false)
+  const [orderItemMap, setOrderItemMap] = useState({})
 
   const quoteData = useMemo(() => {
     if (typeof window === 'undefined') return null
@@ -56,19 +55,65 @@ function QuoteSentContent() {
     }
   }, [])
 
-  const totalAmount = useMemo(() => {
+  // Merge quote items with order item metadata for friendly names and quantities
+  const displayItems = useMemo(() => {
     const items = quoteData?.items || []
-    return items.reduce(
-      (sum, it) =>
-        sum + (Number(it.quoted_price) || 0) * (Number(it.quantity) || 1),
-      0
-    )
-  }, [quoteData])
+    return items.map((it) => {
+      const meta = orderItemMap[it.item_id] || {}
+      const qty = Number(meta.quantity ?? it.quantity ?? 1)
+      const unit = Number(it.quoted_price) || 0
+      return {
+        name: meta.name || 'Item',
+        quantity: qty,
+        unitPrice: unit,
+        lineTotal: unit * qty,
+        deliveryDays: it.delivery_days ?? null,
+        comments: it.comments ?? null,
+      }
+    })
+  }, [quoteData, orderItemMap])
+
+  const subtotal = useMemo(
+    () => displayItems.reduce((sum, it) => sum + it.lineTotal, 0),
+    [displayItems]
+  )
+  const gstAmount = useMemo(() => subtotal * 0.18, [subtotal])
+  const grandTotal = useMemo(() => subtotal + gstAmount, [subtotal, gstAmount])
+  // No delivery aggregation shown in the summary to keep the view minimal
 
   // Prevent hydration mismatches by rendering a simple shell until mounted
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Fetch order items to label item names/quantities (hide raw IDs from UI)
+  useEffect(() => {
+    if (!mounted) return
+    const reqId = requestIdParam || quoteData?.request_id || ''
+    if (!reqId) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch(`/api/orders/${encodeURIComponent(reqId)}`, {
+          cache: 'no-store',
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        if (!Array.isArray(data)) return
+        const map = {}
+        for (const item of data) {
+          map[item.id] = {
+            name: item.material_name || item.name || 'Item',
+            quantity: Number(item.quantity) || 1,
+          }
+        }
+        if (!cancelled) setOrderItemMap(map)
+      } catch {}
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [mounted, requestIdParam, quoteData])
 
   useEffect(() => {
     if (!mounted) return
@@ -87,33 +132,15 @@ function QuoteSentContent() {
         const data = await res.json()
         setPendingQuotes(Array.isArray(data) ? data : [])
       } catch (e) {
-        setErrorPending('Failed to load pending quotes')
+        // Treat errors as no pending quotes for a cleaner UX
+        setErrorPending('')
+        setPendingQuotes([])
       } finally {
         setLoadingPending(false)
       }
     }
     loadPending()
   }, [mounted, vendorIdParam, quoteData])
-
-  const handleViewServerQuote = async () => {
-    setServerError('')
-    setLoadingServerQuote(true)
-    try {
-      const id = quoteIdParam || quoteData?.server_quote_id
-      if (!id) {
-        setServerError('No quote_id available from server response')
-        return
-      }
-      const res = await fetch(`/api/quotes/${encodeURIComponent(id)}`)
-      if (!res.ok) throw new Error(await res.text())
-      const data = await res.json()
-      setServerQuote(data)
-    } catch (e) {
-      setServerError('Failed to fetch quote from server')
-    } finally {
-      setLoadingServerQuote(false)
-    }
-  }
 
   if (!mounted) {
     return (
@@ -141,8 +168,8 @@ function QuoteSentContent() {
         </div>
 
         <Card className="p-6 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-            <div className="flex items-center justify-center w-12 h-12 bg-green-600 rounded-full">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="flex items-center justify-center w-12 h-12 bg-green-600 rounded-full flex-shrink-0">
               <CheckCircle2 className="w-7 h-7 text-white" />
             </div>
             <div className="flex-1 min-w-0">
@@ -152,142 +179,72 @@ function QuoteSentContent() {
               <p className="text-sm text-gray-medium font-body mt-1">
                 We saved your quote details below.
               </p>
+            </div>
+          </div>
 
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-medium">Request ID</p>
-                  <p className="text-sm font-medium text-gray-dark break-all">
-                    {requestId || '-'}
-                  </p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-medium">Vendor ID</p>
-                  <p className="text-sm font-medium text-gray-dark break-all">
-                    {vendorId || '-'}
-                  </p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-medium">Items</p>
-                  <p className="text-sm font-medium text-gray-dark">
-                    {quoteData?.items?.length ?? 0}
-                  </p>
-                </div>
-              </div>
-
-              {/* Desktop table view */}
-              <div className="mt-4 overflow-x-auto hidden md:block">
-                <table className="min-w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-gray-medium border-b">
-                      <th className="py-2 pr-4">Item ID</th>
-                      <th className="py-2 pr-4">Quoted Price (₹)</th>
-                      <th className="py-2 pr-4">Delivery Days</th>
-                      <th className="py-2 pr-4">Comments</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(quoteData?.items || []).map((it, idx) => (
-                      <tr key={idx} className="border-b last:border-0">
-                        <td className="py-2 pr-4 text-gray-dark break-all">
-                          {it.item_id}
-                        </td>
-                        <td className="py-2 pr-4 text-gray-dark">
-                          {Number(it.quoted_price).toFixed(2)}
-                        </td>
-                        <td className="py-2 pr-4 text-gray-dark">
-                          {it.delivery_days ?? '-'}
-                        </td>
-                        <td className="py-2 pr-4 text-gray-dark break-words">
-                          {it.comments ?? '-'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile list view */}
-              <div className="mt-4 space-y-2 md:hidden">
-                {(quoteData?.items || []).map((it, idx) => (
-                  <div
-                    key={idx}
-                    className="border border-gray-medium/20 rounded-lg p-3"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-medium">Item ID</span>
-                      <span className="text-xs font-medium text-gray-dark break-all ml-2">
-                        {it.item_id}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
-                      <div>
-                        <p className="text-xs text-gray-medium">
-                          Quoted Price (₹)
-                        </p>
-                        <p className="text-gray-dark">
-                          {Number(it.quoted_price).toFixed(2)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-medium">
-                          Delivery Days
-                        </p>
-                        <p className="text-gray-dark">
-                          {it.delivery_days ?? '-'}
-                        </p>
-                      </div>
-                      <div className="col-span-2">
-                        <p className="text-xs text-gray-medium">Comments</p>
-                        <p className="text-gray-dark break-words">
-                          {it.comments ?? '-'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+          {/* Desktop items summary (Name + Quantity + Line Total) */}
+          <div className="mt-4 overflow-x-auto hidden md:block">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="text-left text-gray-medium border-b">
+                  <th className="py-2 pr-4">Item</th>
+                  <th className="py-2 pr-4">Line Total (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {displayItems.map((it, idx) => (
+                  <tr key={idx} className="border-b last:border-0">
+                    <td className="py-2 pr-4 text-gray-dark">
+                      {it.name}{' '}
+                      {it.quantity > 1 && (
+                        <span className="text-gray-medium">
+                          (Qty: {it.quantity})
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-2 pr-4 text-gray-dark">
+                      {it.lineTotal.toFixed(2)}
+                    </td>
+                  </tr>
                 ))}
-              </div>
+              </tbody>
+            </table>
+          </div>
 
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm text-gray-dark font-medium order-2 sm:order-1">
-                  Total:{' '}
-                  <span className="font-semibold">
-                    ₹{totalAmount.toFixed(2)}
+          {/* Mobile items summary (Name + Quantity + Line Total) */}
+          <div className="mt-4 space-y-2 md:hidden">
+            {displayItems.map((it, idx) => (
+              <div
+                key={idx}
+                className="border border-gray-medium/20 rounded-lg p-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-dark">
+                    {it.name}{' '}
+                    {it.quantity > 1 && (
+                      <span className="text-gray-medium">
+                        (Qty: {it.quantity})
+                      </span>
+                    )}
                   </span>
-                </p>
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 order-1 sm:order-2 w-full sm:w-auto">
-                  <Button
-                    variant="outline"
-                    onClick={handleViewServerQuote}
-                    className="w-full sm:w-auto"
-                  >
-                    <Eye className="w-4 h-4 mr-2" /> View this quote (server)
-                  </Button>
-                  <Button
-                    onClick={() =>
-                      router.push(
-                        `/orders/send-quote?uuid=${encodeURIComponent(
-                          requestId
-                        )}`
-                      )
-                    }
-                    className="w-full sm:w-auto"
-                  >
-                    <Send className="w-4 h-4 mr-2" /> Send another quote
-                  </Button>
+                  <span className="text-sm font-semibold text-gray-dark">
+                    ₹{it.lineTotal.toFixed(2)}
+                  </span>
                 </div>
               </div>
+            ))}
+          </div>
 
-              {loadingServerQuote ? (
-                <p className="text-sm text-gray-medium mt-3">
-                  Loading server quote...
-                </p>
-              ) : serverError ? (
-                <p className="text-sm text-red-600 mt-3">{serverError}</p>
-              ) : serverQuote ? (
-                <pre className="mt-3 p-3 bg-gray-50 rounded-lg text-xs overflow-auto max-h-72">
-                  {JSON.stringify(serverQuote, null, 2)}
-                </pre>
-              ) : null}
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="order-1">
+              <p className="text-sm text-gray-dark font-medium">
+                Total (incl. GST):{' '}
+                <span className="font-semibold">₹{grandTotal.toFixed(2)}</span>
+              </p>
+              <p className="text-xs text-gray-medium">
+                Subtotal ₹{subtotal.toFixed(2)} • GST (18%) ₹
+                {gstAmount.toFixed(2)}
+              </p>
             </div>
           </div>
         </Card>
@@ -295,7 +252,7 @@ function QuoteSentContent() {
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-dark font-heading">
-              Pending quotes for this vendor
+              Pending quotes
             </h2>
             <Clock className="w-5 h-5 text-gray-medium" />
           </div>
@@ -304,9 +261,13 @@ function QuoteSentContent() {
               Loading pending quotes...
             </p>
           ) : errorPending ? (
-            <p className="text-sm text-red-600">{errorPending}</p>
+            <p className="text-sm text-gray-medium">
+              No pending quotes as of now.
+            </p>
           ) : pendingQuotes.length === 0 ? (
-            <p className="text-sm text-gray-medium">No pending quotes found.</p>
+            <p className="text-sm text-gray-medium">
+              No pending quotes as of now.
+            </p>
           ) : (
             <div className="space-y-3">
               {pendingQuotes.map((q) => (
@@ -316,10 +277,11 @@ function QuoteSentContent() {
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-gray-dark">
-                      Quote #{q.id}
+                      Pending quote
                     </p>
-                    <p className="text-xs text-gray-medium break-all">
-                      Request: {q.request_id} • Status: {q.status}
+                    <p className="text-xs text-gray-medium break-words">
+                      {`Items: ${Array.isArray(q.items) ? q.items.length : 0}`}{' '}
+                      • Status: {q.status || 'pending'}
                     </p>
                   </div>
                   <Button
