@@ -1,48 +1,69 @@
 import { NextResponse } from 'next/server'
-import pool from '@/lib/db'
 
-// GET /api/quotes/[id] - Get specific quote details
+// GET /api/quotes/[id] - Get quotes for a specific request ID from external API only
 export async function GET(request, { params }) {
   const { id } = await params
 
+  console.log('Fetching quotes for request ID:', id)
+
   if (!id) {
     return NextResponse.json(
-      { error: 'ID parameter is required' },
+      { error: 'Request ID parameter is required' },
       { status: 400 }
     )
   }
 
   try {
-    const result = await fetch(
+    console.log('Fetching quotes from external API...')
+
+    const externalResult = await fetch(
       'https://bug-saving-frog.ngrok-free.app/get-vendor-quotes',
       {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true', // Skip ngrok browser warning
+          'ngrok-skip-browser-warning': 'true',
         },
       }
     )
 
-    if (!result.ok) {
-      console.error('External API error:', result.status, result.statusText)
+    if (!externalResult.ok) {
+      console.error(
+        'External API error:',
+        externalResult.status,
+        externalResult.statusText
+      )
+
+      const errorText = await externalResult.text()
+      console.error('External API error response:', errorText)
+
       return NextResponse.json(
         {
           error: 'Failed to fetch vendor quotes',
-          status: result.status,
-          message: result.statusText,
+          message: 'External API is not available',
+          details:
+            process.env.NODE_ENV === 'development' ? errorText : undefined,
         },
-        { status: result.status }
+        { status: 502 } // Bad Gateway
       )
     }
 
-    const vendorQuotes = await result.json()
-    console.log('Vendor quotes fetched successfully:', vendorQuotes)
-    let filteredQuotes = vendorQuotes
+    const vendorQuotes = await externalResult.json()
+    console.log(
+      'External API response received, total quotes:',
+      Array.isArray(vendorQuotes) ? vendorQuotes.length : 'not an array'
+    )
+
+    // Filter quotes by request ID
+    let filteredQuotes = []
     if (Array.isArray(vendorQuotes)) {
-      filteredQuotes = vendorQuotes.filter(
-        (quote) => quote.request_id === requestId
+      filteredQuotes = vendorQuotes.filter((quote) => quote.request_id === id)
+      console.log(
+        `Filtered to ${filteredQuotes.length} quotes for request ${id}`
       )
+    } else {
+      console.warn('External API did not return an array:', typeof vendorQuotes)
+      return NextResponse.json([])
     }
 
     return NextResponse.json(filteredQuotes)
@@ -56,122 +77,6 @@ export async function GET(request, { params }) {
             ? error.message
             : 'Failed to fetch vendor quotes',
       },
-      { status: 500 }
-    )
-  }
-}
-
-// PUT /api/quotes/[id] - Update quote details
-export async function PUT(request, { params }) {
-  const { id } = await params
-  const { status, notes, items } = await request.json()
-
-  if (!id) {
-    return NextResponse.json(
-      { error: 'ID parameter is required' },
-      { status: 400 }
-    )
-  }
-
-  try {
-    const client = await pool.connect()
-    try {
-      await client.query('BEGIN')
-
-      // Update quote
-      const quoteResult = await client.query(
-        'UPDATE vendor_quotes SET status = $1, notes = $2, updated_at = NOW() WHERE id = $3',
-        [status, notes, id]
-      )
-
-      if (quoteResult.rowCount === 0) {
-        return NextResponse.json(
-          { message: 'Quote not found' },
-          { status: 404 }
-        )
-      }
-
-      // Update items if provided
-      if (items && Array.isArray(items)) {
-        // Delete existing items
-        await client.query('DELETE FROM quote_items WHERE quote_id = $1', [id])
-
-        // Insert updated items
-        for (const item of items) {
-          await client.query(
-            'INSERT INTO quote_items (quote_id, item_id, quoted_price, delivery_days, comments) VALUES ($1, $2, $3, $4, $5)',
-            [
-              id,
-              item.item_id,
-              item.quoted_price,
-              item.delivery_days,
-              item.comments,
-            ]
-          )
-        }
-      }
-
-      await client.query('COMMIT')
-      return NextResponse.json({ message: 'Quote updated successfully' })
-    } catch (error) {
-      await client.query('ROLLBACK')
-      throw error
-    } finally {
-      client.release()
-    }
-  } catch (error) {
-    console.error('Error updating quote:', error)
-    return NextResponse.json(
-      { message: 'Error updating quote' },
-      { status: 500 }
-    )
-  }
-}
-
-// DELETE /api/quotes/[id] - Delete quote
-export async function DELETE(request, { params }) {
-  const { id } = await params
-
-  if (!id) {
-    return NextResponse.json(
-      { error: 'ID parameter is required' },
-      { status: 400 }
-    )
-  }
-
-  try {
-    const client = await pool.connect()
-    try {
-      await client.query('BEGIN')
-
-      // Delete quote items first
-      await client.query('DELETE FROM quote_items WHERE quote_id = $1', [id])
-
-      // Delete quote
-      const result = await client.query(
-        'DELETE FROM vendor_quotes WHERE id = $1',
-        [id]
-      )
-
-      if (result.rowCount === 0) {
-        return NextResponse.json(
-          { message: 'Quote not found' },
-          { status: 404 }
-        )
-      }
-
-      await client.query('COMMIT')
-      return NextResponse.json({ message: 'Quote deleted successfully' })
-    } catch (error) {
-      await client.query('ROLLBACK')
-      throw error
-    } finally {
-      client.release()
-    }
-  } catch (error) {
-    console.error('Error deleting quote:', error)
-    return NextResponse.json(
-      { message: 'Error deleting quote' },
       { status: 500 }
     )
   }

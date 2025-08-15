@@ -10,6 +10,14 @@ import {
   Star,
   ArrowRight,
   ArrowLeft,
+  TrendingUp,
+  TrendingDown,
+  BarChart3,
+  Filter,
+  SortAsc,
+  Eye,
+  Grid,
+  List,
 } from 'lucide-react'
 
 // WhatsApp Icon Component
@@ -254,6 +262,211 @@ const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
   )
 }
 
+// Comparison Table Component
+const ComparisonTable = ({ quotes, selectedQuote, onAccept }) => {
+  if (quotes.length === 0) return null
+
+  const minPrice = Math.min(...quotes.map((q) => q.totalAmount))
+  const maxPrice = Math.max(...quotes.map((q) => q.totalAmount))
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full bg-white">
+        <thead>
+          <tr className="border-b border-gray-200">
+            <th className="text-left py-3 px-4 font-semibold text-gray-dark">
+              Vendor
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-gray-dark">
+              Total Price
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-gray-dark">
+              Delivery
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-gray-dark">
+              Rating
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-gray-dark">
+              Location
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-gray-dark">
+              Action
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {quotes.map((quote) => {
+            const isSelected = selectedQuote?.vendorId === quote.vendorId
+            const isLowest = quote.totalAmount === minPrice
+            const isHighest =
+              quote.totalAmount === maxPrice && quotes.length > 1
+            const savingsFromMax = maxPrice - quote.totalAmount
+
+            return (
+              <tr
+                key={quote.vendorId}
+                className={`border-b border-gray-100 hover:bg-gray-50 ${
+                  isSelected ? 'bg-green-50 border-green-200' : ''
+                }`}
+              >
+                <td className="py-3 px-4">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-gray-dark">
+                      {quote.vendorName}
+                    </span>
+                    {isLowest && quotes.length > 1 && (
+                      <Badge variant="success" className="text-xs">
+                        Best Price
+                      </Badge>
+                    )}
+                    {isSelected && (
+                      <Badge variant="info" className="text-xs">
+                        Selected
+                      </Badge>
+                    )}
+                  </div>
+                  {quote.specialization && (
+                    <div className="text-xs text-gray-medium mt-1">
+                      {quote.specialization}
+                    </div>
+                  )}
+                </td>
+                <td className="py-3 px-4">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`font-semibold ${
+                        isLowest ? 'text-green-600' : 'text-gray-dark'
+                      }`}
+                    >
+                      ₹{quote.totalAmount.toLocaleString()}
+                    </span>
+                    {isLowest && (
+                      <TrendingDown className="w-4 h-4 text-green-600" />
+                    )}
+                    {isHighest && (
+                      <TrendingUp className="w-4 h-4 text-red-500" />
+                    )}
+                  </div>
+                  {savingsFromMax > 0 && (
+                    <div className="text-xs text-green-600 mt-1">
+                      Save ₹{savingsFromMax.toLocaleString()}
+                    </div>
+                  )}
+                </td>
+                <td className="py-3 px-4">
+                  <span className="text-gray-medium">{quote.deliveryTime}</span>
+                </td>
+                <td className="py-3 px-4">
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-3 h-3 ${
+                          i < quote.rating
+                            ? 'text-yellow-400 fill-current'
+                            : 'text-gray-200'
+                        }`}
+                      />
+                    ))}
+                    <span className="text-xs text-gray-medium ml-1">
+                      {quote.rating}.0
+                    </span>
+                  </div>
+                </td>
+                <td className="py-3 px-4">
+                  <span className="text-gray-medium">{quote.location}</span>
+                </td>
+                <td className="py-3 px-4">
+                  <Button
+                    variant={isSelected ? 'success' : 'default'}
+                    onClick={() => onAccept(quote)}
+                    className="text-xs px-3 py-1 h-8"
+                    disabled={isSelected}
+                  >
+                    {isSelected ? (
+                      <>
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Selected
+                      </>
+                    ) : (
+                      'Select'
+                    )}
+                  </Button>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+// Comparison Stats Component
+const ComparisonStats = ({ quotes }) => {
+  if (quotes.length === 0) return null
+
+  const prices = quotes.map((q) => q.totalAmount)
+  const minPrice = Math.min(...prices)
+  const maxPrice = Math.max(...prices)
+  const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length
+  const priceRange = maxPrice - minPrice
+  const avgDeliveryDays =
+    quotes.reduce((sum, q) => {
+      const days = parseInt(q.deliveryTime) || 0
+      return sum + days
+    }, 0) / quotes.length
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <Card className="p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <TrendingDown className="w-4 h-4 text-green-600" />
+          <span className="text-xs font-medium text-gray-medium">
+            Best Price
+          </span>
+        </div>
+        <div className="text-lg font-semibold text-gray-dark">
+          ₹{minPrice.toLocaleString()}
+        </div>
+      </Card>
+
+      <Card className="p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <BarChart3 className="w-4 h-4 text-blue-600" />
+          <span className="text-xs font-medium text-gray-medium">Average</span>
+        </div>
+        <div className="text-lg font-semibold text-gray-dark">
+          ₹{Math.round(avgPrice).toLocaleString()}
+        </div>
+      </Card>
+
+      <Card className="p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <TrendingUp className="w-4 h-4 text-orange-600" />
+          <span className="text-xs font-medium text-gray-medium">
+            Price Range
+          </span>
+        </div>
+        <div className="text-lg font-semibold text-gray-dark">
+          ₹{priceRange.toLocaleString()}
+        </div>
+      </Card>
+
+      <Card className="p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Clock className="w-4 h-4 text-purple-600" />
+          <span className="text-xs font-medium text-gray-medium">
+            Avg Delivery
+          </span>
+        </div>
+        <div className="text-lg font-semibold text-gray-dark">
+          {Math.round(avgDeliveryDays)} days
+        </div>
+      </Card>
+    </div>
+  )
+}
 // Main Component Content
 const ReceiveQuoteContent = () => {
   const router = useRouter()
@@ -264,6 +477,9 @@ const ReceiveQuoteContent = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [requestId, setRequestId] = useState('')
+  const [viewMode, setViewMode] = useState('cards') // 'cards' or 'table'
+  const [sortBy, setSortBy] = useState('price') // 'price', 'delivery', 'rating'
+  const [sortOrder, setSortOrder] = useState('asc') // 'asc' or 'desc'
 
   // Load data on component mount (fetch quotes for this request/order)
   useEffect(() => {
@@ -271,11 +487,11 @@ const ReceiveQuoteContent = () => {
       setIsLoading(true)
       setError(null)
 
-      try {
-        // Read request id from query: support both uuid and request_id
-        const reqId = searchParams.get('uuid') || searchParams.get('request_id')
-        setRequestId(reqId || '')
+      // Read request id from query: support both uuid and request_id
+      const reqId = searchParams.get('uuid') || searchParams.get('request_id')
+      setRequestId(reqId || '')
 
+      try {
         // Load basic customer info from localStorage if available
         try {
           const storedCustomerInfo = localStorage.getItem('customerInfo')
@@ -288,17 +504,20 @@ const ReceiveQuoteContent = () => {
         }
 
         if (!reqId) {
+          console.warn('No request ID provided for quotes fetch')
           setQuotes([])
           setIsLoading(false)
           return
         }
+
+        console.log('Fetching quotes for request ID:', reqId)
 
         // Fetch order items and quotes in parallel
         const [orderRes, quotesRes] = await Promise.all([
           fetch(`/api/orders/${encodeURIComponent(reqId)}`, {
             cache: 'no-store',
           }),
-          fetch(`/api/orders/${encodeURIComponent(reqId)}/quotes`, {
+          fetch(`/api/quotes/${encodeURIComponent(reqId)}`, {
             cache: 'no-store',
           }),
         ])
@@ -322,8 +541,22 @@ const ReceiveQuoteContent = () => {
 
         // Parse quotes and enrich with computed totals and item breakdown
         if (!quotesRes.ok) {
-          const text = await quotesRes.text()
-          throw new Error(text || 'Failed to fetch quotes')
+          let errorDetails = `Failed to fetch quotes (${quotesRes.status})`
+          try {
+            const errorData = await quotesRes.json()
+            console.error('Quotes API Error:', {
+              status: quotesRes.status,
+              statusText: quotesRes.statusText,
+              url: `/api/quotes/${encodeURIComponent(reqId)}`,
+              error: errorData,
+            })
+            errorDetails = errorData.message || errorData.error || errorDetails
+          } catch (parseError) {
+            const text = await quotesRes.text()
+            console.error('Quotes API Text Error:', text)
+            errorDetails = text || errorDetails
+          }
+          throw new Error(errorDetails)
         }
         const rawQuotes = await quotesRes.json()
 
@@ -376,8 +609,27 @@ const ReceiveQuoteContent = () => {
 
         setQuotes(normalized)
       } catch (err) {
-        console.error('Error loading quotes:', err)
-        setError('Failed to load quotes. Please try again later.')
+        console.error('Error loading quotes:', {
+          error: err,
+          message: err.message,
+          requestId: reqId,
+          url: `/api/quotes/${encodeURIComponent(reqId || '')}`,
+        })
+
+        // Provide more specific error messages based on the error type
+        let userMessage = 'Failed to load quotes. Please try again later.'
+        if (err.message.includes('422')) {
+          userMessage =
+            'Invalid request format. Please check the request ID and try again.'
+        } else if (err.message.includes('404')) {
+          userMessage =
+            'No quotes found for this request. The request may not exist.'
+        } else if (err.message.includes('500')) {
+          userMessage =
+            'Server error while fetching quotes. Please try again in a moment.'
+        }
+
+        setError(userMessage)
         setQuotes([])
       } finally {
         setIsLoading(false)
@@ -403,7 +655,40 @@ const ReceiveQuoteContent = () => {
     }
   }
 
-  const receivedQuotes = quotes.filter((q) => q.status === 'received')
+  // Sorting function
+  const sortQuotes = (quotesToSort) => {
+    return [...quotesToSort].sort((a, b) => {
+      let aValue, bValue
+
+      switch (sortBy) {
+        case 'price':
+          aValue = a.totalAmount
+          bValue = b.totalAmount
+          break
+        case 'delivery':
+          aValue = parseInt(a.deliveryTime) || 999
+          bValue = parseInt(b.deliveryTime) || 999
+          break
+        case 'rating':
+          aValue = a.rating
+          bValue = b.rating
+          break
+        default:
+          aValue = a.totalAmount
+          bValue = b.totalAmount
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue - bValue
+      } else {
+        return bValue - aValue
+      }
+    })
+  }
+
+  const receivedQuotes = sortQuotes(
+    quotes.filter((q) => q.status === 'received')
+  )
   const pendingQuotes = quotes.filter((q) => q.status === 'pending')
 
   if (isLoading) {
@@ -441,21 +726,20 @@ const ReceiveQuoteContent = () => {
         <Card className="p-6 mb-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
             <div className="flex items-center gap-4">
-              <div className="flex items-center justify-center w-12 h-12 bg-green-600 rounded-full">
-                <Mail className="w-6 h-6 text-white" />
+              <div className="flex items-center justify-center w-12 h-12 bg-blue-600 rounded-full">
+                <BarChart3 className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-gray-dark font-heading">
-                  Received Quotes
+                  Compare Quotes
                 </h2>
                 <p className="text-sm text-gray-medium font-body">
-                  Compare and select the best quote{' '}
-                  {requestId && `• Request ${requestId}`}
+                  Analyze and select the best quote from multiple vendors
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex items-center justify-center w-12 h-12 bg-blue-600 rounded-full">
+              <div className="flex items-center justify-center w-12 h-12 bg-green-600 rounded-full">
                 <CheckCircle className="w-6 h-6 text-white" />
               </div>
               <div className="text-left">
@@ -471,6 +755,78 @@ const ReceiveQuoteContent = () => {
           </div>
         </Card>
 
+        {/* Comparison Stats */}
+        {receivedQuotes.length > 1 && (
+          <ComparisonStats quotes={receivedQuotes} />
+        )}
+
+        {/* Controls Bar */}
+        {receivedQuotes.length > 0 && (
+          <Card className="p-4 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-gray-medium" />
+                <span className="text-sm font-medium text-gray-dark">
+                  Sort by:
+                </span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="text-sm border border-gray-300 rounded px-2 py-1 bg-white"
+                >
+                  <option value="price">Price</option>
+                  <option value="delivery">Delivery Time</option>
+                  <option value="rating">Rating</option>
+                </select>
+                <button
+                  onClick={() =>
+                    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                  }
+                  className="p-1 hover:bg-gray-100 rounded"
+                  title={`Sort ${
+                    sortOrder === 'asc' ? 'Descending' : 'Ascending'
+                  }`}
+                >
+                  <SortAsc
+                    className={`w-4 h-4 text-gray-medium ${
+                      sortOrder === 'desc' ? 'transform rotate-180' : ''
+                    }`}
+                  />
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-dark">
+                  View:
+                </span>
+                <div className="flex border border-gray-300 rounded overflow-hidden">
+                  <button
+                    onClick={() => setViewMode('cards')}
+                    className={`px-3 py-1 text-sm flex items-center gap-1 ${
+                      viewMode === 'cards'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-dark hover:bg-gray-50'
+                    }`}
+                  >
+                    <Grid className="w-3 h-3" />
+                    Cards
+                  </button>
+                  <button
+                    onClick={() => setViewMode('table')}
+                    className={`px-3 py-1 text-sm flex items-center gap-1 ${
+                      viewMode === 'table'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-dark hover:bg-gray-50'
+                    }`}
+                  >
+                    <List className="w-3 h-3" />
+                    Table
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+
         {/* Received Quotes */}
         {receivedQuotes.length > 0 && (
           <Card className="p-4 mb-6">
@@ -478,22 +834,40 @@ const ReceiveQuoteContent = () => {
               <h3 className="text-lg font-semibold text-gray-dark font-heading">
                 Available Quotes ({receivedQuotes.length})
               </h3>
-              <Badge variant="info" className="text-xs">
-                {receivedQuotes.length} received
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="info" className="text-xs">
+                  {receivedQuotes.length} received
+                </Badge>
+                {receivedQuotes.length > 1 && (
+                  <Badge variant="success" className="text-xs">
+                    <Eye className="w-3 h-3 mr-1" />
+                    Compare
+                  </Badge>
+                )}
+              </div>
             </div>
-            {/* Scrollable container for multiple quotes */}
-            <div className="max-h-96 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-              {receivedQuotes.map((quote) => (
-                <QuoteCard
-                  key={quote.vendorId}
-                  quote={quote}
-                  onAccept={handleAcceptQuote}
-                  onReject={handleRejectQuote}
-                  selectedQuote={selectedQuote}
-                />
-              ))}
-            </div>
+
+            {/* Table View */}
+            {viewMode === 'table' ? (
+              <ComparisonTable
+                quotes={receivedQuotes}
+                selectedQuote={selectedQuote}
+                onAccept={handleAcceptQuote}
+              />
+            ) : (
+              /* Cards View */
+              <div className="max-h-96 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                {receivedQuotes.map((quote) => (
+                  <QuoteCard
+                    key={quote.vendorId}
+                    quote={quote}
+                    onAccept={handleAcceptQuote}
+                    onReject={handleRejectQuote}
+                    selectedQuote={selectedQuote}
+                  />
+                ))}
+              </div>
+            )}
           </Card>
         )}
 

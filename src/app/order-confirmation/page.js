@@ -15,6 +15,9 @@ function OrderConfirmationContent() {
   const searchParams = useSearchParams()
   const [vendor, setVendor] = useState(null)
   const [animationPhase, setAnimationPhase] = useState(0) // 0: show "1", 1: morphing, 2: show tick
+  const [orderId] = useState(() =>
+    Math.random().toString(36).substr(2, 6).toUpperCase()
+  )
 
   // Animation cycle for step 1 completion indicator
   useEffect(() => {
@@ -194,10 +197,7 @@ function OrderConfirmationContent() {
               {/* Compact Details */}
               <div className="px-4 py-2">
                 <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span>
-                    Order #
-                    {Math.random().toString(36).substr(2, 6).toUpperCase()}
-                  </span>
+                  <span>Order #{orderId}</span>
                   <button
                     onClick={handleGoBack}
                     className="text-blue-600 hover:text-blue-700 font-medium"
