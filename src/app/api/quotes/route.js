@@ -9,13 +9,12 @@ export async function POST(request) {
     const transformedPayload = {
       request_id: payload.request_id, // Use the UUID from the payload
       vendor_id: payload.vendor_id, // Use the vendor_id from the payload
-      items:
-        payload.items?.map((item) => ({
-          item_id: item.item_id,
-          quoted_price: parseFloat(item.quoted_price) || 0,
-          delivery_days: item.delivery_days || null,
-          comments: item.comments || null,
-        })) || [],
+      items: payload.items?.map(item => ({
+        item_id: item.item_id,
+        quoted_price: parseFloat(item.quoted_price) || 0,
+        delivery_days: item.delivery_days || null,
+        comments: item.comments || null
+      })) || []
     }
 
     const targetUrl =

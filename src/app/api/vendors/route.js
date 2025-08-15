@@ -28,9 +28,7 @@ export async function GET(request) {
       query += ` WHERE ${whereConditions.join(' AND ')}`
     }
 
-    query += ` ORDER BY name ASC LIMIT $${queryParams.length + 1} OFFSET $${
-      queryParams.length + 2
-    }`
+    query += ` ORDER BY name ASC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`
     queryParams.push(limit, offset)
 
     const result = await pool.query(query, queryParams)
@@ -40,10 +38,7 @@ export async function GET(request) {
     return NextResponse.json(
       {
         error: 'Failed to fetch vendors',
-        message:
-          process.env.NODE_ENV === 'development'
-            ? error.message
-            : 'Internal server error',
+        message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
       },
       { status: 500 }
     )
@@ -53,14 +48,7 @@ export async function GET(request) {
 // POST /api/vendors - Create new vendor
 export async function POST(request) {
   try {
-    const {
-      name,
-      email,
-      phone,
-      category,
-      address,
-      status = 'active',
-    } = await request.json()
+    const { name, email, phone, category, address, status = 'active' } = await request.json()
 
     if (!name || !email) {
       return NextResponse.json(
@@ -80,10 +68,7 @@ export async function POST(request) {
     return NextResponse.json(
       {
         error: 'Failed to create vendor',
-        message:
-          process.env.NODE_ENV === 'development'
-            ? error.message
-            : 'Internal server error',
+        message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
       },
       { status: 500 }
     )

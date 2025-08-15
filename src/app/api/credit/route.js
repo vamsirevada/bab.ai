@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import process from 'next/dist/build/webpack/loaders/resolve-url-loader/lib/postcss'
+import process from "next/dist/build/webpack/loaders/resolve-url-loader/lib/postcss";
 
 function clamp(num, min, max) {
   return Math.max(min, Math.min(num, max))
@@ -26,7 +26,10 @@ export async function POST(request) {
 
     const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/
     if (!panRegex.test(String(pan).toUpperCase())) {
-      return NextResponse.json({ error: 'Invalid PAN format' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Invalid PAN format' },
+        { status: 400 }
+      )
     }
 
     const turnoverNum = Number(turnover)
@@ -64,8 +67,7 @@ export async function POST(request) {
     let basePct = 0.15
     if (turnoverNum >= 5000000) basePct += 0.03 // +3% for > 50L turnover
     if (yearsNum >= 3) basePct += 0.02 // +2% for stability
-    if (gstin && typeof gstin === 'string' && gstin.length >= 10)
-      basePct += 0.01 // +1% for GST profile
+    if (gstin && typeof gstin === 'string' && gstin.length >= 10) basePct += 0.01 // +1% for GST profile
 
     basePct = clamp(basePct, 0.12, 0.22)
 

@@ -1,18 +1,10 @@
-'use client'
+"use client"
 
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import {
-  ShieldCheck,
-  CheckCircle2,
-  ChevronRight,
-  ChevronDown,
-  Phone,
-  Truck,
-  ArrowRight,
-} from 'lucide-react'
+import { Info, ShieldCheck, CheckCircle2, ChevronRight, ChevronDown, Phone, Truck, Clock, Users, FileText, ArrowRight } from 'lucide-react'
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -27,7 +19,7 @@ export default function OnboardingPage() {
         dimensions: '12mm x 6m',
         quantity: 50,
         unit: 'pieces',
-        estimatedPrice: '₹25,000',
+        estimatedPrice: '₹25,000'
       },
       {
         id: 2,
@@ -36,7 +28,7 @@ export default function OnboardingPage() {
         dimensions: '50kg bags',
         quantity: 100,
         unit: 'bags',
-        estimatedPrice: '₹32,000',
+        estimatedPrice: '₹32,000'
       },
       {
         id: 3,
@@ -45,11 +37,11 @@ export default function OnboardingPage() {
         dimensions: '230x110x75mm',
         quantity: 5000,
         unit: 'pieces',
-        estimatedPrice: '₹40,000',
-      },
+        estimatedPrice: '₹40,000'
+      }
     ],
     []
-  ) // Credit mock
+  )  // Credit mock
   const credit = useMemo(
     () => ({
       total: 500000, // ₹
@@ -134,7 +126,7 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (isMobile && selectedVendor) {
       const interval = setInterval(() => {
-        setIsMobileHovered((prev) => !prev)
+        setIsMobileHovered(prev => !prev)
       }, 1000) // Toggle every 1 second (slower)
       return () => clearInterval(interval)
     }
@@ -173,8 +165,7 @@ export default function OnboardingPage() {
             Credit & Order Summary
           </h1>
           <p className="text-sm text-gray-medium">
-            Review your credit details, order items, and select a vendor to
-            proceed.
+            Review your credit details, order items, and select a vendor to proceed.
           </p>
         </div>
 
@@ -187,6 +178,8 @@ export default function OnboardingPage() {
             rechecking={rechecking}
           />
 
+
+
           {/* Vendors List Section */}
           <VendorsListSection
             vendors={vendors}
@@ -195,67 +188,48 @@ export default function OnboardingPage() {
             selectedVendor={selectedVendor}
           />
 
-          {/* Items List Section */}
+            {/* Items List Section */}
           <ItemsListSection items={orderItems} />
         </div>
 
         {/* Floating Proceed Button */}
         {selectedVendor && (
-          <div
-            className="fixed bottom-16 left-1/2 transform -translate-x-1/2 px-3 w-full max-w-xs"
-            style={{ zIndex: 99999, position: 'fixed' }}
-          >
+          <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 px-3 w-full max-w-xs" style={{ zIndex: 99999, position: 'fixed' }}>
             <button
               onClick={handleProceedToOrder}
               onTouchStart={() => isMobile && setIsMobileHovered(true)}
-              onTouchEnd={() =>
-                isMobile && setTimeout(() => setIsMobileHovered(false), 150)
-              }
+              onTouchEnd={() => isMobile && setTimeout(() => setIsMobileHovered(false), 150)}
               className={`bg-blue-50/95 backdrop-blur-sm text-gray-900 border border-blue-100/60 px-3 py-2 rounded-full shadow-sm transition-all duration-500 ease-out flex items-center gap-2 w-full relative group overflow-hidden ${
                 isMobile
-                  ? isMobileHovered
-                    ? 'bg-gray-900 text-white border-gray-900 shadow-lg'
-                    : ''
+                  ? (isMobileHovered ? 'bg-gray-900 text-white border-gray-900 shadow-lg' : '')
                   : 'hover:bg-gray-900 hover:text-white hover:border-gray-900 hover:shadow-lg'
               }`}
               style={{
                 zIndex: 100000,
-                height: '38px',
+                height: '38px'
               }}
             >
               {/* Background animation overlay */}
-              <div
-                className={`absolute inset-0 bg-gray-900 transition-transform duration-500 ease-out origin-left rounded-full ${
-                  isMobile
-                    ? isMobileHovered
-                      ? 'scale-x-100'
-                      : 'scale-x-0'
-                    : 'scale-x-0 group-hover:scale-x-100'
-                }`}
-              ></div>
+              <div className={`absolute inset-0 bg-gray-900 transition-transform duration-500 ease-out origin-left rounded-full ${
+                isMobile
+                  ? (isMobileHovered ? 'scale-x-100' : 'scale-x-0')
+                  : 'scale-x-0 group-hover:scale-x-100'
+              }`}></div>
 
               {/* Content wrapper */}
               <div className="relative z-10 flex items-center justify-center gap-1.5 w-full">
                 {/* Icon container - circle and arrow both change on hover */}
-                <div
-                  className={`w-5 h-5 bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
-                    isMobile
-                      ? isMobileHovered
-                        ? 'bg-white'
-                        : ''
-                      : 'group-hover:bg-white'
-                  }`}
-                >
+                <div className={`w-5 h-5 bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                  isMobile
+                    ? (isMobileHovered ? 'bg-white' : '')
+                    : 'group-hover:bg-white'
+                }`}>
                   {/* Arrow with color inversion on hover/touch */}
-                  <ArrowRight
-                    className={`w-3 h-3 transition-all duration-300 ${
-                      isMobile
-                        ? isMobileHovered
-                          ? 'text-gray-900'
-                          : 'text-white'
-                        : 'text-white group-hover:text-gray-900'
-                    }`}
-                  />
+                  <ArrowRight className={`w-3 h-3 transition-all duration-300 ${
+                    isMobile
+                      ? (isMobileHovered ? 'text-gray-900' : 'text-white')
+                      : 'text-white group-hover:text-gray-900'
+                  }`} />
                 </div>
 
                 {/* Text */}
@@ -289,9 +263,7 @@ function CreditInformationSection({ credit, usedPct, onIncrease, rechecking }) {
       {/* Compact Header with inline NBFC info */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-gray-dark">
-            Credit Information
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-dark">Credit Information</h2>
           <div className="flex items-center gap-2">
             <div className="h-6 w-12 rounded-md bg-white border border-gray-medium/30 overflow-hidden flex items-center justify-center">
               <Image
@@ -303,15 +275,11 @@ function CreditInformationSection({ credit, usedPct, onIncrease, rechecking }) {
                 priority
               />
             </div>
-            <span className="text-xs text-gray-medium">
-              {credit.partner.name}
-            </span>
+            <span className="text-xs text-gray-medium">{credit.partner.name}</span>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-lg font-semibold text-gray-dark">
-            ₹{(credit.available / 1000).toFixed(0)}k
-          </p>
+          <p className="text-lg font-semibold text-gray-dark">₹{(credit.available / 1000).toFixed(0)}k</p>
           <p className="text-xs text-gray-medium">Available</p>
         </div>
       </div>
@@ -327,10 +295,7 @@ function CreditInformationSection({ credit, usedPct, onIncrease, rechecking }) {
         </div>
         <div className="mt-2 flex items-center justify-between text-xs text-gray-medium">
           <span>Used {usedPct}%</span>
-          <span>
-            ₹{(credit.used / 1000).toFixed(0)}k / ₹
-            {(credit.total / 1000).toFixed(0)}k
-          </span>
+          <span>₹{(credit.used / 1000).toFixed(0)}k / ₹{(credit.total / 1000).toFixed(0)}k</span>
         </div>
       </div>
 
@@ -338,16 +303,10 @@ function CreditInformationSection({ credit, usedPct, onIncrease, rechecking }) {
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center gap-4">
           <span className="inline-flex items-center px-2 py-1 rounded-full bg-white border border-gray-medium/20 text-gray-medium">
-            Rate:{' '}
-            <span className="text-gray-dark font-medium ml-1">
-              {credit.rate}
-            </span>
+            Rate: <span className="text-gray-dark font-medium ml-1">{credit.rate}</span>
           </span>
           <span className="inline-flex items-center px-2 py-1 rounded-full bg-white border border-gray-medium/20 text-gray-medium">
-            Trust:{' '}
-            <span className="text-gray-dark font-medium ml-1">
-              {credit.trustScore}
-            </span>
+            Trust: <span className="text-gray-dark font-medium ml-1">{credit.trustScore}</span>
           </span>
         </div>
         <button
@@ -373,20 +332,11 @@ function ItemsListSection({ items }) {
       {/* Compact Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-dark">
-            Order Items ({items.length})
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-dark">Order Items ({items.length})</h2>
         </div>
         <div className="text-right">
           <p className="text-lg font-semibold text-gray-dark">
-            ₹
-            {items
-              .reduce(
-                (sum, item) =>
-                  sum + parseInt(item.estimatedPrice.replace(/[₹,]/g, '')),
-                0
-              )
-              .toLocaleString()}
+            ₹{items.reduce((sum, item) => sum + parseInt(item.estimatedPrice.replace(/[₹,]/g, '')), 0).toLocaleString()}
           </p>
           <p className="text-xs text-gray-medium">Total Estimate</p>
         </div>
@@ -395,6 +345,7 @@ function ItemsListSection({ items }) {
       {/* Items List - Show 2 initially */}
       <div className="space-y-2">
         {visibleItems.map((item) => (
+<<<<<<< HEAD
           <div
             key={item.id}
             className="flex items-center justify-between p-3 bg-white/60 border border-gray-medium/20 rounded-lg hover:bg-white/80 transition-colors"
@@ -405,17 +356,20 @@ function ItemsListSection({ items }) {
                   {item.material_name}
                 </h3>
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-biscuit/40 border border-gray-medium/20 text-xs text-gray-dark whitespace-nowrap">
+=======
+          <div key={item.id} className="flex items-center justify-between p-3 bg-gray-light/5 rounded-lg hover:bg-gray-light/10 transition-colors">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-medium text-gray-dark text-sm truncate">{item.material_name}</h3>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-xs text-gray-medium whitespace-nowrap">
+>>>>>>> parent of 6ad3b5b (formatted docs)
                   {item.quantity} {item.unit}
                 </span>
               </div>
-              <p className="text-xs text-gray-medium truncate">
-                {item.sub_type} • {item.dimensions}
-              </p>
+              <p className="text-xs text-gray-medium truncate">{item.sub_type} • {item.dimensions}</p>
             </div>
             <div className="text-right ml-3">
-              <p className="font-semibold text-gray-dark text-sm">
-                {item.estimatedPrice}
-              </p>
+              <p className="font-semibold text-gray-dark text-sm">{item.estimatedPrice}</p>
             </div>
           </div>
         ))}
@@ -429,9 +383,7 @@ function ItemsListSection({ items }) {
             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-biscuit/40 hover:bg-biscuit/60 border border-gray-medium/20 rounded-lg transition-colors text-gray-dark"
           >
             <span className="text-sm font-medium">
-              {showAllItems
-                ? `Hide ${items.length - 2} items`
-                : `View ${items.length - 2} more items`}
+              {showAllItems ? `Hide ${items.length - 2} items` : `View ${items.length - 2} more items`}
             </span>
             {showAllItems ? (
               <ChevronDown className="w-4 h-4 rotate-180 transition-transform duration-200" />
@@ -446,26 +398,17 @@ function ItemsListSection({ items }) {
 }
 
 // Vendors List Section - Optimized layout
-function VendorsListSection({
-  vendors,
-  onOpen,
-  onSelectVendor,
-  selectedVendor,
-}) {
+function VendorsListSection({ vendors, onOpen, onSelectVendor, selectedVendor }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 lg:p-6">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-gray-dark">
-          Select Vendor ({vendors.length})
-        </h2>
-        <p className="text-sm text-gray-medium">
-          Choose from verified vendors who accept credit purchases
-        </p>
+        <h2 className="text-lg font-semibold text-gray-dark">Select Vendor ({vendors.length})</h2>
+        <p className="text-sm text-gray-medium">Choose from verified vendors who accept credit purchases</p>
       </div>
 
       <div className="space-y-3">
         {vendors.map((vendor) => {
-          const isSelected = selectedVendor?.id === vendor.id
+          const isSelected = selectedVendor?.id === vendor.id;
           return (
             <div
               key={vendor.id}
@@ -479,9 +422,7 @@ function VendorsListSection({
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-medium text-gray-dark text-sm">
-                      {vendor.name}
-                    </h3>
+                    <h3 className="font-medium text-gray-dark text-sm">{vendor.name}</h3>
                     {vendor.verified && (
                       <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-xs">
                         <ShieldCheck className="w-3 h-3" /> Verified
@@ -509,8 +450,8 @@ function VendorsListSection({
                 {/* Details Button */}
                 <button
                   onClick={(e) => {
-                    e.stopPropagation()
-                    onOpen(vendor)
+                    e.stopPropagation();
+                    onOpen(vendor);
                   }}
                   className="ml-3 flex items-center gap-1 p-2 rounded-lg hover:bg-gray-light/40 transition-colors group/details"
                 >
@@ -523,7 +464,7 @@ function VendorsListSection({
                 </button>
               </div>
             </div>
-          )
+          );
         })}
       </div>
     </div>
@@ -534,16 +475,14 @@ function Portal({ children }) {
   const [mounted, setMounted] = useState(false)
   const elRef = useRef(null)
   if (!elRef.current) {
-    elRef.current =
-      typeof document !== 'undefined' ? document.createElement('div') : null
+    elRef.current = typeof document !== 'undefined' ? document.createElement('div') : null
   }
   useEffect(() => {
     if (!elRef.current || typeof document === 'undefined') return
     document.body.appendChild(elRef.current)
     setMounted(true)
     return () => {
-      if (elRef.current?.parentNode)
-        elRef.current.parentNode.removeChild(elRef.current)
+      if (elRef.current?.parentNode) elRef.current.parentNode.removeChild(elRef.current)
     }
   }, [])
   if (!mounted || !elRef.current) return null
@@ -603,22 +542,16 @@ function SlideOver({ vendor, onDismiss, openWhatsApp }) {
     <div className="fixed inset-0 z-[9999]">
       {/* Overlay */}
       <div
-        className={`absolute inset-0 bg-black/40 backdrop-blur-[2px] ${
-          noMotion ? 'transition-none' : 'transition-opacity duration-300'
-        } ${show ? 'opacity-100' : 'opacity-0'} z-[9999]`}
+        className={`absolute inset-0 bg-black/40 backdrop-blur-[2px] ${noMotion ? 'transition-none' : 'transition-opacity duration-300'} ${show ? 'opacity-100' : 'opacity-0'} z-[9999]`}
         onClick={handleClose}
       />
 
       {/* Panel */}
       <aside
         ref={panelRef}
-        className={`absolute right-0 top-0 h-full w-full sm:max-w-md bg-white border-l border-gray-medium/20 shadow-2xl ring-1 ring-gray-900/5 rounded-l-2xl will-change-transform transform-gpu ${
-          noMotion
-            ? 'transition-none'
-            : 'transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]'
-        } ${
+  className={`absolute right-0 top-0 h-full w-full sm:max-w-md bg-white border-l border-gray-medium/20 shadow-2xl ring-1 ring-gray-900/5 rounded-l-2xl will-change-transform transform-gpu ${noMotion ? 'transition-none' : 'transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]'} ${
           show ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-100'
-        } z-[10000] isolate`}
+  } z-[10000] isolate`}
         role="dialog"
         aria-modal="true"
         onTouchStart={(e) => {
@@ -630,10 +563,7 @@ function SlideOver({ vendor, onDismiss, openWhatsApp }) {
         }}
         onTouchMove={(e) => {
           if (!dragging.current || noMotion) return
-          touchDeltaX.current = Math.max(
-            0,
-            e.touches[0].clientX - touchStartX.current
-          )
+          touchDeltaX.current = Math.max(0, e.touches[0].clientX - touchStartX.current)
           const dx = touchDeltaX.current
           if (panelRef.current) {
             panelRef.current.style.transform = `translateX(${dx}px)`
@@ -645,8 +575,7 @@ function SlideOver({ vendor, onDismiss, openWhatsApp }) {
           const shouldClose = touchDeltaX.current > 80
           if (shouldClose) {
             // animate out
-            if (panelRef.current && !noMotion)
-              panelRef.current.style.transition = `transform ${animMs}ms cubic-bezier(0.16,1,0.3,1)`
+            if (panelRef.current && !noMotion) panelRef.current.style.transition = `transform ${animMs}ms cubic-bezier(0.16,1,0.3,1)`
             setShow(false)
             setTimeout(() => onDismiss?.(), animMs)
           } else {
@@ -662,9 +591,7 @@ function SlideOver({ vendor, onDismiss, openWhatsApp }) {
           {/* Header */}
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-lg font-semibold text-gray-dark">
-                {vendor.name}
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-dark">{vendor.name}</h3>
               <div className="mt-1 flex items-center gap-2 text-sm text-gray-medium">
                 {vendor.verified && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-xs">
@@ -691,18 +618,12 @@ function SlideOver({ vendor, onDismiss, openWhatsApp }) {
           {/* Content */}
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between rounded-lg border border-gray-medium/20 p-3">
-              <span className="text-gray-medium">
-                Price estimate for your PO
-              </span>
-              <span className="font-medium text-gray-dark">
-                {vendor.priceEstimate}
-              </span>
+              <span className="text-gray-medium">Price estimate for your PO</span>
+              <span className="font-medium text-gray-dark">{vendor.priceEstimate}</span>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-gray-medium/20 p-3">
               <span className="text-gray-medium">Delivery timeline</span>
-              <span className="font-medium text-gray-dark">
-                {vendor.delivery}
-              </span>
+              <span className="font-medium text-gray-dark">{vendor.delivery}</span>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <a
@@ -715,8 +636,7 @@ function SlideOver({ vendor, onDismiss, openWhatsApp }) {
                 onClick={() => openWhatsApp(vendor)}
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] text-white px-3 py-2 text-sm hover:opacity-90"
               >
-                <WhatsAppIcon className="w-4 h-4 text-white drop-shadow-sm" />{' '}
-                WhatsApp
+                <WhatsAppIcon className="w-4 h-4 text-white drop-shadow-sm" /> WhatsApp
               </button>
             </div>
           </div>
@@ -727,15 +647,11 @@ function SlideOver({ vendor, onDismiss, openWhatsApp }) {
             <div className="space-y-2">
               <div className="flex items-center justify-between p-2 bg-gray-light/10 rounded-lg">
                 <span className="text-gray-medium">Vendor Rating</span>
-                <span className="font-medium text-gray-dark">
-                  4.{Math.floor(Math.random() * 9 + 1)}/5
-                </span>
+                <span className="font-medium text-gray-dark">4.{Math.floor(Math.random() * 9 + 1)}/5</span>
               </div>
               <div className="flex items-center justify-between p-2 bg-gray-light/10 rounded-lg">
                 <span className="text-gray-medium">Payment Terms</span>
-                <span className="font-medium text-gray-dark">
-                  Credit Accepted
-                </span>
+                <span className="font-medium text-gray-dark">Credit Accepted</span>
               </div>
               <div className="flex items-center justify-between p-2 bg-gray-light/10 rounded-lg">
                 <span className="text-gray-medium">Minimum Order</span>
