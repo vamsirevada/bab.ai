@@ -9,6 +9,7 @@ import React, {
 } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Edit2, Trash2, Plus, Minus, X } from 'lucide-react'
+import { Button, Card, LoadingPage, InlineSpinner } from '@/components/ui'
 
 // CSS Animations for Modal
 const modalStyles = `
@@ -60,59 +61,11 @@ const WhatsAppIcon = ({ className = 'w-4 h-4' }) => (
   </svg>
 )
 
-// UI Components
-const Button = ({
-  children,
-  onClick,
-  disabled,
-  variant = 'default',
-  size = 'default',
-  className = '',
-  ...props
-}) => {
-  const baseClasses =
-    'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2'
-  const variants = {
-    default:
-      'bg-gray-dark text-white hover:bg-gray-medium focus:ring-gray-medium',
-    outline:
-      'border border-gray-medium/30 bg-white text-gray-dark hover:bg-gray-light/20 focus:ring-gray-medium',
-    ghost:
-      'bg-transparent text-gray-dark hover:bg-gray-light/20 focus:ring-gray-medium',
-  }
-  const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    default: 'px-4 py-2 text-sm',
-    lg: 'px-6 py-3 text-base',
-  }
-
-  return (
-    <button
-      className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${
-        disabled ? 'opacity-50 cursor-not-allowed' : ''
-      } ${className}`}
-      onClick={onClick}
-      disabled={disabled}
-      {...props}
-    >
-      {children}
-    </button>
-  )
-}
-
 const Input = ({ className = '', ...props }) => (
   <input
     className={`w-full px-3 py-2 bg-white border border-gray-medium/30 rounded-lg text-gray-dark placeholder-gray-medium focus:outline-none focus:ring-2 focus:ring-gray-medium focus:border-gray-medium transition-all duration-200 ${className}`}
     {...props}
   />
-)
-
-const Card = ({ children, className = '' }) => (
-  <div
-    className={`bg-white rounded-2xl border border-gray-medium/20 shadow-sm ${className}`}
-  >
-    {children}
-  </div>
 )
 
 // Editable Cell Component
@@ -673,14 +626,7 @@ const ReviewOrderContent = () => {
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-gray-medium border-t-gray-dark rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-medium font-body">Loading your order...</p>
-        </div>
-      </div>
-    )
+    return <InlineSpinner text="Loading your order..." />
   }
 
   return (
@@ -874,20 +820,10 @@ const ReviewOrderContent = () => {
   )
 }
 
-// Loading component
-const ReviewOrderLoading = () => (
-  <div className="min-h-screen relative flex items-center justify-center">
-    <div className="text-center">
-      <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-gray-medium">Loading order...</p>
-    </div>
-  </div>
-)
-
 // Main export with Suspense boundary
 const ReviewOrder = () => {
   return (
-    <Suspense fallback={<ReviewOrderLoading />}>
+    <Suspense fallback={<LoadingPage text="Loading order..." />}>
       <ReviewOrderContent />
     </Suspense>
   )

@@ -9,6 +9,7 @@ import {
   FileText,
   ShieldCheck,
 } from 'lucide-react'
+import { Card, LoadingPage } from '@/components/ui'
 
 function OrderConfirmationContent() {
   const router = useRouter()
@@ -120,9 +121,9 @@ function OrderConfirmationContent() {
       <div className="min-h-screen py-4 sm:py-6">
         <div className="max-w-xl mx-auto px-4">
           {/* Compact Content */}
-          <div className="rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
+          <Card className="p-3 sm:p-4">
             {/* Success Receipt Card - Compact */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 min-h-[33vh]">
+            <Card className="overflow-hidden mb-6 min-h-[33vh]">
               {/* Compact Header */}
               <div className="text-center py-3 px-4 bg-gray-25 border-b border-gray-100">
                 <div className="text-sm text-gray-600 font-medium">
@@ -206,7 +207,7 @@ function OrderConfirmationContent() {
                   </button>
                 </div>
               </div>
-            </div>
+            </Card>
 
             {/* Enhanced Next Steps Section */}
             <div className="mb-6">
@@ -365,7 +366,7 @@ function OrderConfirmationContent() {
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
 
           {/* Compact Footer */}
           <div className="mt-4 text-center">
@@ -385,20 +386,9 @@ function OrderConfirmationContent() {
   )
 }
 
-function LoadingFallback() {
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-3"></div>
-        <p className="text-gray-600 text-sm">Loading order confirmation...</p>
-      </div>
-    </div>
-  )
-}
-
 export default function OrderConfirmationPage() {
   return (
-    <Suspense fallback={<LoadingFallback />}>
+    <Suspense fallback={<LoadingPage text="Loading order confirmation..." />}>
       <OrderConfirmationContent />
     </Suspense>
   )

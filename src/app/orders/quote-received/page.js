@@ -20,6 +20,15 @@ import {
   ChevronRight,
 } from 'lucide-react'
 
+// Import shared UI components
+import {
+  Button,
+  Card,
+  Badge,
+  LoadingPage,
+  InlineSpinner,
+} from '@/components/ui'
+
 // Mock data fallback
 const mockQuotes = [
   {
@@ -110,70 +119,6 @@ const mockQuotes = [
     items: [],
   },
 ]
-
-// Button Component
-const Button = ({
-  children,
-  variant = 'default',
-  className = '',
-  onClick,
-  disabled = false,
-}) => {
-  const baseClasses =
-    'inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2'
-
-  const variants = {
-    default:
-      'bg-gray-dark text-white hover:bg-gray-medium focus:ring-gray-dark',
-    outline:
-      'border border-gray-medium/30 text-gray-dark hover:bg-gray-light/20 focus:ring-gray-dark',
-    success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-600',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-600',
-  }
-
-  return (
-    <button
-      className={`${baseClasses} ${variants[variant]} ${className} ${
-        disabled ? 'opacity-50 cursor-not-allowed' : ''
-      }`}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {children}
-    </button>
-  )
-}
-
-// Card Component
-const Card = ({ children, className = '', onClick }) => {
-  return (
-    <div
-      className={`bg-white rounded-xl border border-gray-medium/20 shadow-sm ${className}`}
-      onClick={onClick}
-    >
-      {children}
-    </div>
-  )
-}
-
-// Badge Component
-const Badge = ({ children, variant = 'default', className = '' }) => {
-  const variants = {
-    default: 'bg-gray-100 text-gray-700',
-    success: 'bg-green-100 text-green-700',
-    warning: 'bg-yellow-100 text-yellow-700',
-    info: 'bg-blue-100 text-blue-700',
-    pending: 'bg-orange-100 text-orange-700',
-  }
-
-  return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variants[variant]} ${className}`}
-    >
-      {children}
-    </span>
-  )
-}
 
 // Quote Card Component
 const QuoteCard = ({
@@ -609,7 +554,7 @@ const ComparisonStats = ({ quotes }) => {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <Card className="p-4">
+      <Card>
         <div className="flex items-center gap-2 mb-2">
           <TrendingDown className="w-4 h-4 text-green-600" />
           <span className="text-xs font-medium text-gray-medium">
@@ -621,7 +566,7 @@ const ComparisonStats = ({ quotes }) => {
         </div>
       </Card>
 
-      <Card className="p-4">
+      <Card>
         <div className="flex items-center gap-2 mb-2">
           <BarChart3 className="w-4 h-4 text-blue-600" />
           <span className="text-xs font-medium text-gray-medium">Average</span>
@@ -631,7 +576,7 @@ const ComparisonStats = ({ quotes }) => {
         </div>
       </Card>
 
-      <Card className="p-4">
+      <Card>
         <div className="flex items-center gap-2 mb-2">
           <TrendingUp className="w-4 h-4 text-orange-600" />
           <span className="text-xs font-medium text-gray-medium">
@@ -643,7 +588,7 @@ const ComparisonStats = ({ quotes }) => {
         </div>
       </Card>
 
-      <Card className="p-4">
+      <Card>
         <div className="flex items-center gap-2 mb-2">
           <Clock className="w-4 h-4 text-purple-600" />
           <span className="text-xs font-medium text-gray-medium">
@@ -933,14 +878,7 @@ const ReceiveQuoteContent = () => {
   const pendingQuotes = quotes.filter((q) => q.status === 'pending')
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen relative flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-medium">Loading quotes...</p>
-        </div>
-      </div>
-    )
+    return <LoadingPage>Loading quotes...</LoadingPage>
   }
 
   return (
@@ -1232,14 +1170,7 @@ const ReceiveQuoteContent = () => {
 }
 
 // Loading component
-const ReceiveQuoteLoading = () => (
-  <div className="min-h-screen relative flex items-center justify-center">
-    <div className="text-center">
-      <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-gray-medium">Loading quotes...</p>
-    </div>
-  </div>
-)
+const ReceiveQuoteLoading = () => <LoadingPage>Loading quotes...</LoadingPage>
 
 // Main export with Suspense boundary
 const ReceiveQuote = () => {

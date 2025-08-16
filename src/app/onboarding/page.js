@@ -13,6 +13,7 @@ import {
   Truck,
   ArrowRight,
 } from 'lucide-react'
+import { Button, Card, Badge } from '@/components/ui'
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -285,7 +286,7 @@ export default function OnboardingPage() {
 // Credit Information Section - Optimized for space saving
 function CreditInformationSection({ credit, usedPct, onIncrease, rechecking }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 lg:p-6">
+    <Card className="p-4 lg:p-6">
       {/* Compact Header with inline NBFC info */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -358,7 +359,7 @@ function CreditInformationSection({ credit, usedPct, onIncrease, rechecking }) {
           {!rechecking && <ChevronRight className="w-3 h-3" />}
         </button>
       </div>
-    </div>
+    </Card>
   )
 }
 
@@ -369,7 +370,7 @@ function ItemsListSection({ items }) {
   const hasMoreItems = items.length > 2
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 lg:p-6">
+    <Card className="p-4 lg:p-6">
       {/* Compact Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -404,9 +405,9 @@ function ItemsListSection({ items }) {
                 <h3 className="font-medium text-gray-dark text-sm truncate">
                   {item.material_name}
                 </h3>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-xs text-gray-medium whitespace-nowrap">
+                <Badge variant="default" className="whitespace-nowrap">
                   {item.quantity} {item.unit}
-                </span>
+                </Badge>
               </div>
               <p className="text-xs text-gray-medium truncate">
                 {item.sub_type} • {item.dimensions}
@@ -441,7 +442,7 @@ function ItemsListSection({ items }) {
           </button>
         </div>
       )}
-    </div>
+    </Card>
   )
 }
 
@@ -453,7 +454,7 @@ function VendorsListSection({
   selectedVendor,
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-medium/20 shadow-sm p-4 lg:p-6">
+    <Card className="p-4 lg:p-6">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-gray-dark">
           Select Vendor ({vendors.length})
@@ -483,26 +484,26 @@ function VendorsListSection({
                       {vendor.name}
                     </h3>
                     {vendor.verified && (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gray-light/40 border border-gray-medium/20 text-gray-dark text-xs">
+                      <Badge variant="default" className="text-xs">
                         <ShieldCheck className="w-3 h-3" /> Verified
-                      </span>
+                      </Badge>
                     )}
                     {isSelected && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-dark text-white text-xs font-medium">
+                      <Badge variant="success" className="text-xs font-medium">
                         <CheckCircle2 className="w-3 h-3" />
                         Selected
-                      </span>
+                      </Badge>
                     )}
                   </div>
 
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-xs">
+                    <Badge variant="default" className="text-xs">
                       {vendor.onTime}% on-time
-                    </span>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-gray-medium/20 text-gray-dark text-xs font-medium">
+                    </Badge>
+                    <Badge variant="default" className="text-xs font-medium">
                       <Truck className="w-3 h-3" />
                       {vendor.delivery}
-                    </span>
+                    </Badge>
                   </div>
                 </div>
 
@@ -526,7 +527,7 @@ function VendorsListSection({
           )
         })}
       </div>
-    </div>
+    </Card>
   )
 }
 

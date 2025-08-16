@@ -12,57 +12,13 @@ import {
   Phone,
   MapPin,
 } from 'lucide-react'
-
-// Components (assuming they exist in a shared location)
-const Card = ({ children, className = '' }) => (
-  <div
-    className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}
-  >
-    {children}
-  </div>
-)
-
-const Button = ({
-  children,
-  variant = 'default',
-  className = '',
-  onClick,
-  disabled = false,
-}) => {
-  const baseClasses =
-    'px-4 py-2 rounded-md font-medium text-sm transition-colors duration-200 flex items-center justify-center gap-2'
-  const variants = {
-    default: 'bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-400',
-    success: 'bg-green-600 hover:bg-green-700 text-white disabled:bg-gray-400',
-    outline:
-      'border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 disabled:bg-gray-100',
-  }
-
-  return (
-    <button
-      className={`${baseClasses} ${variants[variant]} ${className}`}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {children}
-    </button>
-  )
-}
-
-const Badge = ({ children, variant = 'default', className = '' }) => {
-  const variants = {
-    success: 'bg-green-100 text-green-800',
-    info: 'bg-blue-100 text-blue-800',
-  }
-
-  return (
-    <span
-      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${variants[variant]} ${className}`}
-    >
-      {children}
-    </span>
-  )
-}
+import {
+  Button,
+  Card,
+  Badge,
+  LoadingPage,
+  InlineSpinner,
+} from '@/components/ui'
 
 const QuoteAcceptedContent = () => {
   const router = useRouter()
@@ -91,14 +47,7 @@ const QuoteAcceptedContent = () => {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen relative flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-medium">Processing...</p>
-        </div>
-      </div>
-    )
+    return <InlineSpinner text="Processing..." />
   }
 
   if (!selectedQuote) {
@@ -294,20 +243,12 @@ const QuoteAcceptedContent = () => {
   )
 }
 
-// Loading component
-const QuoteAcceptedLoading = () => (
-  <div className="min-h-screen relative flex items-center justify-center">
-    <div className="text-center">
-      <div className="w-8 h-8 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-gray-medium">Processing your quote acceptance...</p>
-    </div>
-  </div>
-)
-
 // Main export with Suspense boundary
 const QuoteAccepted = () => {
   return (
-    <Suspense fallback={<QuoteAcceptedLoading />}>
+    <Suspense
+      fallback={<LoadingPage text="Processing your quote acceptance..." />}
+    >
       <QuoteAcceptedContent />
     </Suspense>
   )

@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react'
 import { CreditCard, Wallet, Activity, Package } from 'lucide-react'
+import { Button, Card, Badge } from '@/components/ui'
 
 export default function DashboardPage() {
   // Placeholder demo data; in a real app fetch from your APIs/db
@@ -93,7 +94,7 @@ export default function DashboardPage() {
 
           {/* Top KPI cards */}
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <Card className="p-5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center">
                   <CreditCard size={20} />
@@ -107,8 +108,8 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-            </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            </Card>
+            <Card className="p-5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center">
                   <Wallet size={20} />
@@ -133,8 +134,8 @@ export default function DashboardPage() {
                   Utilization: {utilizationPct}%
                 </p>
               </div>
-            </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            </Card>
+            <Card className="p-5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-orange-500 text-white flex items-center justify-center">
                   <Activity size={20} />
@@ -151,8 +152,8 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-            </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            </Card>
+            <Card className="p-5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-purple-600 text-white flex items-center justify-center">
                   <Package size={20} />
@@ -170,13 +171,13 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-            </div>
+            </Card>
           </div>
 
           {/* Transactions and Orders */}
           <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Transactions */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <Card className="p-5">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-brand-dark">
                   Recent Transactions
@@ -202,25 +203,23 @@ export default function DashboardPage() {
                         <td className="py-2 pr-4">{formatINR(t.amount)}</td>
                         <td className="py-2 pr-4">{t.date}</td>
                         <td className="py-2 pr-4">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${
-                              t.status === 'Settled'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
-                            }`}
+                          <Badge
+                            variant={
+                              t.status === 'Settled' ? 'success' : 'warning'
+                            }
                           >
                             {t.status}
-                          </span>
+                          </Badge>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </div>
+            </Card>
 
             {/* Orders */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <Card className="p-5">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-brand-dark">
                   Past Orders
@@ -246,38 +245,32 @@ export default function DashboardPage() {
                         <td className="py-2 pr-4">{formatINR(o.amount)}</td>
                         <td className="py-2 pr-4">{o.date}</td>
                         <td className="py-2 pr-4">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${
+                          <Badge
+                            variant={
                               ['Delivered', 'Completed'].includes(o.status)
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : 'bg-blue-50 text-blue-700 border border-blue-200'
-                            }`}
+                                ? 'success'
+                                : 'info'
+                            }
                           >
                             {o.status}
-                          </span>
+                          </Badge>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </div>
+            </Card>
           </div>
 
           {/* Actions */}
           <div className="mt-10 flex flex-wrap gap-3">
-            <a
-              href="/orders/review-order"
-              className="inline-flex items-center justify-center rounded-lg bg-brand-dark text-white px-5 py-2.5 font-medium hover:opacity-90 transition"
-            >
-              Place New Order
-            </a>
-            <a
-              href="/onboarding/credit"
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white text-brand-dark px-5 py-2.5 font-medium hover:bg-gray-50 transition"
-            >
-              Re-check Credit Eligibility
-            </a>
+            <Button asChild>
+              <a href="/orders/review-order">Place New Order</a>
+            </Button>
+            <Button variant="outline" asChild>
+              <a href="/onboarding/credit">Re-check Credit Eligibility</a>
+            </Button>
           </div>
         </div>
       </section>

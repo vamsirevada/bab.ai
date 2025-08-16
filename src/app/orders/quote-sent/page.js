@@ -4,32 +4,8 @@ import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CheckCircle2, Clock, ArrowLeft, Send } from 'lucide-react'
 
-const Card = ({ children, className = '' }) => (
-  <div
-    className={`bg-white rounded-xl border border-gray-medium/20 shadow-sm ${className}`}
-  >
-    {children}
-  </div>
-)
-
-const Button = ({ children, onClick, variant = 'default', className = '' }) => {
-  const base =
-    'inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2'
-  const variants = {
-    default:
-      'bg-gray-dark text-white hover:bg-gray-medium focus:ring-gray-dark',
-    outline:
-      'border border-gray-medium/30 text-gray-dark hover:bg-gray-light/20 focus:ring-gray-dark',
-  }
-  return (
-    <button
-      className={`${base} ${variants[variant]} ${className}`}
-      onClick={onClick}
-    >
-      {children}
-    </button>
-  )
-}
+// Import shared UI components
+import { Button, Card, LoadingPage } from '@/components/ui'
 
 function QuoteSentContent() {
   const router = useRouter()

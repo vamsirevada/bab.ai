@@ -4,59 +4,14 @@ import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Send, Clock, Calculator, ArrowLeft } from 'lucide-react'
 
-// Generic Button
-const Button = ({
-  children,
-  variant = 'default',
-  className = '',
-  onClick,
-  disabled = false,
-}) => {
-  const base =
-    'inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2'
-  const variants = {
-    default:
-      'bg-gray-dark text-white hover:bg-gray-medium focus:ring-gray-dark',
-    outline:
-      'border border-gray-medium/30 text-gray-dark hover:bg-gray-light/20 focus:ring-gray-dark',
-    whatsapp: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-600',
-  }
-  return (
-    <button
-      className={`${base} ${variants[variant]} ${className} ${
-        disabled ? 'opacity-50 cursor-not-allowed' : ''
-      }`}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {children}
-    </button>
-  )
-}
-
-const Card = ({ children, className = '' }) => (
-  <div
-    className={`bg-white rounded-xl border border-gray-medium/20 shadow-sm ${className}`}
-  >
-    {children}
-  </div>
-)
-
-const Badge = ({ children, variant = 'default', className = '' }) => {
-  const variants = {
-    default: 'bg-gray-100 text-gray-700',
-    success: 'bg-green-100 text-green-700',
-    warning: 'bg-yellow-100 text-yellow-700',
-    info: 'bg-blue-100 text-blue-700',
-  }
-  return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variants[variant]} ${className}`}
-    >
-      {children}
-    </span>
-  )
-}
+// Import shared UI components
+import {
+  Button,
+  Card,
+  Badge,
+  LoadingPage,
+  InlineSpinner,
+} from '@/components/ui'
 
 // Quote Item (desktop grid; mobile inline unit + total)
 const QuoteItem = ({ item, onPriceChange }) => {
@@ -394,14 +349,7 @@ const SendQuoteContent = () => {
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="min-h-screen relative flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-gray-medium border-t-gray-dark rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-medium font-body">Loading order data...</p>
-        </div>
-      </div>
-    )
+    return <LoadingPage>Loading order data...</LoadingPage>
   }
 
   return (
@@ -568,7 +516,7 @@ const SendQuoteContent = () => {
             >
               {isSubmitting ? (
                 <>
-                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                  <InlineSpinner className="mr-2" />
                   Submitting...
                 </>
               ) : (
@@ -588,20 +536,10 @@ const SendQuoteContent = () => {
   )
 }
 
-// Loading component
-const SendQuoteLoading = () => (
-  <div className="min-h-screen relative flex items-center justify-center">
-    <div className="text-center">
-      <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-gray-medium">Loading quote form...</p>
-    </div>
-  </div>
-)
-
 // Main export with Suspense boundary
 const SendQuote = () => {
   return (
-    <Suspense fallback={<SendQuoteLoading />}>
+    <Suspense fallback={<LoadingPage text="Loading quote form..." />}>
       <SendQuoteContent />
     </Suspense>
   )

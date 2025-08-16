@@ -10,49 +10,7 @@ import {
   MapPin,
   ChevronDown,
 } from 'lucide-react'
-
-// Button Component
-const Button = ({
-  children,
-  variant = 'default',
-  className = '',
-  onClick,
-  disabled = false,
-}) => {
-  const baseClasses =
-    'inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2'
-
-  const variants = {
-    default:
-      'bg-gray-dark text-white hover:bg-gray-medium focus:ring-gray-dark',
-    outline:
-      'border border-gray-medium/30 text-gray-dark hover:bg-gray-light/20 focus:ring-gray-dark',
-    ghost: 'text-gray-dark hover:bg-gray-light/20 focus:ring-gray-dark',
-  }
-
-  return (
-    <button
-      className={`${baseClasses} ${variants[variant]} ${className} ${
-        disabled ? 'opacity-50 cursor-not-allowed' : ''
-      }`}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {children}
-    </button>
-  )
-}
-
-// Card Component
-const Card = ({ children, className = '' }) => {
-  return (
-    <div
-      className={`bg-white rounded-xl border border-gray-medium/20 shadow-sm ${className}`}
-    >
-      {children}
-    </div>
-  )
-}
+import { Button, Card, LoadingPage } from '@/components/ui'
 
 // Main component content
 const SelectVendorsContent = () => {
@@ -565,20 +523,10 @@ const SelectVendorsContent = () => {
   )
 }
 
-// Loading component
-const SelectVendorsLoading = () => (
-  <div className="min-h-screen bg-white flex items-center justify-center">
-    <div className="text-center">
-      <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-gray-medium">Loading vendors...</p>
-    </div>
-  </div>
-)
-
 // Main export with Suspense boundary
 const SelectVendors = () => {
   return (
-    <Suspense fallback={<SelectVendorsLoading />}>
+    <Suspense fallback={<LoadingPage text="Loading vendors..." />}>
       <SelectVendorsContent />
     </Suspense>
   )
