@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Mail,
   CheckCircle,
-  XCircle,
   Clock,
   Star,
   ArrowRight,
@@ -20,13 +19,6 @@ import {
   List,
   ChevronRight,
 } from 'lucide-react'
-
-// WhatsApp Icon Component
-const WhatsAppIcon = ({ className = 'w-4 h-4' }) => (
-  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.484 3.488" />
-  </svg>
-)
 
 // Mock data fallback
 const mockQuotes = [
@@ -77,7 +69,44 @@ const mockQuotes = [
     vendor_name: 'Metro Construction Supply',
     vendor_location: 'Delhi, NCR',
     vendor_specialization: 'Building Materials',
+    status: 'received',
+    items: [
+      {
+        item_id: 'item_001',
+        quoted_price: 90000,
+        delivery_days: 12,
+        comments: 'High strength concrete mix',
+      },
+      {
+        item_id: 'item_002',
+        quoted_price: 13000,
+        delivery_days: 6,
+        comments: 'Standard cement bags',
+      },
+    ],
+  },
+  {
+    vendor_id: 'vendor_004',
+    vendor_name: 'ABC Supplies',
+    vendor_location: 'Bangalore, Karnataka',
+    vendor_specialization: 'Construction Materials',
     status: 'pending',
+    items: [],
+  },
+  {
+    vendor_id: 'vendor_005',
+    vendor_name: 'XYZ Constructions',
+    vendor_location: 'Hyderabad, Telangana',
+    vendor_specialization: 'Civil Engineering',
+    status: 'pending',
+    items: [],
+  },
+  {
+    vendor_id: 'vendor_006',
+    vendor_name: 'PQR Builders',
+    vendor_location: 'Chennai, Tamil Nadu',
+    vendor_specialization: 'Construction Services',
+    status: 'received',
     items: [],
   },
 ]
@@ -147,7 +176,13 @@ const Badge = ({ children, variant = 'default', className = '' }) => {
 }
 
 // Quote Card Component
-const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
+const QuoteCard = ({
+  quote,
+  onAccept,
+  onReject,
+  onRequestAgain,
+  selectedQuote,
+}) => {
   const isSelected = selectedQuote?.vendorId === quote.vendorId
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -203,8 +238,22 @@ const QuoteCard = ({ quote, onAccept, onReject, selectedQuote }) => {
           </div>
           {/* Show expand indicator for collapsed state */}
           {!isExpanded && quote.status !== 'received' && (
-            <div className="text-xs text-gray-500 mt-1 font-medium">
-              Awaiting quote
+            <div className="flex items-center gap-2 mt-1">
+              <div className="text-xs text-gray-500 font-medium">
+                Awaiting quote
+              </div>
+              {quote.status === 'pending' && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onRequestAgain && onRequestAgain(quote)
+                  }}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded border border-blue-200 hover:border-blue-300 transition-all duration-200"
+                >
+                  <Mail className="w-3 h-3" />
+                  Request Again
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -348,131 +397,201 @@ const ComparisonTable = ({ quotes, selectedQuote, onAccept }) => {
     return prices.length > 0 ? Math.min(...prices) : null
   }
 
-  // Helper function to truncate material name
-  const truncateMaterialName = (name, maxLength = 24) => {
-    // On mobile, use shorter truncation
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
-    const actualMaxLength = isMobile ? Math.min(maxLength, 16) : maxLength
-    return name.length > actualMaxLength
-      ? `${name.substring(0, actualMaxLength)}...`
-      : name
+  // Helper function to check if a price is uniquely the lowest (not shared with others)
+  const isUniquelyLowest = (materialName, price) => {
+    if (price === null) return false
+    const lowestPrice = getLowestPriceForMaterial(materialName)
+    if (price !== lowestPrice) return false
+
+    // Count how many vendors have this lowest price
+    const vendorsWithLowestPrice = quotes
+      .map((quote) => getMaterialPrice(quote, materialName))
+      .filter((vendorPrice) => vendorPrice === lowestPrice)
+
+    // Only return true if this is the unique lowest price (only one vendor has it)
+    return vendorsWithLowestPrice.length === 1
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-        <thead className="sticky top-0 bg-white z-10">
-          <tr className="border-b border-gray-200">
-            <th className="text-left py-3 px-2 sm:py-4 sm:px-4 font-semibold text-gray-dark sticky left-0 bg-white border-r border-gray-200 min-w-24 sm:min-w-32">
-              <span className="text-xs sm:text-sm">Material</span>
-            </th>
-            {quotes.map((quote) => {
-              const isSelected = selectedQuote?.vendorId === quote.vendorId
-              return (
+    <div className="border border-gray-200 rounded-lg bg-white">
+      <div className="relative">
+        <div className="overflow-x-auto">
+          <table
+            className="w-full"
+            style={{ minWidth: `${160 + quotes.length * 180}px` }}
+          >
+            <thead>
+              <tr>
                 <th
-                  key={quote.vendorId}
-                  className="text-center py-3 px-2 sm:py-4 sm:px-3 font-semibold text-gray-dark min-w-32 sm:min-w-44"
+                  className="sticky left-0 z-10 bg-white border-r-2 border-r-gray-300 border-b border-b-gray-200 py-3 px-3 text-left font-semibold text-gray-dark"
+                  style={{
+                    width: '160px',
+                    minWidth: '160px',
+                    maxWidth: '160px',
+                    boxShadow: '2px 0 5px -1px rgba(0, 0, 0, 0.1)',
+                  }}
                 >
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      <span
-                        className="font-medium text-xs sm:text-sm truncate max-w-20 sm:max-w-36"
-                        title={quote.vendorName}
-                      >
-                        {quote.vendorName}
-                      </span>
-                      {isSelected && (
-                        <Badge
-                          variant="success"
-                          className="text-xs px-1 py-0.5 sm:px-2 sm:py-1"
-                        >
-                          <span className="hidden sm:inline">Selected</span>
-                          <span className="sm:hidden">✓</span>
-                        </Badge>
-                      )}
-                    </div>
-                    {quote.specialization && (
-                      <div
-                        className="text-xs text-gray-medium font-normal truncate max-w-20 sm:max-w-40 hidden sm:block"
-                        title={quote.specialization}
-                      >
-                        {quote.specialization}
-                      </div>
-                    )}
-                  </div>
+                  <span className="text-sm whitespace-nowrap">Material</span>
                 </th>
-              )
-            })}
-          </tr>
-        </thead>
-        <tbody>
-          {allMaterials.map((material, materialIndex) => {
-            const lowestPrice = getLowestPriceForMaterial(material)
+                {quotes.map((quote) => {
+                  const isSelected = selectedQuote?.vendorId === quote.vendorId
+                  return (
+                    <th
+                      key={quote.vendorId}
+                      className="text-center py-3 px-3 font-semibold text-gray-dark bg-white border-b border-gray-200"
+                      style={{
+                        width: '180px',
+                        minWidth: '180px',
+                        maxWidth: '180px',
+                      }}
+                    >
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="font-medium text-sm whitespace-nowrap"
+                            title={quote.vendorName}
+                          >
+                            {quote.vendorName}
+                          </span>
+                        </div>
+                      </div>
+                    </th>
+                  )
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {allMaterials.map((material, materialIndex) => {
+                const lowestPrice = getLowestPriceForMaterial(material)
+                return (
+                  <tr key={`material-${materialIndex}`}>
+                    <td
+                      className="sticky left-0 z-10 bg-white border-r-2 border-r-gray-300 border-b border-b-gray-100 py-3 px-3"
+                      style={{
+                        width: '160px',
+                        minWidth: '160px',
+                        maxWidth: '160px',
+                        boxShadow: '2px 0 5px -1px rgba(0, 0, 0, 0.1)',
+                      }}
+                    >
+                      <div
+                        className="font-medium text-gray-dark text-sm cursor-help whitespace-nowrap overflow-hidden text-ellipsis"
+                        title={material}
+                      >
+                        {material}
+                      </div>
+                    </td>
+                    {quotes.map((quote) => {
+                      const price = getMaterialPrice(quote, material)
+                      const showIcon = isUniquelyLowest(material, price)
 
-            return (
-              <tr
-                key={materialIndex}
-                className="border-b border-gray-100 hover:bg-gray-50"
-              >
-                <td className="py-2 px-2 sm:py-3 sm:px-4 sticky left-0 bg-white border-r border-gray-100">
-                  <div
-                    className="font-medium text-gray-dark text-xs sm:text-sm cursor-help"
-                    title={material}
+                      return (
+                        <td
+                          key={`${quote.vendorId}-${materialIndex}`}
+                          className="py-3 px-3 text-center bg-white border-b border-gray-100"
+                          style={{
+                            width: '180px',
+                            minWidth: '180px',
+                            maxWidth: '180px',
+                          }}
+                        >
+                          {price !== null ? (
+                            <div className="flex items-center justify-center gap-1">
+                              <span
+                                className={`font-medium text-sm whitespace-nowrap ${
+                                  showIcon ? 'text-green-600' : 'text-gray-dark'
+                                }`}
+                              >
+                                ₹{price.toLocaleString()}
+                              </span>
+                              {showIcon && (
+                                <TrendingDown className="w-3 h-3 text-green-600" />
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-gray-400 text-sm">—</span>
+                          )}
+                        </td>
+                      )
+                    })}
+                  </tr>
+                )
+              })}
+              <tr>
+                <td
+                  className="sticky left-0 z-10 bg-gray-50 border-r-2 border-r-gray-300 border-t-2 border-t-gray-300 py-4 px-3 text-gray-dark font-semibold"
+                  style={{
+                    width: '160px',
+                    minWidth: '160px',
+                    maxWidth: '160px',
+                    boxShadow: '2px 0 5px -1px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  <span className="text-sm font-semibold whitespace-nowrap">
+                    Total
+                  </span>
+                </td>
+                {quotes.map((quote) => (
+                  <td
+                    key={`total-${quote.vendorId}`}
+                    className="py-4 px-3 text-center text-gray-dark bg-gray-50 border-t-2 border-gray-300 font-semibold"
+                    style={{
+                      width: '180px',
+                      minWidth: '180px',
+                      maxWidth: '180px',
+                    }}
                   >
-                    {truncateMaterialName(material, 16)}
-                  </div>
+                    <span className="text-sm font-semibold whitespace-nowrap">
+                      ₹{quote.totalAmount.toLocaleString()}
+                    </span>
+                  </td>
+                ))}
+              </tr>
+              {/* Select Buttons Row */}
+              <tr>
+                <td
+                  className="sticky left-0 z-10 bg-white border-r-2 border-r-gray-300 border-t border-t-gray-200 py-3 px-3"
+                  style={{
+                    width: '160px',
+                    minWidth: '160px',
+                    maxWidth: '160px',
+                    boxShadow: '2px 0 5px -1px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  <span className="text-sm font-medium text-gray-dark whitespace-nowrap">
+                    Select Vendor
+                  </span>
                 </td>
                 {quotes.map((quote) => {
-                  const price = getMaterialPrice(quote, material)
-                  const isLowest = price === lowestPrice && price !== null
-
+                  const isSelected = selectedQuote?.vendorId === quote.vendorId
                   return (
                     <td
-                      key={quote.vendorId}
-                      className="py-2 px-1 sm:py-3 sm:px-3 text-center"
+                      key={`select-${quote.vendorId}`}
+                      className="py-3 px-3 text-center bg-white border-t border-gray-200"
+                      style={{
+                        width: '180px',
+                        minWidth: '180px',
+                        maxWidth: '180px',
+                      }}
                     >
-                      {price !== null ? (
-                        <div className="flex items-center justify-center gap-0.5 sm:gap-1">
-                          <span
-                            className={`font-medium text-xs sm:text-sm ${
-                              isLowest ? 'text-green-600' : 'text-gray-dark'
-                            }`}
-                          >
-                            ₹{price.toLocaleString()}
-                          </span>
-                          {isLowest && (
-                            <TrendingDown className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-600" />
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400 text-xs sm:text-sm">
-                          —
-                        </span>
-                      )}
+                      <button
+                        onClick={() => onAccept(isSelected ? null : quote)}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 whitespace-nowrap ${
+                          isSelected
+                            ? 'bg-green-600 text-white hover:bg-green-700'
+                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                        }`}
+                      >
+                        {isSelected ? 'Selected' : 'Select'}
+                      </button>
                     </td>
                   )
                 })}
               </tr>
-            )
-          })}
-          {/* Total row */}
-          <tr className="border-t-2 border-gray-300 bg-gray-50 font-semibold">
-            <td className="py-3 px-2 sm:py-4 sm:px-4 sticky left-0 bg-gray-50 border-r border-gray-200 text-gray-dark">
-              <span className="text-xs sm:text-sm font-semibold">Total</span>
-            </td>
-            {quotes.map((quote) => (
-              <td
-                key={quote.vendorId}
-                className="py-3 px-1 sm:py-4 sm:px-3 text-center text-gray-dark"
-              >
-                <span className="text-xs sm:text-sm font-semibold">
-                  ₹{quote.totalAmount.toLocaleString()}
-                </span>
-              </td>
-            ))}
-          </tr>
-        </tbody>
-      </table>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }
@@ -555,6 +674,9 @@ const ReceiveQuoteContent = () => {
   const [viewMode, setViewMode] = useState('cards') // 'cards' or 'table'
   const [sortBy, setSortBy] = useState('price') // 'price', 'delivery', 'rating'
   const [sortOrder, setSortOrder] = useState('asc') // 'asc' or 'desc'
+
+  // Read request id from query: support both uuid and request_id
+  // Note: We don't store this in state to avoid re-renders, read it inside useEffect instead
 
   // Load data on component mount (fetch quotes for this request/order)
   useEffect(() => {
@@ -750,7 +872,7 @@ const ReceiveQuoteContent = () => {
     }
 
     loadData()
-  }, [searchParams])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleAcceptQuote = (quote) => {
     setSelectedQuote(quote)
@@ -760,6 +882,16 @@ const ReceiveQuoteContent = () => {
 
   const handleRejectQuote = (quote) => {
     setQuotes(quotes.filter((q) => q.vendorId !== quote.vendorId))
+  }
+
+  const handleRequestAgain = async (quote) => {
+    try {
+      console.log(`Requesting quote again from vendor: ${quote.vendorName}`)
+      alert(`Quote request sent to ${quote.vendorName}`)
+    } catch (error) {
+      console.error('Error requesting quote again:', error)
+      alert('Failed to send quote request. Please try again.')
+    }
   }
 
   const handleProceedToOrder = () => {
@@ -917,7 +1049,7 @@ const ReceiveQuoteContent = () => {
                   <div className="flex border border-gray-300 rounded overflow-hidden">
                     <button
                       onClick={() => setViewMode('cards')}
-                      className={`px-1.5 py-1 text-xs flex items-center ${
+                      className={`px-1.5 py-1 text-xs flex items-center gap-1 ${
                         viewMode === 'cards'
                           ? 'bg-blue-600 text-white'
                           : 'bg-white text-gray-dark hover:bg-gray-50'
@@ -925,10 +1057,11 @@ const ReceiveQuoteContent = () => {
                       title="Cards View"
                     >
                       <Grid className="w-3 h-3" />
+                      <span>Cards</span>
                     </button>
                     <button
                       onClick={() => setViewMode('table')}
-                      className={`px-1.5 py-1 text-xs flex items-center ${
+                      className={`px-1.5 py-1 text-xs flex items-center gap-1 ${
                         viewMode === 'table'
                           ? 'bg-blue-600 text-white'
                           : 'bg-white text-gray-dark hover:bg-gray-50'
@@ -936,6 +1069,7 @@ const ReceiveQuoteContent = () => {
                       title="Table View"
                     >
                       <List className="w-3 h-3" />
+                      <span>Table</span>
                     </button>
                   </div>
                 </div>
@@ -976,7 +1110,7 @@ const ReceiveQuoteContent = () => {
 
         {/* Received Quotes */}
         {receivedQuotes.length > 0 && (
-          <Card className="p-3 sm:p-4 mb-4 sm:mb-6">
+          <Card className="p-3 sm:p-4 mb-4 sm:mb-6 mt-4 sm:mt-0">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <h3 className="text-base sm:text-lg font-semibold text-gray-dark font-heading">
                 Available Quotes ({receivedQuotes.length})
@@ -998,44 +1132,6 @@ const ReceiveQuoteContent = () => {
             {viewMode === 'table' ? (
               <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
                 <div className="min-w-full inline-block align-middle">
-                  {/* Mobile Quick Summary Cards - Show above table on mobile */}
-                  <div className="grid grid-cols-1 sm:hidden gap-2 mb-4">
-                    {receivedQuotes.map((quote) => {
-                      const isSelected =
-                        selectedQuote?.vendorId === quote.vendorId
-                      return (
-                        <div
-                          key={quote.vendorId}
-                          className={`p-3 rounded-lg border-2 transition-all ${
-                            isSelected
-                              ? 'border-green-500 bg-green-50'
-                              : 'border-gray-200 bg-white'
-                          }`}
-                          onClick={() => handleAcceptQuote(quote)}
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium text-sm text-gray-dark">
-                              {quote.vendorName}
-                            </span>
-                            {isSelected && (
-                              <Badge variant="success" className="text-xs">
-                                Selected
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-medium">
-                              {quote.deliveryTime}
-                            </span>
-                            <span className="font-semibold text-sm text-gray-dark">
-                              ₹{quote.totalAmount.toLocaleString()}
-                            </span>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-
                   <ComparisonTable
                     quotes={receivedQuotes}
                     selectedQuote={selectedQuote}
@@ -1052,6 +1148,7 @@ const ReceiveQuoteContent = () => {
                     quote={quote}
                     onAccept={handleAcceptQuote}
                     onReject={handleRejectQuote}
+                    onRequestAgain={handleRequestAgain}
                     selectedQuote={selectedQuote}
                   />
                 ))}
@@ -1086,14 +1183,15 @@ const ReceiveQuoteContent = () => {
                 {pendingQuotes.length} pending
               </Badge>
             </div>
-            {/* Scrollable container for pending quotes */}
-            <div className="max-h-64 sm:max-h-80 overflow-y-auto space-y-2 sm:space-y-3 pr-1 sm:pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            {/* Container for pending quotes */}
+            <div className="space-y-2 sm:space-y-3">
               {pendingQuotes.map((quote) => (
                 <QuoteCard
                   key={quote.vendorId}
                   quote={quote}
                   onAccept={handleAcceptQuote}
                   onReject={handleRejectQuote}
+                  onRequestAgain={handleRequestAgain}
                   selectedQuote={selectedQuote}
                 />
               ))}
